@@ -19,6 +19,3 @@ export class AddressGenerator {
     }
 }
 
-/**
- * Created by patrickmedaugh on 4/20/17.
- */

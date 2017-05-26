@@ -7,9 +7,13 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": "git@github.com:silentorb/vineyard-bitcoin.git",
+  "repository": "git@github.com:vineyard-bloom/vineyard-bitcoin.git",
   "license": "MIT",
   "dependencies": {
+    "bitcoin": "^3.0.1",
+    "bitcore-lib": "^0.14.0",
+    "bitcore-wallet-client": "^5.1.2",
+    "vineyard-ground": "0.2.x"
   },
   "devDependencies": {
     "@types/es6-promise": "0.0.32",

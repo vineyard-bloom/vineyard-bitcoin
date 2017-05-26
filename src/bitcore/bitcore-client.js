@@ -3,17 +3,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Client = require('bitcore-wallet-client');
 var utils = require('./cli-utils');
 var fs = require('fs');
-var bitcoreSecrets = require('../../config/secrets.json').bitcore;
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 var BitcoreClient = (function () {
-    function BitcoreClient() {
+    function BitcoreClient(bitcoreConfig) {
         this.isOpen = false;
+        this.bitcoreConfig = bitcoreConfig;
         this.client = new Client({
-            baseUrl: bitcoreSecrets.bwsUrl,
+            baseUrl: this.bitcoreConfig.bwsUrl,
             // baseUrl: 'fakefakefake.gov',
             verbose: false,
         });
-        var wallet = fs.readFileSync(bitcoreSecrets.walletFile, 'utf8');
+        var wallet = fs.readFileSync(this.bitcoreConfig.walletFile, 'utf8');
         this.client.import(wallet, {});
     }
     BitcoreClient.prototype.openWallet = function () {

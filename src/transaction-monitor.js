@@ -1,20 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var bitcoinrpc_client_1 = require("./bitcoinrpc-client");
-var cron_1 = require("../utility/cron");
-var model_1 = require("../model");
 var BlueBirdPromise = require("bluebird");
-var conversions_1 = require("../logic/conversions");
+var conversions_1 = require("./conversions");
+var types_1 = require("./types");
 var TransactionMonitor = (function () {
     function TransactionMonitor(bitcoinClient, transactionService) {
         this.minimumConfirmations = 2;
         this.transactionService = transactionService;
-        this.bitcoinClient = new bitcoinrpc_client_1.BitcoinClient();
+        this.bitcoinClient = bitcoinClient;
     }
     TransactionMonitor.prototype.convertStatus = function (source) {
         return source.confirmations >= this.minimumConfirmations
-            ? model_1.TransactionStatus.accepted
-            : model_1.TransactionStatus.pending;
+            ? types_1.TransactionStatus.accepted
+            : types_1.TransactionStatus.pending;
     };
     TransactionMonitor.prototype.saveNewTransaction = function (source) {
         var _this = this;
@@ -46,7 +44,7 @@ var TransactionMonitor = (function () {
     };
     TransactionMonitor.prototype.confirmExistingTransaction = function (transaction) {
         var _this = this;
-        return this.transactionService.setStatus(transaction, model_1.TransactionStatus.accepted)
+        return this.transactionService.setStatus(transaction, types_1.TransactionStatus.accepted)
             .then(function (transaction) { return _this.transactionService.onConfirm(transaction); });
     };
     TransactionMonitor.prototype.updatePendingTransaction = function (transaction) {
@@ -69,18 +67,4 @@ var TransactionMonitor = (function () {
     return TransactionMonitor;
 }());
 exports.TransactionMonitor = TransactionMonitor;
-var TransactionMonitorCron = (function () {
-    function TransactionMonitorCron(monitor, interval) {
-        this.monitor = monitor;
-        this.cron = new cron_1.Cron(function () { return monitor.update(); }, "Transaction Monitor", interval);
-    }
-    TransactionMonitorCron.prototype.start = function () {
-        this.cron.start();
-    };
-    TransactionMonitorCron.prototype.stop = function () {
-        this.cron.stop();
-    };
-    return TransactionMonitorCron;
-}());
-exports.TransactionMonitorCron = TransactionMonitorCron;
 //# sourceMappingURL=transaction-monitor.js.map

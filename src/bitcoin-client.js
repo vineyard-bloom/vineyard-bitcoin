@@ -1,19 +1,29 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var bitcoin = require("bitcoin");
-var config = require('../../config/secrets');
 var BitcoinClient = (function () {
-    function BitcoinClient() {
-        this.client = new bitcoin.Client(config.bitcoin);
+    function BitcoinClient(bitcoinConfig) {
+        this.client = new bitcoin.Client(bitcoinConfig);
     }
     BitcoinClient.prototype.getHistory = function (lastBlock) {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            return _this.client.listSinceBlock(lastBlock || "", function (err, transactions) {
+            return _this.client.listSinceBlock(lastBlock || "", 1, true, function (err, transactions) {
                 if (err)
                     reject(new Error(err));
                 else
                     resolve(transactions.transactions.filter(function (t) { return t.category == 'receive' || t.category == 'immature'; }));
+            });
+        });
+    };
+    BitcoinClient.prototype.listTransactions = function () {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            return _this.client.listTransactions('', 100, 0, true, function (err, transactions) {
+                if (err)
+                    reject(new Error(err));
+                else
+                    resolve(transactions);
             });
         });
     };
@@ -36,7 +46,7 @@ var BitcoinClient = (function () {
                 if (err)
                     reject(err);
                 else
-                    resolve(result);
+                    resolve(address);
             });
         });
     };
@@ -44,6 +54,17 @@ var BitcoinClient = (function () {
         var _this = this;
         return new Promise(function (resolve, reject) {
             _this.client.getInfo(function (err, info) {
+                if (err)
+                    reject(err);
+                else
+                    resolve(info);
+            });
+        });
+    };
+    BitcoinClient.prototype.listAddresses = function () {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            _this.client.listAddressGroupings(function (err, info) {
                 if (err)
                     reject(err);
                 else
@@ -96,4 +117,4 @@ var BitcoinClient = (function () {
     return BitcoinClient;
 }());
 exports.BitcoinClient = BitcoinClient;
-//# sourceMappingURL=bitcoinrpc-client.js.map
+//# sourceMappingURL=bitcoin-client.js.map

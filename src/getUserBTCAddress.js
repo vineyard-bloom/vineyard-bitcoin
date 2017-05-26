@@ -19,7 +19,4 @@ var AddressGenerator = (function () {
     return AddressGenerator;
 }());
 exports.AddressGenerator = AddressGenerator;
-/**
- * Created by patrickmedaugh on 4/20/17.
- */
 //# sourceMappingURL=getUserBTCAddress.js.map
