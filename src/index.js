@@ -9,4 +9,5 @@ __export(require("./types"));
 __export(require("./transaction-storage"));
 __export(require("./transaction-monitor"));
 __export(require("./bitcore-address-source"));
+__export(require("./conversions"));
 //# sourceMappingURL=index.js.map
