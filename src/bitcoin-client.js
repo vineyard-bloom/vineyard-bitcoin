@@ -11,11 +11,13 @@ var BitcoinClient = (function () {
             return _this.client.listSinceBlock(lastBlock || "", 1, true, function (err, transactions) {
                 if (err)
                     reject(new Error(err));
-                else
+                else {
+                    var lastTransaction = transactions[transactions.length - 1];
                     resolve({
                         transactions: transactions.transactions.filter(function (t) { return t.category == 'receive' || t.category == 'immature'; }),
-                        lastBlock: transactions[transactions.length - 1].blockhash
+                        lastBlock: lastTransaction ? lastTransaction.blockhash : null
                     });
+                }
             });
         });
     };

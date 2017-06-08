@@ -49,7 +49,10 @@ export class TransactionMonitor<Transaction extends BasicTransaction> {
             ? Promise.resolve()
             : this.saveNewTransactions(blocklist.transactions)
         )
-          .then(() => this.transactionService.setLastBlock(blocklist.lastBlock)))
+          .then(() => blocklist.lastBlock
+            ? this.transactionService.setLastBlock(blocklist.lastBlock)
+            : Promise.resolve()
+          ))
       )
   }
 

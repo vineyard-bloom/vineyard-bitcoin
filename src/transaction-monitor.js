@@ -40,7 +40,9 @@ var TransactionMonitor = (function () {
             .then(function (blocklist) { return (blocklist.transactions.length == 0
             ? Promise.resolve()
             : _this.saveNewTransactions(blocklist.transactions))
-            .then(function () { return _this.transactionService.setLastBlock(blocklist.lastBlock); }); }); });
+            .then(function () { return blocklist.lastBlock
+            ? _this.transactionService.setLastBlock(blocklist.lastBlock)
+            : Promise.resolve(); }); }); });
     };
     TransactionMonitor.prototype.confirmExistingTransaction = function (transaction) {
         var _this = this;

@@ -26,11 +26,14 @@ export class BitcoinClient {
       return this.client.listSinceBlock(lastBlock || "", 1, true, (err, transactions) => {
         if (err)
           reject(new Error(err));
-        else
+        else {
+          const lastTransaction = transactions[transactions.length - 1]
+
           resolve({
             transactions: transactions.transactions.filter(t => t.category == 'receive' || t.category == 'immature'),
-            lastBlock: transactions[transactions.length - 1].blockhash
+            lastBlock: lastTransaction ? lastTransaction.blockhash : null
           })
+        }
       })
     })
   }
