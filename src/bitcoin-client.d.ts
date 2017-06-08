@@ -1,3 +1,4 @@
+import { TransactionSource } from "./types";
 export interface BitcoinConfig {
     port?: number;
     user: string;
@@ -5,10 +6,14 @@ export interface BitcoinConfig {
     timeout?: number;
     host?: string;
 }
+export interface BlockList {
+    transactions: TransactionSource[];
+    lastBlock: string;
+}
 export declare class BitcoinClient {
     private client;
     constructor(bitcoinConfig: BitcoinConfig);
-    getHistory(lastBlock: string): Promise<any>;
+    getHistory(lastBlock: string): Promise<BlockList>;
     listTransactions(): Promise<any>;
     getTransaction(txid: string): Promise<any>;
     importAddress(address: string, rescan?: boolean): Promise<{}>;

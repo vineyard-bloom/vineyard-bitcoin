@@ -45,16 +45,20 @@ export class TransactionMonitor<Transaction extends BasicTransaction> {
   private gatherNewTransactions(): Promise<any> {
     return this.transactionService.getLastBlock()
       .then(lastBlock => this.bitcoinClient.getHistory(lastBlock)
-        .then(transactions => transactions.length == 0
-          ? Promise.resolve()
-          : this.saveNewTransactions(transactions)
-            .then(() => this.transactionService.setLastBlock(transactions[transactions.length - 1].blockhash)))
+        .then(blocklist => (blocklist.transactions.length == 0
+            ? Promise.resolve()
+            : this.saveNewTransactions(blocklist.transactions)
+        )
+          .then(() => this.transactionService.setLastBlock(blocklist.lastBlock)))
       )
   }
 
   private confirmExistingTransaction(transaction: Transaction): Promise<Transaction> {
+    transaction.status = TransactionStatus.accepted
     return this.transactionService.setStatus(transaction, TransactionStatus.accepted)
-      .then(transaction => this.transactionService.onConfirm(transaction))
+      .then(newTransaction => {
+        return this.transactionService.onConfirm(transaction)
+      })
   }
 
   private updatePendingTransaction(transaction: Transaction): Promise<any> {

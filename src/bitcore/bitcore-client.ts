@@ -81,7 +81,10 @@ export class BitcoreClient {
 
   createAddress(): Promise<string> {
     return this.checkStart(() => new Promise<string>((resolve) => {
-      this.client.createAddress({}, function (err, record) {
+      const options = {
+        ignoreMaxGap: true
+      }
+      this.client.createAddress(options, function (err, record) {
         utils.die(err);
         resolve(record.address)
       })

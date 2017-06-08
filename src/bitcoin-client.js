@@ -12,7 +12,10 @@ var BitcoinClient = (function () {
                 if (err)
                     reject(new Error(err));
                 else
-                    resolve(transactions.transactions.filter(function (t) { return t.category == 'receive' || t.category == 'immature'; }));
+                    resolve({
+                        transactions: transactions.transactions.filter(function (t) { return t.category == 'receive' || t.category == 'immature'; }),
+                        lastBlock: transactions[transactions.length - 1].blockhash
+                    });
             });
         });
     };

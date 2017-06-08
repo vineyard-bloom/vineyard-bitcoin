@@ -37,15 +37,18 @@ var TransactionMonitor = (function () {
         var _this = this;
         return this.transactionService.getLastBlock()
             .then(function (lastBlock) { return _this.bitcoinClient.getHistory(lastBlock)
-            .then(function (transactions) { return transactions.length == 0
+            .then(function (blocklist) { return (blocklist.transactions.length == 0
             ? Promise.resolve()
-            : _this.saveNewTransactions(transactions)
-                .then(function () { return _this.transactionService.setLastBlock(transactions[transactions.length - 1].blockhash); }); }); });
+            : _this.saveNewTransactions(blocklist.transactions))
+            .then(function () { return _this.transactionService.setLastBlock(blocklist.lastBlock); }); }); });
     };
     TransactionMonitor.prototype.confirmExistingTransaction = function (transaction) {
         var _this = this;
+        transaction.status = types_1.TransactionStatus.accepted;
         return this.transactionService.setStatus(transaction, types_1.TransactionStatus.accepted)
-            .then(function (transaction) { return _this.transactionService.onConfirm(transaction); });
+            .then(function (newTransaction) {
+            return _this.transactionService.onConfirm(transaction);
+        });
     };
     TransactionMonitor.prototype.updatePendingTransaction = function (transaction) {
         var _this = this;

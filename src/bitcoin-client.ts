@@ -1,4 +1,5 @@
 import * as bitcoin from 'bitcoin'
+import {TransactionSource} from "./types";
 
 export interface BitcoinConfig {
   port?: number
@@ -8,6 +9,11 @@ export interface BitcoinConfig {
   host?: string
 }
 
+export interface BlockList {
+  transactions: TransactionSource[]
+  lastBlock: string
+}
+
 export class BitcoinClient {
   private client
 
@@ -15,13 +21,16 @@ export class BitcoinClient {
     this.client = new bitcoin.Client(bitcoinConfig)
   }
 
-  getHistory(lastBlock: string): Promise<any> {
+  getHistory(lastBlock: string): Promise<BlockList> {
     return new Promise((resolve, reject) => {
       return this.client.listSinceBlock(lastBlock || "", 1, true, (err, transactions) => {
         if (err)
           reject(new Error(err));
         else
-          resolve(transactions.transactions.filter(t => t.category == 'receive' || t.category == 'immature'))
+          resolve({
+            transactions: transactions.transactions.filter(t => t.category == 'receive' || t.category == 'immature'),
+            lastBlock: transactions[transactions.length - 1].blockhash
+          })
       })
     })
   }

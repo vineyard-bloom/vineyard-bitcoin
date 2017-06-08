@@ -64,7 +64,10 @@ var BitcoreClient = (function () {
     BitcoreClient.prototype.createAddress = function () {
         var _this = this;
         return this.checkStart(function () { return new Promise(function (resolve) {
-            _this.client.createAddress({}, function (err, record) {
+            var options = {
+                ignoreMaxGap: true
+            };
+            _this.client.createAddress(options, function (err, record) {
                 utils.die(err);
                 resolve(record.address);
             });
