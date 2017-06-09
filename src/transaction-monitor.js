@@ -16,17 +16,17 @@ var TransactionMonitor = (function () {
     };
     TransactionMonitor.prototype.saveNewTransaction = function (source) {
         var _this = this;
-        var promise = this.transactionService.add({
+        return this.transactionService.add({
             index: source.index,
             address: source.address,
             status: this.convertStatus(source),
             amount: conversions_1.bitcoinToSatoshis(source.amount),
             timeReceived: source.time,
             txid: source.txid
-        });
-        if (source.confirmations >= this.minimumConfirmations)
-            promise = promise.then(function (transaction) { return _this.transactionService.onConfirm(transaction); });
-        return promise
+        })
+            .then(function (transaction) { return source.confirmations >= _this.minimumConfirmations && !transaction.status
+            ? _this.transactionService.onConfirm(transaction)
+            : Promise.resolve(transaction); })
             .catch(function (error) { return console.error('Error saving transaction', error); });
     };
     TransactionMonitor.prototype.saveNewTransactions = function (transactions) {

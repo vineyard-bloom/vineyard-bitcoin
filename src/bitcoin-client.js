@@ -8,7 +8,7 @@ var BitcoinClient = (function () {
     BitcoinClient.prototype.getHistory = function (lastBlock) {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            return _this.client.listSinceBlock(lastBlock || "", 1, true, function (err, transactions) {
+            _this.client.listSinceBlock(lastBlock || "", 1, true, function (err, transactions) {
                 if (err)
                     reject(new Error(err));
                 else {
@@ -24,7 +24,7 @@ var BitcoinClient = (function () {
     BitcoinClient.prototype.listTransactions = function () {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            return _this.client.listTransactions('', 100, 0, true, function (err, transactions) {
+            _this.client.listTransactions('', 100, 0, true, function (err, transactions) {
                 if (err)
                     reject(new Error(err));
                 else
@@ -35,7 +35,7 @@ var BitcoinClient = (function () {
     BitcoinClient.prototype.getTransaction = function (txid) {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            return _this.client.getTransaction(txid, true, function (err, transaction) {
+            _this.client.getTransaction(txid, true, function (err, transaction) {
                 if (err)
                     reject(err);
                 else
@@ -91,7 +91,7 @@ var BitcoinClient = (function () {
     BitcoinClient.prototype.createTestAddress = function () {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            return _this.client.getNewAddress(function (err, newAddress) {
+            _this.client.getNewAddress(function (err, newAddress) {
                 if (err)
                     reject(err);
                 else

@@ -20,12 +20,13 @@ var BitcoreClient = (function () {
         var _this = this;
         this.isOpen = true;
         console.log('Connecting to bitcore wallet.');
-        return new Promise(function (resolve) {
+        return new Promise(function (resolve, reject) {
             _this.client.openWallet(function (err, ret) {
                 utils.die(err);
                 console.log('Now connected to bitcore wallet.');
                 resolve(ret);
-            });
+            })
+                .catch(function (error) { return reject(error); });
         });
     };
     // This is now obsolete.
@@ -42,7 +43,7 @@ var BitcoreClient = (function () {
     };
     BitcoreClient.prototype.getHistory = function (skip, limit) {
         var _this = this;
-        return this.checkStart(function () { return new Promise(function (resolve) {
+        return this.checkStart(function () { return new Promise(function (resolve, reject) {
             // const options: any = {skip: skip - 1}
             // if (typeof limit === 'number')
             //     options.limit = limit
@@ -54,7 +55,8 @@ var BitcoreClient = (function () {
                 //     transactions[i].index = i + skip
                 // }
                 resolve(transactions);
-            });
+            })
+                .catch(function (error) { return reject(error); });
         }); });
     };
     // getTransaction(txid: string): Promise<TransactionSource> {
@@ -63,14 +65,15 @@ var BitcoreClient = (function () {
     // }
     BitcoreClient.prototype.createAddress = function () {
         var _this = this;
-        return this.checkStart(function () { return new Promise(function (resolve) {
+        return this.checkStart(function () { return new Promise(function (resolve, reject) {
             var options = {
                 ignoreMaxGap: true
             };
             _this.client.createAddress(options, function (err, record) {
                 utils.die(err);
                 resolve(record.address);
-            });
+            })
+                .catch(function (error) { return reject(error); });
         }); });
     };
     return BitcoreClient;

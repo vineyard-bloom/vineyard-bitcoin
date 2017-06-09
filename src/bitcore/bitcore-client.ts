@@ -18,12 +18,13 @@ export class BitcoreClient {
   private openWallet(): Promise<void> {
     this.isOpen = true;
     console.log('Connecting to bitcore wallet.');
-    return new Promise<void>((resolve) => {
+    return new Promise<void>((resolve, reject) => {
       this.client.openWallet((err, ret) => {
         utils.die(err);
         console.log('Now connected to bitcore wallet.');
         resolve(ret)
       })
+        .catch(error => reject(error))
     })
   }
 
@@ -54,7 +55,7 @@ export class BitcoreClient {
   }
 
   getHistory(skip: number, limit?: number): Promise<TransactionSource []> {
-    return this.checkStart(() => new Promise<TransactionSource []>((resolve) => {
+    return this.checkStart(() => new Promise<TransactionSource []>((resolve, reject) => {
         // const options: any = {skip: skip - 1}
         // if (typeof limit === 'number')
         //     options.limit = limit
@@ -70,6 +71,7 @@ export class BitcoreClient {
 
           resolve(transactions)
         })
+          .catch(error => reject(error))
       })
     )
   }
@@ -80,7 +82,7 @@ export class BitcoreClient {
   // }
 
   createAddress(): Promise<string> {
-    return this.checkStart(() => new Promise<string>((resolve) => {
+    return this.checkStart(() => new Promise<string>((resolve, reject) => {
       const options = {
         ignoreMaxGap: true
       }
@@ -88,6 +90,7 @@ export class BitcoreClient {
         utils.die(err);
         resolve(record.address)
       })
+        .catch(error => reject(error))
     }))
   }
 }

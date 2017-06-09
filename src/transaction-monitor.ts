@@ -23,18 +23,18 @@ export class TransactionMonitor<Transaction extends BasicTransaction> {
   }
 
   private saveNewTransaction(source: TransactionSource): Promise<Transaction> {
-    let promise = this.transactionService.add({
+    return this.transactionService.add({
       index: source.index,
       address: source.address,
       status: this.convertStatus(source),
       amount: bitcoinToSatoshis(source.amount),
       timeReceived: source.time,
       txid: source.txid
-    });
-    if (source.confirmations >= this.minimumConfirmations)
-      promise = promise.then(transaction => this.transactionService.onConfirm(transaction))
-
-    return promise
+    })
+      .then(transaction => source.confirmations >= this.minimumConfirmations && !transaction.status
+        ? this.transactionService.onConfirm(transaction)
+        : Promise.resolve(transaction)
+      )
       .catch(error => console.error('Error saving transaction', error))
   }
 

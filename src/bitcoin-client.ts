@@ -23,7 +23,7 @@ export class BitcoinClient {
 
   getHistory(lastBlock: string): Promise<BlockList> {
     return new Promise((resolve, reject) => {
-      return this.client.listSinceBlock(lastBlock || "", 1, true, (err, transactions) => {
+      this.client.listSinceBlock(lastBlock || "", 1, true, (err, transactions) => {
         if (err)
           reject(new Error(err));
         else {
@@ -40,7 +40,7 @@ export class BitcoinClient {
 
   listTransactions(): Promise<any> {
     return new Promise((resolve, reject) => {
-      return this.client.listTransactions('', 100, 0, true, (err, transactions) => {
+      this.client.listTransactions('', 100, 0, true, (err, transactions) => {
         if (err)
           reject(new Error(err));
         else
@@ -51,7 +51,7 @@ export class BitcoinClient {
 
   getTransaction(txid: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      return this.client.getTransaction(txid, true, (err, transaction) => {
+      this.client.getTransaction(txid, true, (err, transaction) => {
         if (err)
           reject(err)
         else
@@ -106,7 +106,7 @@ export class BitcoinClient {
 
   createTestAddress(): Promise<string> {
     return new Promise((resolve, reject) => {
-      return this.client.getNewAddress((err, newAddress) => {
+      this.client.getNewAddress((err, newAddress) => {
         if (err)
           reject(err);
         else
