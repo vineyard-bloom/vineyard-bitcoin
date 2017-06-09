@@ -24,9 +24,9 @@ var TransactionMonitor = (function () {
             timeReceived: source.time,
             txid: source.txid
         })
-            .then(function (transaction) { return source.confirmations >= _this.minimumConfirmations && !transaction.status
-            ? _this.transactionService.onConfirm(transaction)
-            : Promise.resolve(transaction); })
+            .then(function (result) { return result.isNew && source.confirmations >= _this.minimumConfirmations
+            ? _this.transactionService.onConfirm(result.transaction)
+            : Promise.resolve(result.transaction); })
             .catch(function (error) { return console.error('Error saving transaction', error); });
     };
     TransactionMonitor.prototype.saveNewTransactions = function (transactions) {

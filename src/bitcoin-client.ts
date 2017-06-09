@@ -23,15 +23,16 @@ export class BitcoinClient {
 
   getHistory(lastBlock: string): Promise<BlockList> {
     return new Promise((resolve, reject) => {
-      this.client.listSinceBlock(lastBlock || "", 1, true, (err, transactions) => {
+      this.client.listSinceBlock(lastBlock || "", 1, true, (err, info) => {
         if (err)
           reject(new Error(err));
         else {
-          const lastTransaction = transactions[transactions.length - 1]
+          const transactions = info.transactions
+          // const lastTransaction = transactions[transactions.length - 1]
 
           resolve({
-            transactions: transactions.transactions.filter(t => t.category == 'receive' || t.category == 'immature'),
-            lastBlock: lastTransaction ? lastTransaction.blockhash : null
+            transactions: info.transactions.filter(t => t.category == 'receive' || t.category == 'immature'),
+            lastBlock: info.lastblock //lastTransaction ? lastTransaction.blockhash : null
           })
         }
       })

@@ -31,9 +31,9 @@ export class TransactionMonitor<Transaction extends BasicTransaction> {
       timeReceived: source.time,
       txid: source.txid
     })
-      .then(transaction => source.confirmations >= this.minimumConfirmations && !transaction.status
-        ? this.transactionService.onConfirm(transaction)
-        : Promise.resolve(transaction)
+      .then(result => result.isNew && source.confirmations >= this.minimumConfirmations
+        ? this.transactionService.onConfirm(result.transaction)
+        : Promise.resolve(result.transaction)
       )
       .catch(error => console.error('Error saving transaction', error))
   }

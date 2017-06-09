@@ -8,14 +8,15 @@ var BitcoinClient = (function () {
     BitcoinClient.prototype.getHistory = function (lastBlock) {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            _this.client.listSinceBlock(lastBlock || "", 1, true, function (err, transactions) {
+            _this.client.listSinceBlock(lastBlock || "", 1, true, function (err, info) {
                 if (err)
                     reject(new Error(err));
                 else {
-                    var lastTransaction = transactions[transactions.length - 1];
+                    var transactions = info.transactions;
+                    // const lastTransaction = transactions[transactions.length - 1]
                     resolve({
-                        transactions: transactions.transactions.filter(function (t) { return t.category == 'receive' || t.category == 'immature'; }),
-                        lastBlock: lastTransaction ? lastTransaction.blockhash : null
+                        transactions: info.transactions.filter(function (t) { return t.category == 'receive' || t.category == 'immature'; }),
+                        lastBlock: info.lastblock //lastTransaction ? lastTransaction.blockhash : null
                     });
                 }
             });

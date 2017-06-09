@@ -26,8 +26,12 @@ export interface BasicTransaction {
     satoshis: number;
     timeReceived: any;
 }
+export interface AddTransactionResult<Transaction extends BasicTransaction> {
+    transaction: Transaction;
+    isNew: boolean;
+}
 export interface TransactionService<Transaction extends BasicTransaction> extends BlockService {
-    add(transaction: NewTransaction): Promise<Transaction>;
+    add(transaction: NewTransaction): Promise<AddTransactionResult<Transaction>>;
     onConfirm(transaction: Transaction): Promise<Transaction>;
     setStatus(transaction: Transaction, status: TransactionStatus): Promise<Transaction>;
     listPending(): Promise<Transaction[]>;
