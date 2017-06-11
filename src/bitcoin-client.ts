@@ -21,6 +21,10 @@ export class BitcoinClient {
     this.client = new bitcoin.Client(bitcoinConfig)
   }
 
+  getClient(){
+    return this.client
+  }
+
   getHistory(lastBlock: string): Promise<BlockList> {
     return new Promise((resolve, reject) => {
       this.client.listSinceBlock(lastBlock || "", 1, true, (err, info) => {
@@ -31,7 +35,7 @@ export class BitcoinClient {
           // const lastTransaction = transactions[transactions.length - 1]
 
           resolve({
-            transactions: info.transactions.filter(t => t.category == 'receive' || t.category == 'immature'),
+            transactions: info.transactions.filter(t => t.category == 'receive'),
             lastBlock: info.lastblock //lastTransaction ? lastTransaction.blockhash : null
           })
         }

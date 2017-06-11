@@ -42,20 +42,6 @@ export class TransactionMonitor<Transaction extends BasicTransaction> {
     return BlueBirdPromise.each(transactions, transaction => this.saveNewTransaction(transaction))
   }
 
-  private gatherNewTransactions(): Promise<any> {
-    return this.transactionService.getLastBlock()
-      .then(lastBlock => this.bitcoinClient.getHistory(lastBlock)
-        .then(blocklist => (blocklist.transactions.length == 0
-            ? Promise.resolve()
-            : this.saveNewTransactions(blocklist.transactions)
-        )
-          .then(() => blocklist.lastBlock
-            ? this.transactionService.setLastBlock(blocklist.lastBlock)
-            : Promise.resolve()
-          ))
-      )
-  }
-
   private confirmExistingTransaction(transaction: Transaction): Promise<Transaction> {
     transaction.status = TransactionStatus.accepted
     return this.transactionService.setStatus(transaction, TransactionStatus.accepted)
@@ -71,7 +57,21 @@ export class TransactionMonitor<Transaction extends BasicTransaction> {
         : Promise.resolve())
   }
 
-  private updatePendingTransactions(): Promise<any> {
+  gatherNewTransactions(): Promise<any> {
+    return this.transactionService.getLastBlock()
+      .then(lastBlock => this.bitcoinClient.getHistory(lastBlock)
+        .then(blocklist => (blocklist.transactions.length == 0
+            ? Promise.resolve()
+            : this.saveNewTransactions(blocklist.transactions)
+        )
+          .then(() => blocklist.lastBlock
+            ? this.transactionService.setLastBlock(blocklist.lastBlock)
+            : Promise.resolve()
+          ))
+      )
+  }
+
+  updatePendingTransactions(): Promise<any> {
     return this.transactionService.listPending()
       .then(transactions => BlueBirdPromise.each(transactions, t => this.updatePendingTransaction(t)
         )

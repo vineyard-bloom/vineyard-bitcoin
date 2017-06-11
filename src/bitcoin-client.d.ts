@@ -13,6 +13,7 @@ export interface BlockList {
 export declare class BitcoinClient {
     private client;
     constructor(bitcoinConfig: BitcoinConfig);
+    getClient(): any;
     getHistory(lastBlock: string): Promise<BlockList>;
     listTransactions(): Promise<any>;
     getTransaction(txid: string): Promise<any>;

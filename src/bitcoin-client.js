@@ -5,6 +5,9 @@ var BitcoinClient = (function () {
     function BitcoinClient(bitcoinConfig) {
         this.client = new bitcoin.Client(bitcoinConfig);
     }
+    BitcoinClient.prototype.getClient = function () {
+        return this.client;
+    };
     BitcoinClient.prototype.getHistory = function (lastBlock) {
         var _this = this;
         return new Promise(function (resolve, reject) {
@@ -15,7 +18,7 @@ var BitcoinClient = (function () {
                     var transactions = info.transactions;
                     // const lastTransaction = transactions[transactions.length - 1]
                     resolve({
-                        transactions: info.transactions.filter(function (t) { return t.category == 'receive' || t.category == 'immature'; }),
+                        transactions: info.transactions.filter(function (t) { return t.category == 'receive'; }),
                         lastBlock: info.lastblock //lastTransaction ? lastTransaction.blockhash : null
                     });
                 }

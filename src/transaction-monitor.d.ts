@@ -9,9 +9,9 @@ export declare class TransactionMonitor<Transaction extends BasicTransaction> {
     private convertStatus(source);
     private saveNewTransaction(source);
     private saveNewTransactions(transactions);
-    private gatherNewTransactions();
     private confirmExistingTransaction(transaction);
     private updatePendingTransaction(transaction);
-    private updatePendingTransactions();
+    gatherNewTransactions(): Promise<any>;
+    updatePendingTransactions(): Promise<any>;
     update(): Promise<any>;
 }

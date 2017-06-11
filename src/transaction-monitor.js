@@ -33,17 +33,6 @@ var TransactionMonitor = (function () {
         var _this = this;
         return BlueBirdPromise.each(transactions, function (transaction) { return _this.saveNewTransaction(transaction); });
     };
-    TransactionMonitor.prototype.gatherNewTransactions = function () {
-        var _this = this;
-        return this.transactionService.getLastBlock()
-            .then(function (lastBlock) { return _this.bitcoinClient.getHistory(lastBlock)
-            .then(function (blocklist) { return (blocklist.transactions.length == 0
-            ? Promise.resolve()
-            : _this.saveNewTransactions(blocklist.transactions))
-            .then(function () { return blocklist.lastBlock
-            ? _this.transactionService.setLastBlock(blocklist.lastBlock)
-            : Promise.resolve(); }); }); });
-    };
     TransactionMonitor.prototype.confirmExistingTransaction = function (transaction) {
         var _this = this;
         transaction.status = types_1.TransactionStatus.accepted;
@@ -58,6 +47,17 @@ var TransactionMonitor = (function () {
             .then(function (source) { return source.confirmations >= _this.minimumConfirmations
             ? _this.confirmExistingTransaction(transaction)
             : Promise.resolve(); });
+    };
+    TransactionMonitor.prototype.gatherNewTransactions = function () {
+        var _this = this;
+        return this.transactionService.getLastBlock()
+            .then(function (lastBlock) { return _this.bitcoinClient.getHistory(lastBlock)
+            .then(function (blocklist) { return (blocklist.transactions.length == 0
+            ? Promise.resolve()
+            : _this.saveNewTransactions(blocklist.transactions))
+            .then(function () { return blocklist.lastBlock
+            ? _this.transactionService.setLastBlock(blocklist.lastBlock)
+            : Promise.resolve(); }); }); });
     };
     TransactionMonitor.prototype.updatePendingTransactions = function () {
         var _this = this;
