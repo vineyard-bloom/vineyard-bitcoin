@@ -24,7 +24,6 @@ export class BitcoreClient {
         console.log('Now connected to bitcore wallet.');
         resolve(ret)
       })
-        .catch(error => reject(error))
     })
   }
 
@@ -71,7 +70,6 @@ export class BitcoreClient {
 
           resolve(transactions)
         })
-          .catch(error => reject(error))
       })
     )
   }

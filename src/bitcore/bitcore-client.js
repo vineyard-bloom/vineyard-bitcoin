@@ -25,8 +25,7 @@ var BitcoreClient = (function () {
                 utils.die(err);
                 console.log('Now connected to bitcore wallet.');
                 resolve(ret);
-            })
-                .catch(function (error) { return reject(error); });
+            });
         });
     };
     // This is now obsolete.
@@ -55,8 +54,7 @@ var BitcoreClient = (function () {
                 //     transactions[i].index = i + skip
                 // }
                 resolve(transactions);
-            })
-                .catch(function (error) { return reject(error); });
+            });
         }); });
     };
     // getTransaction(txid: string): Promise<TransactionSource> {
