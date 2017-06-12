@@ -72,8 +72,7 @@ var BitcoreClient = (function () {
             _this.client.createAddress(options, function (err, record) {
                 utils.die(err);
                 resolve(record.address);
-            })
-                .catch(function (error) { return reject(error); });
+            });
         }); });
     };
     return BitcoreClient;

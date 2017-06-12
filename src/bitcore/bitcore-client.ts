@@ -90,7 +90,6 @@ export class BitcoreClient {
         utils.die(err);
         resolve(record.address)
       })
-        .catch(error => reject(error))
     }))
   }
 }
