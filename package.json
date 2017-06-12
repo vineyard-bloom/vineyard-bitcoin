@@ -1,6 +1,6 @@
 {
   "name": "vineyard-bitcoin",
-  "version": "0.1.5",
+  "version": "1.0.0",
   "description": "Bitcoind monitor",
   "main": "src/index.js",
   "types": "src/index.d.ts",
