@@ -13,7 +13,7 @@
     "bitcoin": "^3.0.1",
     "bitcore-lib": "^0.14.0",
     "bitcore-wallet-client": "^5.1.2",
-    "vineyard-ground": "0.2.14"
+    "vineyard-ground": "vineyard-bloom/vineyard-ground"
   },
   "devDependencies": {
     "@types/es6-promise": "0.0.32",
