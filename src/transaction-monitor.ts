@@ -35,7 +35,7 @@ export class TransactionMonitor<Transaction extends BasicTransaction> {
         ? this.transactionService.onConfirm(result.transaction)
         : Promise.resolve(result.transaction)
       )
-      .catch(error => console.error('Error saving transaction', error))
+      .catch(error => console.error('Error saving transaction', error, source))
   }
 
   private saveNewTransactions(transactions: TransactionSource []): Promise<any> {
@@ -73,7 +73,10 @@ export class TransactionMonitor<Transaction extends BasicTransaction> {
 
   updatePendingTransactions(): Promise<any> {
     return this.transactionService.listPending()
-      .then(transactions => BlueBirdPromise.each(transactions, t => this.updatePendingTransaction(t)
+      .then(transactions => BlueBirdPromise.each(transactions,
+        t => this.updatePendingTransaction(t)
+          .catch(e => console.error('Bitcoin Transaction Pending Error', e, t)
+          )
         )
       )
   }
