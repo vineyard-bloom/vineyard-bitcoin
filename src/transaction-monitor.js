@@ -44,9 +44,16 @@ var TransactionMonitor = (function () {
     TransactionMonitor.prototype.updatePendingTransaction = function (transaction) {
         var _this = this;
         return this.bitcoinClient.getTransaction(transaction.txid)
-            .then(function (source) { return source.confirmations >= _this.minimumConfirmations
-            ? _this.confirmExistingTransaction(transaction)
-            : Promise.resolve(); });
+            .then(function (source) {
+            if (source.confirmations >= _this.minimumConfirmations) {
+                source.details.forEach(function (tx) {
+                    return _this.confirmExistingTransaction(tx);
+                });
+            }
+            else {
+                return Promise.resolve();
+            }
+        });
     };
     TransactionMonitor.prototype.gatherNewTransactions = function () {
         var _this = this;

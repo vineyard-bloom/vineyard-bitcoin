@@ -52,9 +52,15 @@ export class TransactionMonitor<Transaction extends BasicTransaction> {
 
   private updatePendingTransaction(transaction: Transaction): Promise<any> {
     return this.bitcoinClient.getTransaction(transaction.txid)
-      .then(source => source.confirmations >= this.minimumConfirmations
-        ? this.confirmExistingTransaction(transaction)
-        : Promise.resolve())
+      .then(source => {
+        if(source.confirmations >= this.minimumConfirmations) {
+          source.details.forEach(tx => {
+            return this.confirmExistingTransaction(tx)
+          })
+        } else {
+          return Promise.resolve();
+        }
+      })
   }
 
   gatherNewTransactions(): Promise<any> {
