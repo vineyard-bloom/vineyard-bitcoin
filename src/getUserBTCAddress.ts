@@ -1,4 +1,4 @@
-import * as bitcore from 'bitcore-lib';
+const bitcore = require('bitcore-lib')
 
 export function getAddress(id: string, xpub: string) {
     const HDPubKey = new bitcore.HDPublicKey(xpub);

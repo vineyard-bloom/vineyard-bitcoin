@@ -1,5 +1,6 @@
 import {BitcoinClient} from './bitcoin-client'
-import * as BlueBirdPromise from 'bluebird'
+
+const BlueBirdPromise = require('bluebird')
 import {bitcoinToSatoshis} from "./conversions";
 import {BasicTransaction, TransactionService, TransactionSource, TransactionStatus} from "./types";
 
@@ -7,7 +8,7 @@ export type TransactionDelegate<Transaction extends BasicTransaction> =
   (transaction: Transaction) => Promise<Transaction>
 
 export class TransactionMonitor<Transaction extends BasicTransaction> {
-  private bitcoinClient;
+  private bitcoinClient: BitcoinClient
   private transactionService: TransactionService<Transaction>;
   private minimumConfirmations: number = 2;
 
@@ -22,7 +23,7 @@ export class TransactionMonitor<Transaction extends BasicTransaction> {
       : TransactionStatus.pending
   }
 
-  private saveNewTransaction(source: TransactionSource): Promise<Transaction> {
+  private saveNewTransaction(source: TransactionSource): Promise<Transaction | undefined> {
     return this.transactionService.add({
       index: source.index,
       address: source.address,
@@ -35,11 +36,14 @@ export class TransactionMonitor<Transaction extends BasicTransaction> {
         ? this.transactionService.onConfirm(result.transaction)
         : Promise.resolve(result.transaction)
       )
-      .catch(error => console.error('Error saving transaction', error, source))
+      .catch(error => {
+        console.error('Error saving transaction', error, source)
+        return undefined
+      })
   }
 
   private saveNewTransactions(transactions: TransactionSource []): Promise<any> {
-    return BlueBirdPromise.each(transactions, transaction => this.saveNewTransaction(transaction))
+    return BlueBirdPromise.each(transactions, (transaction: TransactionSource) => this.saveNewTransaction(transaction))
   }
 
   private confirmExistingTransaction(transaction: Transaction): Promise<Transaction> {
@@ -52,9 +56,9 @@ export class TransactionMonitor<Transaction extends BasicTransaction> {
 
   private updatePendingTransaction(transaction: Transaction): Promise<any> {
     return this.bitcoinClient.getTransaction(transaction.txid)
-      .then(source => source.confirmations >= this.minimumConfirmations
+      .then(source => (source.confirmations >= this.minimumConfirmations
         ? this.confirmExistingTransaction(transaction)
-        : Promise.resolve())
+        : Promise.resolve(undefined)) as Promise<Transaction | undefined>)
   }
 
   gatherNewTransactions(): Promise<any> {
@@ -74,7 +78,7 @@ export class TransactionMonitor<Transaction extends BasicTransaction> {
   updatePendingTransactions(): Promise<any> {
     return this.transactionService.listPending()
       .then(transactions => BlueBirdPromise.each(transactions,
-        t => this.updatePendingTransaction(t)
+        (t: Transaction) => this.updatePendingTransaction(t)
           .catch(e => console.error('Bitcoin Transaction Pending Error', e, t)
           )
         )

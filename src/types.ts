@@ -15,7 +15,7 @@ export interface NewTransaction {
   txid: string
   status: TransactionStatus
   amount: number
-  timeReceived
+  timeReceived: any
 }
 
 export interface BlockService {
@@ -29,7 +29,7 @@ export interface BasicTransaction {
   index: number
   address: string
   satoshis: number
-  timeReceived
+  timeReceived: any
 }
 
 export interface AddTransactionResult<Transaction extends BasicTransaction> {

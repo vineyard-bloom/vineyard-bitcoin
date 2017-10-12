@@ -13,6 +13,7 @@ export class BitcoreAddressSource implements AddressSource {
 
   createAddress(): Promise<string> {
     return this.bitcoreClient.createAddress()
-      .then(address => this.bitcoinClient.importAddress(address))
+      .then(address => this.bitcoinClient.importAddress(address)
+        .then(() => address))
   }
 }

@@ -1,4 +1,4 @@
-import * as bitcoin from 'bitcoin'
+const bitcoin = require('bitcoin')
 import {TransactionSource} from "./types";
 
 export interface BitcoinConfig {
@@ -15,27 +15,27 @@ export interface BlockList {
 }
 
 export class BitcoinClient {
-  private client
+  private client: any
 
   constructor(bitcoinConfig: BitcoinConfig) {
     this.client = new bitcoin.Client(bitcoinConfig)
   }
 
-  getClient(){
+  getClient() {
     return this.client
   }
 
   getHistory(lastBlock: string): Promise<BlockList> {
     return new Promise((resolve, reject) => {
-      this.client.listSinceBlock(lastBlock || "", 1, true, (err, info) => {
+      this.client.listSinceBlock(lastBlock || "", 1, true, (err: any, info: any) => {
         if (err)
           reject(new Error(err));
         else {
-          const transactions = info.transactions
+          // const transactions = info.transactions
           // const lastTransaction = transactions[transactions.length - 1]
 
           resolve({
-            transactions: info.transactions.filter(t => t.category == 'receive'),
+            transactions: info.transactions.filter((t: any) => t.category == 'receive'),
             lastBlock: info.lastblock //lastTransaction ? lastTransaction.blockhash : null
           })
         }
@@ -45,7 +45,7 @@ export class BitcoinClient {
 
   listTransactions(): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.client.listTransactions('', 100, 0, true, (err, transactions) => {
+      this.client.listTransactions('', 100, 0, true, (err: any, transactions: any) => {
         if (err)
           reject(new Error(err));
         else
@@ -56,7 +56,7 @@ export class BitcoinClient {
 
   getTransaction(txid: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.client.getTransaction(txid, true, (err, transaction) => {
+      this.client.getTransaction(txid, true, (err: any, transaction: any) => {
         if (err)
           reject(err)
         else
@@ -67,7 +67,7 @@ export class BitcoinClient {
 
   importAddress(address: string, rescan: boolean = false) {
     return new Promise((resolve, reject) => {
-      this.client.importAddress(address, "", rescan, (err, result) => {
+      this.client.importAddress(address, "", rescan, (err: any, result: any) => {
         if (err)
           reject(err)
         else
@@ -78,7 +78,7 @@ export class BitcoinClient {
 
   getInfo() {
     return new Promise((resolve, reject) => {
-      this.client.getInfo((err, info) => {
+      this.client.getInfo((err: any, info: any) => {
         if (err)
           reject(err)
         else
@@ -89,7 +89,7 @@ export class BitcoinClient {
 
   listAddresses() {
     return new Promise((resolve, reject) => {
-      this.client.listAddressGroupings((err, info) => {
+      this.client.listAddressGroupings((err: any, info: any) => {
         if (err)
           reject(err)
         else
@@ -100,7 +100,7 @@ export class BitcoinClient {
 
   createAddress() {
     return new Promise((resolve, reject) => {
-      this.client.getNewAddress((err, newAddress) => {
+      this.client.getNewAddress((err: any, newAddress: string) => {
         if (err)
           reject(err)
         else
@@ -111,7 +111,7 @@ export class BitcoinClient {
 
   createTestAddress(): Promise<string> {
     return new Promise((resolve, reject) => {
-      this.client.getNewAddress((err, newAddress) => {
+      this.client.getNewAddress((err: any, newAddress: string) => {
         if (err)
           reject(err);
         else
@@ -122,7 +122,7 @@ export class BitcoinClient {
 
   generate(amount: number): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.client.generate(amount, (err, amount) => {
+      this.client.generate(amount, (err: any, amount: any) => {
         if (err)
           reject(err);
         resolve(amount);
@@ -132,7 +132,7 @@ export class BitcoinClient {
 
   send(amount: number, address: any): Promise<string> {
     return new Promise((resolve, reject) => {
-      this.client.sendToAddress(address, amount, (err, txid) => {
+      this.client.sendToAddress(address, amount, (err: any, txid: string) => {
         if (err)
           reject(err);
         resolve(txid);

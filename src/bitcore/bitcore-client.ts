@@ -1,7 +1,18 @@
 import {TransactionSource} from "../types";
 var Client = require('bitcore-wallet-client');
-var utils = require('./cli-utils');
+// var utils = require('./cli-utils');
 var fs = require('fs');
+
+function die(err: any) {
+  if (err) {
+    if (err.code && err.code == 'ECONNREFUSED') {
+      console.error('Bitcore Service error', 'Could not connect to Bicore Wallet Service');
+    } else {
+      console.error('Bitcore Service error', err);
+    }
+    process.exit(1);
+  }
+}
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
@@ -11,16 +22,16 @@ export interface BitcoreConfig {
 }
 
 export class BitcoreClient {
-  private client;
-  private isOpen: boolean = false;
+  private client: any
+  private isOpen: boolean = false
   bitcoreConfig: BitcoreConfig
 
   private openWallet(): Promise<void> {
     this.isOpen = true;
     console.log('Connecting to bitcore wallet.');
     return new Promise<void>((resolve, reject) => {
-      this.client.openWallet((err, ret) => {
-        utils.die(err);
+      this.client.openWallet((err: any, ret: any) => {
+        die(err);
         console.log('Now connected to bitcore wallet.');
         resolve(ret)
       })
@@ -59,8 +70,8 @@ export class BitcoreClient {
         // if (typeof limit === 'number')
         //     options.limit = limit
 
-        this.client.getTxHistory({}, function (err, transactions) {
-          utils.die(err);
+        this.client.getTxHistory({}, function (err: any, transactions: any) {
+          die(err);
           // if (skip > 0)
           //     transactions.unshift()
 
@@ -84,8 +95,8 @@ export class BitcoreClient {
       const options = {
         ignoreMaxGap: true
       }
-      this.client.createAddress(options, function (err, record) {
-        utils.die(err);
+      this.client.createAddress(options, function (err: any, record: any) {
+        die(err);
         resolve(record.address)
       })
     }))
