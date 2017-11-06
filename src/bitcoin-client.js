@@ -15,8 +15,9 @@ var BitcoinClient = /** @class */ (function () {
                 return vineyard_blockchain_1.TransactionStatus.rejected;
             if (transaction.confirmations == 0)
                 return vineyard_blockchain_1.TransactionStatus.pending;
-            if (transaction.confirmations > 0)
+            else {
                 return vineyard_blockchain_1.TransactionStatus.accepted;
+            }
         });
     };
     BitcoinClient.prototype.getNextBlockInfo = function (previousBlock) {

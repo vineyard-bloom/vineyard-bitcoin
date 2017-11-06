@@ -20,7 +20,7 @@ export declare class BitcoinClient {
     getFullBlock(block: BlockInfo): Promise<FullBlock>;
     getHistory(lastBlock: string): Promise<BlockList>;
     listTransactions(): Promise<any>;
-    getTransaction(txid: string): Promise<any>;
+    getTransaction(txid: string): Promise<TransactionSource>;
     importAddress(address: string, rescan?: boolean): Promise<{}>;
     getInfo(): Promise<{}>;
     listAddresses(): Promise<{}>;

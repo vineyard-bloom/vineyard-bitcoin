@@ -31,7 +31,9 @@ export class BitcoinClient {
     return this.getTransaction(txid).then((transaction: TransactionSource) => {
       if(transaction.confirmations == -1) return TransactionStatus.rejected
       if(transaction.confirmations == 0 ) return TransactionStatus.pending 
-      if(transaction.confirmations > 0) return TransactionStatus.accepted 
+      else {
+        return TransactionStatus.accepted 
+      }
     })
   }
 
@@ -87,7 +89,7 @@ export class BitcoinClient {
     })
   }
 
-  getTransaction(txid: string): Promise<any> {
+  getTransaction(txid: string): Promise<TransactionSource> {
     return new Promise((resolve, reject) => {
       this.client.getTransaction(txid, true, (err: any, transaction: any) => {
         if (err)
