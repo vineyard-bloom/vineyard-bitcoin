@@ -36,6 +36,9 @@ var BitcoinLab = /** @class */ (function () {
             });
         }); });
     };
+    BitcoinLab.prototype.importAddress = function (address) {
+        return this.client.importAddress(address);
+    };
     BitcoinLab.prototype.start = function () {
         return this.server.start();
     };
