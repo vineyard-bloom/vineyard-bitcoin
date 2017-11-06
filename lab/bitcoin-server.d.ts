@@ -4,5 +4,5 @@ export declare class BitcoinServer {
     private stderr;
     private childProcess;
     start(): Promise<void>;
-    stop(): Promise<{}>;
+    stop(): Promise<void> | Promise<{}>;
 }

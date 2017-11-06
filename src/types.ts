@@ -18,6 +18,13 @@ export interface NewTransaction {
   timeReceived: any
 }
 
+export interface Block {
+  tx: TransactionSource[]
+  hash: string
+  height: number 
+  time: number
+}
+
 export interface BlockService {
   getLastBlock():Promise<string>
   setLastBlock(value:string):Promise<void>

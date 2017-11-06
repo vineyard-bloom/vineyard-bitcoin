@@ -1,5 +1,7 @@
 const bitcoin = require('bitcoin')
-import {TransactionSource} from "./types";
+import {TransactionSource, Block} from "./types";
+import {ExternalTransaction, FullBlock, BlockInfo, TransactionStatus} from "vineyard-blockchain";
+
 
 export interface BitcoinConfig {
   port?: number
@@ -24,6 +26,37 @@ export class BitcoinClient {
   getClient() {
     return this.client
   }
+
+  getTransactionStatus(txid: string): Promise<TransactionStatus> {
+    return this.getTransaction(txid).then((transaction: TransactionSource) => {
+      if(transaction.confirmations == -1) return TransactionStatus.rejected
+      if(transaction.confirmations == 0 ) return TransactionStatus.pending 
+      if(transaction.confirmations > 0) return TransactionStatus.accepted 
+    })
+  }
+
+  getNextBlockInfo(previousBlock: BlockInfo | undefined): Promise<BlockInfo> {
+    const nextBlockIndex = previousBlock ? previousBlock.index + 1 : 0  
+    return this.client.getBlock(nextBlockIndex, (err: any, nextBlock: Block) => {
+      return {
+        hash: nextBlock.hash,
+        index: nextBlock.height,
+        timeMined: nextBlock.time
+      }
+    })
+   }
+ 
+   getFullBlock(block: BlockInfo): Promise<FullBlock> {
+    return this.client.getBlock(block, (err: any, fullBlock: Block) => {
+      return {
+        hash: fullBlock.hash,
+        index: fullBlock.height,
+        timeMined: fullBlock.time,
+        transactions: fullBlock.tx
+      }
+    })
+   }
+ 
 
   getHistory(lastBlock: string): Promise<BlockList> {
     return new Promise((resolve, reject) => {

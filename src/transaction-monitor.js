@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var BlueBirdPromise = require("bluebird");
+var BlueBirdPromise = require('bluebird');
 var conversions_1 = require("./conversions");
 var types_1 = require("./types");
-var TransactionMonitor = (function () {
+var TransactionMonitor = /** @class */ (function () {
     function TransactionMonitor(bitcoinClient, transactionService) {
         this.minimumConfirmations = 2;
         this.transactionService = transactionService;
@@ -27,7 +27,10 @@ var TransactionMonitor = (function () {
             .then(function (result) { return result.isNew && source.confirmations >= _this.minimumConfirmations
             ? _this.transactionService.onConfirm(result.transaction)
             : Promise.resolve(result.transaction); })
-            .catch(function (error) { return console.error('Error saving transaction', error, source); });
+            .catch(function (error) {
+            console.error('Error saving transaction', error, source);
+            return undefined;
+        });
     };
     TransactionMonitor.prototype.saveNewTransactions = function (transactions) {
         var _this = this;
@@ -44,9 +47,9 @@ var TransactionMonitor = (function () {
     TransactionMonitor.prototype.updatePendingTransaction = function (transaction) {
         var _this = this;
         return this.bitcoinClient.getTransaction(transaction.txid)
-            .then(function (source) { return source.confirmations >= _this.minimumConfirmations
+            .then(function (source) { return (source.confirmations >= _this.minimumConfirmations
             ? _this.confirmExistingTransaction(transaction)
-            : Promise.resolve(); });
+            : Promise.resolve(undefined)); });
     };
     TransactionMonitor.prototype.gatherNewTransactions = function () {
         var _this = this;

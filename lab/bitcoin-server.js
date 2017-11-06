@@ -23,7 +23,7 @@ function waitUntilRunning() {
         setTimeout(poll, 3000);
     });
 }
-var BitcoinServer = (function () {
+var BitcoinServer = /** @class */ (function () {
     function BitcoinServer() {
         this.status = Status.inactive;
     }

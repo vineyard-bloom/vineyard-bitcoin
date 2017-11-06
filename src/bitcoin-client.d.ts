@@ -1,4 +1,5 @@
 import { TransactionSource } from "./types";
+import { FullBlock, BlockInfo, TransactionStatus } from "vineyard-blockchain";
 export interface BitcoinConfig {
     port?: number;
     user: string;
@@ -14,6 +15,9 @@ export declare class BitcoinClient {
     private client;
     constructor(bitcoinConfig: BitcoinConfig);
     getClient(): any;
+    getTransactionStatus(txid: string): Promise<TransactionStatus>;
+    getNextBlockInfo(previousBlock: BlockInfo | undefined): Promise<BlockInfo>;
+    getFullBlock(block: BlockInfo): Promise<FullBlock>;
     getHistory(lastBlock: string): Promise<BlockList>;
     listTransactions(): Promise<any>;
     getTransaction(txid: string): Promise<any>;

@@ -5,7 +5,7 @@ var src_1 = require("../src");
 var child_process = require('child_process');
 var fs = require('fs');
 var rimraf = require('rimraf');
-var BitcoinLab = (function () {
+var BitcoinLab = /** @class */ (function () {
     function BitcoinLab(config, client, server) {
         if (server === void 0) { server = new bitcoin_server_1.BitcoinServer(); }
         this.config = config;
@@ -53,7 +53,7 @@ var BitcoinLab = (function () {
         return new Promise(function (resolve, reject) {
             _this.client.getClient().generate(blockCount, function (error) {
                 if (error)
-                    reject(new Error(error));
+                    reject(error);
                 else
                     resolve();
             });
@@ -64,7 +64,7 @@ var BitcoinLab = (function () {
         return new Promise(function (resolve, reject) {
             _this.client.getClient().sendToAddress(address, src_1.satoshisToBitcoin(amount), function (error) {
                 if (error)
-                    reject(new Error(error));
+                    reject(error);
                 else
                     resolve();
             });
@@ -78,7 +78,7 @@ var BitcoinLab = (function () {
             }
             _this.client.getClient().sendMany('', addressAmounts, function (error) {
                 if (error)
-                    reject(new Error(error));
+                    reject(error);
                 else
                     resolve();
             });

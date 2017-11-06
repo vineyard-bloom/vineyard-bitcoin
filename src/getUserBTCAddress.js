@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var bitcore = require("bitcore-lib");
+var bitcore = require('bitcore-lib');
 function getAddress(id, xpub) {
     var HDPubKey = new bitcore.HDPublicKey(xpub);
     var derivedKey = HDPubKey.derive('m/' + id);
@@ -9,7 +9,7 @@ function getAddress(id, xpub) {
     return compressedPK.toAddress().toString();
 }
 exports.getAddress = getAddress;
-var AddressGenerator = (function () {
+var AddressGenerator = /** @class */ (function () {
     function AddressGenerator(xpub) {
         this.xpub = xpub;
     }

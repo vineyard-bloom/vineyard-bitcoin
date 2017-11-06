@@ -1,12 +1,43 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var bitcoin = require("bitcoin");
-var BitcoinClient = (function () {
+var bitcoin = require('bitcoin');
+var vineyard_blockchain_1 = require("vineyard-blockchain");
+var BitcoinClient = /** @class */ (function () {
     function BitcoinClient(bitcoinConfig) {
         this.client = new bitcoin.Client(bitcoinConfig);
     }
     BitcoinClient.prototype.getClient = function () {
         return this.client;
+    };
+    BitcoinClient.prototype.getTransactionStatus = function (txid) {
+        return this.getTransaction(txid).then(function (transaction) {
+            if (transaction.confirmations == -1)
+                return vineyard_blockchain_1.TransactionStatus.rejected;
+            if (transaction.confirmations == 0)
+                return vineyard_blockchain_1.TransactionStatus.pending;
+            if (transaction.confirmations > 0)
+                return vineyard_blockchain_1.TransactionStatus.accepted;
+        });
+    };
+    BitcoinClient.prototype.getNextBlockInfo = function (previousBlock) {
+        var nextBlockIndex = previousBlock ? previousBlock.index + 1 : 0;
+        return this.client.getBlock(nextBlockIndex, function (err, nextBlock) {
+            return {
+                hash: nextBlock.hash,
+                index: nextBlock.height,
+                timeMined: nextBlock.time
+            };
+        });
+    };
+    BitcoinClient.prototype.getFullBlock = function (block) {
+        return this.client.getBlock(block, function (err, fullBlock) {
+            return {
+                hash: fullBlock.hash,
+                index: fullBlock.height,
+                timeMined: fullBlock.time,
+                transactions: fullBlock.tx
+            };
+        });
     };
     BitcoinClient.prototype.getHistory = function (lastBlock) {
         var _this = this;
@@ -15,7 +46,7 @@ var BitcoinClient = (function () {
                 if (err)
                     reject(new Error(err));
                 else {
-                    var transactions = info.transactions;
+                    // const transactions = info.transactions
                     // const lastTransaction = transactions[transactions.length - 1]
                     resolve({
                         transactions: info.transactions.filter(function (t) { return t.category == 'receive'; }),

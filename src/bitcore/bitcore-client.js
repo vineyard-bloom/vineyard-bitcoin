@@ -1,10 +1,21 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var Client = require('bitcore-wallet-client');
-var utils = require('./cli-utils');
+// var utils = require('./cli-utils');
 var fs = require('fs');
+function die(err) {
+    if (err) {
+        if (err.code && err.code == 'ECONNREFUSED') {
+            console.error('Bitcore Service error', 'Could not connect to Bicore Wallet Service');
+        }
+        else {
+            console.error('Bitcore Service error', err);
+        }
+        process.exit(1);
+    }
+}
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-var BitcoreClient = (function () {
+var BitcoreClient = /** @class */ (function () {
     function BitcoreClient(bitcoreConfig) {
         this.isOpen = false;
         this.bitcoreConfig = bitcoreConfig;
@@ -22,7 +33,7 @@ var BitcoreClient = (function () {
         console.log('Connecting to bitcore wallet.');
         return new Promise(function (resolve, reject) {
             _this.client.openWallet(function (err, ret) {
-                utils.die(err);
+                die(err);
                 console.log('Now connected to bitcore wallet.');
                 resolve(ret);
             });
@@ -47,7 +58,7 @@ var BitcoreClient = (function () {
             // if (typeof limit === 'number')
             //     options.limit = limit
             _this.client.getTxHistory({}, function (err, transactions) {
-                utils.die(err);
+                die(err);
                 // if (skip > 0)
                 //     transactions.unshift()
                 // for (let i = 0; i < transactions.length; ++i) {
@@ -68,7 +79,7 @@ var BitcoreClient = (function () {
                 ignoreMaxGap: true
             };
             _this.client.createAddress(options, function (err, record) {
-                utils.die(err);
+                die(err);
                 resolve(record.address);
             });
         }); });
