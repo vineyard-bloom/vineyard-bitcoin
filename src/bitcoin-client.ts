@@ -37,6 +37,16 @@ export class BitcoinClient {
     })
   }
 
+  getLastBlock(): Promise<BlockInfo> {
+    return this.client.getBlock(this.client.getBlockCount(), (err: any, lastBlock: Block) => {
+      return {
+        hash: lastBlock.hash,
+        index: lastBlock.height,
+        timeMined: lastBlock.time
+      }
+    })
+  }
+
   getNextBlockInfo(previousBlock: BlockInfo | undefined): Promise<BlockInfo> {
     const nextBlockIndex = previousBlock ? previousBlock.index + 1 : 0  
     return this.client.getBlock(nextBlockIndex, (err: any, nextBlock: Block) => {

@@ -20,6 +20,15 @@ var BitcoinClient = /** @class */ (function () {
             }
         });
     };
+    BitcoinClient.prototype.getLastBlock = function () {
+        return this.client.getBlock(this.client.getBlockCount(), function (err, lastBlock) {
+            return {
+                hash: lastBlock.hash,
+                index: lastBlock.height,
+                timeMined: lastBlock.time
+            };
+        });
+    };
     BitcoinClient.prototype.getNextBlockInfo = function (previousBlock) {
         var nextBlockIndex = previousBlock ? previousBlock.index + 1 : 0;
         return this.client.getBlock(nextBlockIndex, function (err, nextBlock) {
