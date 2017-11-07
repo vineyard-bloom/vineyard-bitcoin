@@ -102,23 +102,38 @@ export class BitcoinClient {
     })
    }
  
-   getFullBlock(block: BlockInfo): Promise<FullBlock> {
+  getFullBlock(block: BlockInfo): Promise<FullBlock> {
     return new Promise((resolve: any, reject: any) => {
-        return this.client.getBlock(String(block.hash), (err: any, fullBlock: Block) => {
+        return this.client.getBlock(String(block.hash), 2, (err: any, fullBlock: Block) => {
           if(err) {
             reject(err)
           } else {
+            let fullTransactions = this.getFullTransactions(fullBlock.tx)
             let newFullBlock = {
               hash: fullBlock.hash,
               index: fullBlock.height,
               timeMined: fullBlock.time,
-              transactions: fullBlock.tx
+              transactions: fullTransactions
             }
             resolve(newFullBlock)
           }
         })
     })
-   }
+  }
+
+  getFullTransactions(transactions) {
+      let fullTransactions: TransactionSource[] = []
+       for (let transaction in transactions) {
+        this.client.getTransaction(transactions[transaction].txid, (err:any, transaction: any) => {
+          if (err) {
+            return err
+          } else {
+            fullTransactions.push(transaction)
+          }
+        })
+       }
+       return fullTransactions
+  }
  
 
   getHistory(lastBlock: string): Promise<BlockList> {
