@@ -84,17 +84,26 @@ export class BitcoinClient {
 
   getNextBlockInfo(previousBlock: BlockInfo | undefined): Promise<BlockInfo> {
     const nextBlockIndex = previousBlock ? previousBlock.index + 1 : 0  
-    return this.client.getBlock(nextBlockIndex, (err: any, nextBlock: Block) => {
-      return {
-        hash: nextBlock.hash,
-        index: nextBlock.height,
-        timeMined: nextBlock.time
-      }
+    return new Promise((resolve: any, reject: any) => {
+        return this.getBlockHash(nextBlockIndex).then(blockHash => {
+          return this.client.getBlock(String(blockHash), (err: any, nextBlock: Block) => {
+            if(err) {
+              reject(err)
+            } else {
+              let newNextBlock = {
+                hash: nextBlock.hash,
+                index: nextBlock.height,
+                timeMined: nextBlock.time
+              }
+              resolve(newNextBlock)
+            }
+          })
+        })
     })
    }
  
    getFullBlock(block: BlockInfo): Promise<FullBlock> {
-    return this.client.getBlock(block, (err: any, fullBlock: Block) => {
+    return this.client.getBlock(block.hash, (err: any, fullBlock: Block) => {
       return {
         hash: fullBlock.hash,
         index: fullBlock.height,
