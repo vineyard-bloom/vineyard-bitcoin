@@ -38,12 +38,47 @@ export class BitcoinClient {
   }
 
   getLastBlock(): Promise<BlockInfo> {
-    return this.client.getBlock(this.client.getBlockCount(), (err: any, lastBlock: Block) => {
-      return {
-        hash: lastBlock.hash,
-        index: lastBlock.height,
-        timeMined: lastBlock.time
-      }
+    return new Promise((resolve: any, reject: any) => {
+      return this.getBlockCount().then(blockHeight => {
+        return this.getBlockHash(blockHeight).then(blockHash => {
+          return this.client.getBlock(String(blockHash), (err: any, lastBlock: Block) => {
+            if(err) {
+              reject(err)
+            } else {
+              let newLastBlock = {
+                hash: lastBlock.hash,
+                index: lastBlock.height,
+                timeMined: lastBlock.time
+              }
+              resolve(newLastBlock)
+            }
+          })
+        })
+      })
+    })
+  }
+
+  getBlockHash(blockHeight: number): Promise<string> {
+    return new Promise((resolve, reject) => {
+      return this.client.getBlockHash(blockHeight, (err: any, blockHash: string) => {
+        if(err) {
+          reject(err)
+        } else {
+          resolve(blockHash)
+        }
+      })
+    })
+  }
+
+  getBlockCount(): Promise<number> {
+    return new Promise((resolve, reject) => {
+      return this.client.getBlockCount((err: any, blockCount: number) => {
+        if(err) {
+          reject(err)
+        } else {
+          resolve(blockCount)
+        }
+      })
     })
   }
 
