@@ -90,13 +90,22 @@ var BitcoinClient = /** @class */ (function () {
         });
     };
     BitcoinClient.prototype.getFullBlock = function (block) {
-        return this.client.getBlock(block.hash, function (err, fullBlock) {
-            return {
-                hash: fullBlock.hash,
-                index: fullBlock.height,
-                timeMined: fullBlock.time,
-                transactions: fullBlock.tx
-            };
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            return _this.client.getBlock(String(block.hash), function (err, fullBlock) {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    var newFullBlock = {
+                        hash: fullBlock.hash,
+                        index: fullBlock.height,
+                        timeMined: fullBlock.time,
+                        transactions: fullBlock.tx
+                    };
+                    resolve(newFullBlock);
+                }
+            });
         });
     };
     BitcoinClient.prototype.getHistory = function (lastBlock) {

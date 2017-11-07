@@ -103,13 +103,20 @@ export class BitcoinClient {
    }
  
    getFullBlock(block: BlockInfo): Promise<FullBlock> {
-    return this.client.getBlock(block.hash, (err: any, fullBlock: Block) => {
-      return {
-        hash: fullBlock.hash,
-        index: fullBlock.height,
-        timeMined: fullBlock.time,
-        transactions: fullBlock.tx
-      }
+    return new Promise((resolve: any, reject: any) => {
+        return this.client.getBlock(String(block.hash), (err: any, fullBlock: Block) => {
+          if(err) {
+            reject(err)
+          } else {
+            let newFullBlock = {
+              hash: fullBlock.hash,
+              index: fullBlock.height,
+              timeMined: fullBlock.time,
+              transactions: fullBlock.tx
+            }
+            resolve(newFullBlock)
+          }
+        })
     })
    }
  
