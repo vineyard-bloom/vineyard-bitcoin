@@ -21,12 +21,51 @@ var BitcoinClient = /** @class */ (function () {
         });
     };
     BitcoinClient.prototype.getLastBlock = function () {
-        return this.client.getBlock(this.client.getBlockCount(), function (err, lastBlock) {
-            return {
-                hash: lastBlock.hash,
-                index: lastBlock.height,
-                timeMined: lastBlock.time
-            };
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            return _this.getBlockCount().then(function (blockHeight) {
+                return _this.getBlockHash(blockHeight).then(function (blockHash) {
+                    return _this.client.getBlock(String(blockHash), function (err, lastBlock) {
+                        if (err) {
+                            reject(err);
+                        }
+                        else {
+                            var newLastBlock = {
+                                hash: lastBlock.hash,
+                                index: lastBlock.height,
+                                timeMined: lastBlock.time
+                            };
+                            resolve(newLastBlock);
+                        }
+                    });
+                });
+            });
+        });
+    };
+    BitcoinClient.prototype.getBlockHash = function (blockHeight) {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            return _this.client.getBlockHash(blockHeight, function (err, blockHash) {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(blockHash);
+                }
+            });
+        });
+    };
+    BitcoinClient.prototype.getBlockCount = function () {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            return _this.client.getBlockCount(function (err, blockCount) {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(blockCount);
+                }
+            });
         });
     };
     BitcoinClient.prototype.getNextBlockInfo = function (previousBlock) {

@@ -17,6 +17,8 @@ export declare class BitcoinClient {
     getClient(): any;
     getTransactionStatus(txid: string): Promise<TransactionStatus>;
     getLastBlock(): Promise<BlockInfo>;
+    getBlockHash(blockHeight: number): Promise<string>;
+    getBlockCount(): Promise<number>;
     getNextBlockInfo(previousBlock: BlockInfo | undefined): Promise<BlockInfo>;
     getFullBlock(block: BlockInfo): Promise<FullBlock>;
     getHistory(lastBlock: string): Promise<BlockList>;
