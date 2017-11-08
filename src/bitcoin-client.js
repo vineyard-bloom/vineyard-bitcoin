@@ -25,7 +25,7 @@ var BitcoinClient = /** @class */ (function () {
         return new Promise(function (resolve, reject) {
             return _this.getBlockCount().then(function (blockHeight) {
                 return _this.getBlockHash(blockHeight).then(function (blockHash) {
-                    return _this.client.getBlock(String(blockHash), function (err, lastBlock) {
+                    _this.client.getBlock(String(blockHash), function (err, lastBlock) {
                         if (err) {
                             reject(err);
                         }
@@ -46,7 +46,7 @@ var BitcoinClient = /** @class */ (function () {
     BitcoinClient.prototype.getBlockHash = function (blockHeight) {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            return _this.client.getBlockHash(blockHeight, function (err, blockHash) {
+            _this.client.getBlockHash(blockHeight, function (err, blockHash) {
                 if (err) {
                     reject(err);
                 }
@@ -59,7 +59,7 @@ var BitcoinClient = /** @class */ (function () {
     BitcoinClient.prototype.getBlockCount = function () {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            return _this.client.getBlockCount(function (err, blockCount) {
+            _this.client.getBlockCount(function (err, blockCount) {
                 if (err) {
                     reject(err);
                 }
@@ -74,7 +74,7 @@ var BitcoinClient = /** @class */ (function () {
         var nextBlockIndex = previousBlock ? previousBlock.index + 1 : 0;
         return new Promise(function (resolve, reject) {
             return _this.getBlockHash(nextBlockIndex).then(function (blockHash) {
-                return _this.client.getBlock(String(blockHash), function (err, nextBlock) {
+                _this.client.getBlock(String(blockHash), function (err, nextBlock) {
                     if (err) {
                         reject(err);
                     }
@@ -93,7 +93,7 @@ var BitcoinClient = /** @class */ (function () {
     BitcoinClient.prototype.getFullBlock = function (block) {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            return _this.client.getBlock(String(block.hash), 2, function (err, fullBlock) {
+            _this.client.getBlock(String(block.hash), 2, function (err, fullBlock) {
                 if (err) {
                     reject(err);
                 }

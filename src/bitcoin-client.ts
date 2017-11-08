@@ -41,7 +41,7 @@ export class BitcoinClient {
     return new Promise((resolve: (value: PromiseLike<BaseBlock>|BaseBlock|undefined) => void, reject) => {
       return this.getBlockCount().then(blockHeight => {
         return this.getBlockHash(blockHeight).then(blockHash => {
-          return this.client.getBlock(String(blockHash), (err: any, lastBlock: Block) => {
+          this.client.getBlock(String(blockHash), (err: any, lastBlock: Block) => {
             if(err) {
               reject(err)
             } else {
@@ -61,7 +61,7 @@ export class BitcoinClient {
 
   getBlockHash(blockHeight: number): Promise<string> {
     return new Promise((resolve, reject) => {
-      return this.client.getBlockHash(blockHeight, (err: any, blockHash: string) => {
+      this.client.getBlockHash(blockHeight, (err: any, blockHash: string) => {
         if(err) {
           reject(err)
         } else {
@@ -73,7 +73,7 @@ export class BitcoinClient {
 
   getBlockCount(): Promise<number> {
     return new Promise((resolve, reject) => {
-      return this.client.getBlockCount((err: any, blockCount: number) => {
+      this.client.getBlockCount((err: any, blockCount: number) => {
         if(err) {
           reject(err)
         } else {
@@ -87,7 +87,7 @@ export class BitcoinClient {
     const nextBlockIndex = previousBlock ? previousBlock.index + 1 : 0  
     return new Promise((resolve: any, reject: any) => {
         return this.getBlockHash(nextBlockIndex).then(blockHash => {
-          return this.client.getBlock(String(blockHash), (err: any, nextBlock: Block) => {
+          this.client.getBlock(String(blockHash), (err: any, nextBlock: Block) => {
             if(err) {
               reject(err)
             } else {
@@ -105,7 +105,7 @@ export class BitcoinClient {
  
   getFullBlock(block: BlockInfo): Promise<FullBlock> {
     return new Promise((resolve: any, reject: any) => {
-        return this.client.getBlock(String(block.hash), 2, (err: any, fullBlock: Block) => {
+        this.client.getBlock(String(block.hash), 2, (err: any, fullBlock: Block) => {
           if(err) {
             reject(err)
           } else {
