@@ -1,6 +1,6 @@
 const bitcoin = require('bitcoin')
 import {TransactionSource, Block} from "./types";
-import {ExternalTransaction, FullBlock, BlockInfo, BaseBlock, TransactionStatus} from "vineyard-blockchain";
+import {ExternalTransaction, FullBlock, BlockInfo, Resolve, BaseBlock, TransactionStatus} from "vineyard-blockchain";
 
 
 export interface BitcoinConfig {
@@ -38,7 +38,7 @@ export class BitcoinClient {
   }
 
   getLastBlock(): Promise<BaseBlock> {
-    return new Promise((resolve: (value: PromiseLike<BaseBlock>|BaseBlock|undefined) => void, reject) => {
+    return new Promise((resolve: Resolve<BaseBlock>, reject) => {
       return this.getBlockCount().then(blockHeight => {
         return this.getBlockHash(blockHeight).then(blockHash => {
           this.client.getBlock(String(blockHash), (err: any, lastBlock: Block) => {
