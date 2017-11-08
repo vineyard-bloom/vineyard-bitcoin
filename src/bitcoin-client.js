@@ -1,16 +1,24 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var bitcoin = require('bitcoin');
-var vineyard_blockchain_1 = require("vineyard-blockchain");
-var BitcoinClient = /** @class */ (function () {
-    function BitcoinClient(bitcoinConfig) {
+const bitcoin = require('bitcoin');
+const vineyard_blockchain_1 = require("vineyard-blockchain");
+class BitcoinClient {
+    constructor(bitcoinConfig) {
         this.client = new bitcoin.Client(bitcoinConfig);
     }
-    BitcoinClient.prototype.getClient = function () {
+    getClient() {
         return this.client;
-    };
-    BitcoinClient.prototype.getTransactionStatus = function (txid) {
-        return this.getTransaction(txid).then(function (transaction) {
+    }
+    getTransactionStatus(txid) {
+        return this.getTransaction(txid).then((transaction) => {
             if (transaction.confirmations == -1)
                 return vineyard_blockchain_1.TransactionStatus.rejected;
             if (transaction.confirmations == 0)
@@ -19,18 +27,17 @@ var BitcoinClient = /** @class */ (function () {
                 return vineyard_blockchain_1.TransactionStatus.accepted;
             }
         });
-    };
-    BitcoinClient.prototype.getLastBlock = function () {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            return _this.getBlockCount().then(function (blockHeight) {
-                return _this.getBlockHash(blockHeight).then(function (blockHash) {
-                    _this.client.getBlock(String(blockHash), function (err, lastBlock) {
+    }
+    getLastBlock() {
+        return new Promise((resolve, reject) => {
+            return this.getBlockCount().then(blockHeight => {
+                return this.getBlockHash(blockHeight).then(blockHash => {
+                    this.client.getBlock(String(blockHash), (err, lastBlock) => {
                         if (err) {
                             reject(err);
                         }
                         else {
-                            var newLastBlock = {
+                            let newLastBlock = {
                                 hash: lastBlock.hash,
                                 index: lastBlock.height,
                                 timeMined: new Date(lastBlock.time),
@@ -42,11 +49,10 @@ var BitcoinClient = /** @class */ (function () {
                 });
             });
         });
-    };
-    BitcoinClient.prototype.getBlockHash = function (blockHeight) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.client.getBlockHash(blockHeight, function (err, blockHash) {
+    }
+    getBlockHash(blockHeight) {
+        return new Promise((resolve, reject) => {
+            this.client.getBlockHash(blockHeight, (err, blockHash) => {
                 if (err) {
                     reject(err);
                 }
@@ -55,11 +61,10 @@ var BitcoinClient = /** @class */ (function () {
                 }
             });
         });
-    };
-    BitcoinClient.prototype.getBlockCount = function () {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.client.getBlockCount(function (err, blockCount) {
+    }
+    getBlockCount() {
+        return new Promise((resolve, reject) => {
+            this.client.getBlockCount((err, blockCount) => {
                 if (err) {
                     reject(err);
                 }
@@ -68,18 +73,17 @@ var BitcoinClient = /** @class */ (function () {
                 }
             });
         });
-    };
-    BitcoinClient.prototype.getNextBlockInfo = function (previousBlock) {
-        var _this = this;
-        var nextBlockIndex = previousBlock ? previousBlock.index + 1 : 0;
-        return new Promise(function (resolve, reject) {
-            return _this.getBlockHash(nextBlockIndex).then(function (blockHash) {
-                _this.client.getBlock(String(blockHash), function (err, nextBlock) {
+    }
+    getNextBlockInfo(previousBlock) {
+        const nextBlockIndex = previousBlock ? previousBlock.index + 1 : 0;
+        return new Promise((resolve, reject) => {
+            return this.getBlockHash(nextBlockIndex).then(blockHash => {
+                this.client.getBlock(String(blockHash), (err, nextBlock) => {
                     if (err) {
                         reject(err);
                     }
                     else {
-                        var newNextBlock = {
+                        let newNextBlock = {
                             hash: nextBlock.hash,
                             index: nextBlock.height,
                             timeMined: nextBlock.time
@@ -89,17 +93,16 @@ var BitcoinClient = /** @class */ (function () {
                 });
             });
         });
-    };
-    BitcoinClient.prototype.getFullBlock = function (block) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.client.getBlock(String(block.hash), 2, function (err, fullBlock) {
+    }
+    getFullBlock(block) {
+        return new Promise((resolve, reject) => {
+            this.client.getBlock(String(block.hash), 2, (err, fullBlock) => {
                 if (err) {
                     reject(err);
                 }
                 else {
-                    var fullTransactions = _this.getFullTransactions(fullBlock.tx);
-                    var newFullBlock = {
+                    let fullTransactions = this.getFullTransactions(fullBlock.tx);
+                    let newFullBlock = {
                         hash: fullBlock.hash,
                         index: fullBlock.height,
                         timeMined: fullBlock.time,
@@ -109,137 +112,132 @@ var BitcoinClient = /** @class */ (function () {
                 }
             });
         });
-    };
-    BitcoinClient.prototype.getFullTransactions = function (transactions) {
-        var fullTransactions = [];
-        for (var transaction in transactions) {
-            this.client.getTransaction(transactions[transaction].txid, true, function (err, result) {
-                if (err) {
-                    return err;
+    }
+    getFullTransactions(transactions) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let fullTransactions = [];
+            for (let transaction of transactions) {
+                let result = yield this.getTransaction(transaction.txid);
+                for (let detail of result.details) {
+                    fullTransactions.push({
+                        txid: detail.txid,
+                        to: detail.address,
+                        from: "",
+                        amount: detail.amount,
+                        timeReceived: new Date(transaction.timereceived),
+                        block: transaction.blockindex,
+                        status: vineyard_blockchain_1.TransactionStatus.pending,
+                        confirmations: transaction.confirmations
+                    });
                 }
-                else {
-                    fullTransactions.push(result);
-                }
-            });
-        }
-        return fullTransactions;
-    };
-    BitcoinClient.prototype.getHistory = function (lastBlock) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.client.listSinceBlock(lastBlock || "", 1, true, function (err, info) {
+            }
+            return fullTransactions;
+        });
+    }
+    getHistory(lastBlock) {
+        return new Promise((resolve, reject) => {
+            this.client.listSinceBlock(lastBlock || "", 1, true, (err, info) => {
                 if (err)
                     reject(new Error(err));
                 else {
                     // const transactions = info.transactions
                     // const lastTransaction = transactions[transactions.length - 1]
                     resolve({
-                        transactions: info.transactions.filter(function (t) { return t.category == 'receive'; }),
+                        transactions: info.transactions.filter((t) => t.category == 'receive'),
                         lastBlock: info.lastblock //lastTransaction ? lastTransaction.blockhash : null
                     });
                 }
             });
         });
-    };
-    BitcoinClient.prototype.listTransactions = function () {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.client.listTransactions('', 100, 0, true, function (err, transactions) {
+    }
+    listTransactions() {
+        return new Promise((resolve, reject) => {
+            this.client.listTransactions('', 100, 0, true, (err, transactions) => {
                 if (err)
                     reject(new Error(err));
                 else
                     resolve(transactions);
             });
         });
-    };
-    BitcoinClient.prototype.getTransaction = function (txid) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.client.getTransaction(txid, true, function (err, transaction) {
+    }
+    getTransaction(txid) {
+        return new Promise((resolve, reject) => {
+            this.client.getTransaction(txid, true, (err, transaction) => {
                 if (err)
                     reject(err);
                 else
                     resolve(transaction);
             });
         });
-    };
-    BitcoinClient.prototype.importAddress = function (address, rescan) {
-        var _this = this;
-        if (rescan === void 0) { rescan = false; }
-        return new Promise(function (resolve, reject) {
-            _this.client.importAddress(address, "", rescan, function (err, result) {
+    }
+    importAddress(address, rescan = false) {
+        return new Promise((resolve, reject) => {
+            this.client.importAddress(address, "", rescan, (err, result) => {
                 if (err)
                     reject(err);
                 else
                     resolve(address);
             });
         });
-    };
-    BitcoinClient.prototype.getInfo = function () {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.client.getInfo(function (err, info) {
+    }
+    getInfo() {
+        return new Promise((resolve, reject) => {
+            this.client.getInfo((err, info) => {
                 if (err)
                     reject(err);
                 else
                     resolve(info);
             });
         });
-    };
-    BitcoinClient.prototype.listAddresses = function () {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.client.listAddressGroupings(function (err, info) {
+    }
+    listAddresses() {
+        return new Promise((resolve, reject) => {
+            this.client.listAddressGroupings((err, info) => {
                 if (err)
                     reject(err);
                 else
                     resolve(info);
             });
         });
-    };
-    BitcoinClient.prototype.createAddress = function () {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.client.getNewAddress(function (err, newAddress) {
+    }
+    createAddress() {
+        return new Promise((resolve, reject) => {
+            this.client.getNewAddress((err, newAddress) => {
                 if (err)
                     reject(err);
                 else
                     resolve(newAddress);
             });
         });
-    };
-    BitcoinClient.prototype.createTestAddress = function () {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.client.getNewAddress(function (err, newAddress) {
+    }
+    createTestAddress() {
+        return new Promise((resolve, reject) => {
+            this.client.getNewAddress((err, newAddress) => {
                 if (err)
                     reject(err);
                 else
                     return resolve(newAddress);
             });
         });
-    };
-    BitcoinClient.prototype.generate = function (amount) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.client.generate(amount, function (err, amount) {
+    }
+    generate(amount) {
+        return new Promise((resolve, reject) => {
+            this.client.generate(amount, (err, amount) => {
                 if (err)
                     reject(err);
                 resolve(amount);
             });
         });
-    };
-    BitcoinClient.prototype.send = function (amount, address) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.client.sendToAddress(address, amount, function (err, txid) {
+    }
+    send(amount, address) {
+        return new Promise((resolve, reject) => {
+            this.client.sendToAddress(address, amount, (err, txid) => {
                 if (err)
                     reject(err);
                 resolve(txid);
             });
         });
-    };
-    return BitcoinClient;
-}());
+    }
+}
 exports.BitcoinClient = BitcoinClient;
 //# sourceMappingURL=bitcoin-client.js.map

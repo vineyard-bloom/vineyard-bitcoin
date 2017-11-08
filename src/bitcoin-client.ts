@@ -1,7 +1,6 @@
 const bitcoin = require('bitcoin')
-import {TransactionSource, Block} from "./types";
+import {BitcoinTransactionSource, Block, TransactionDetails} from "./types";
 import {ExternalTransaction, FullBlock, BlockInfo, Resolve, BaseBlock, TransactionStatus} from "vineyard-blockchain";
-
 
 export interface BitcoinConfig {
   port?: number
@@ -12,7 +11,7 @@ export interface BitcoinConfig {
 }
 
 export interface BlockList {
-  transactions: TransactionSource[]
+  transactions: BitcoinTransactionSource[]
   lastBlock: string
 }
 
@@ -28,7 +27,7 @@ export class BitcoinClient {
   }
 
   getTransactionStatus(txid: string): Promise<TransactionStatus> {
-    return this.getTransaction(txid).then((transaction: TransactionSource) => {
+    return this.getTransaction(txid).then((transaction: BitcoinTransactionSource) => {
       if(transaction.confirmations == -1) return TransactionStatus.rejected
       if(transaction.confirmations == 0 ) return TransactionStatus.pending 
       else {
@@ -38,7 +37,7 @@ export class BitcoinClient {
   }
 
   getLastBlock(): Promise<BaseBlock> {
-    return new Promise((resolve: Resolve<BaseBlock>, reject) => {
+    return new Promise((resolve: (value: PromiseLike<BaseBlock>|BaseBlock|undefined) => void, reject) => {
       return this.getBlockCount().then(blockHeight => {
         return this.getBlockHash(blockHeight).then(blockHash => {
           this.client.getBlock(String(blockHash), (err: any, lastBlock: Block) => {
@@ -122,16 +121,22 @@ export class BitcoinClient {
     })
   }
 
-  getFullTransactions(transactions: TransactionSource[]) {
-      let fullTransactions: TransactionSource[] = []
-       for (let transaction in transactions) {
-        this.client.getTransaction(transactions[transaction].txid, true, (err:any, result: any) => {
-          if (err) {
-            return err
-          } else {
-            fullTransactions.push(result)
+  async getFullTransactions(transactions: BitcoinTransactionSource[]): Promise<ExternalTransaction[]> {
+      let fullTransactions: ExternalTransaction[] = []
+       for (let transaction of transactions) {
+       let result =  await this.getTransaction(transaction.txid)
+          for(let detail of result.details) {
+            fullTransactions.push({
+              txid: detail.txid,
+              to: detail.address,
+              from: "",
+              amount: detail.amount,
+              timeReceived: new Date (transaction.timereceived),
+              block: transaction.blockindex,
+              status: TransactionStatus.pending,
+              confirmations: transaction.confirmations
+            }) 
           }
-        })
        }
        return fullTransactions
   }
@@ -166,7 +171,7 @@ export class BitcoinClient {
     })
   }
 
-  getTransaction(txid: string): Promise<TransactionSource> {
+  getTransaction(txid: string): Promise<BitcoinTransactionSource> {
     return new Promise((resolve, reject) => {
       this.client.getTransaction(txid, true, (err: any, transaction: any) => {
         if (err)

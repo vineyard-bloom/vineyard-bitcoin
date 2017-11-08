@@ -1,3 +1,4 @@
+import {BigNumber} from 'bignumber.js'
 
 export interface AddressSource {
   createAddress(): Promise<string>
@@ -19,7 +20,7 @@ export interface NewTransaction {
 }
 
 export interface Block {
-  tx: TransactionSource[]
+  tx: BitcoinTransactionSource[]
   hash: string
   height: number 
   time: number
@@ -51,17 +52,20 @@ export interface TransactionService<Transaction extends BasicTransaction> extend
   listPending(): Promise<Transaction []>
 }
 
-export interface TransactionOutput {
+export interface TransactionDetails {
   address: string
+  txid: string
+  amount: BigNumber
 }
 
-export interface TransactionSource {
+export interface BitcoinTransactionSource {
   index: number
   confirmations: number
   address: string
-  status: string
   txid: string
   time: number
   amount: number
-  outputs: TransactionOutput []
+  details: TransactionDetails[]
+  timereceived: number
+  blockindex: string
 }
