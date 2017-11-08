@@ -33,7 +33,8 @@ var BitcoinClient = /** @class */ (function () {
                             var newLastBlock = {
                                 hash: lastBlock.hash,
                                 index: lastBlock.height,
-                                timeMined: lastBlock.time
+                                timeMined: new Date(lastBlock.time),
+                                currency: 'BTC00000-0000-0000-0000-000000000000'
                             };
                             resolve(newLastBlock);
                         }
@@ -112,7 +113,7 @@ var BitcoinClient = /** @class */ (function () {
     BitcoinClient.prototype.getFullTransactions = function (transactions) {
         var fullTransactions = [];
         for (var transaction in transactions) {
-            this.client.getTransaction(transactions[transaction].txid, function (err, transaction) {
+            this.client.getTransaction(transactions[transaction].txid, true, function (err, transaction) {
                 if (err) {
                     return err;
                 }
