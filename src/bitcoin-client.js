@@ -113,12 +113,12 @@ var BitcoinClient = /** @class */ (function () {
     BitcoinClient.prototype.getFullTransactions = function (transactions) {
         var fullTransactions = [];
         for (var transaction in transactions) {
-            this.client.getTransaction(transactions[transaction].txid, true, function (err, transaction) {
+            this.client.getTransaction(transactions[transaction].txid, true, function (err, result) {
                 if (err) {
                     return err;
                 }
                 else {
-                    fullTransactions.push(transaction);
+                    fullTransactions.push(result);
                 }
             });
         }

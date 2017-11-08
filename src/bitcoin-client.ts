@@ -125,11 +125,11 @@ export class BitcoinClient {
   getFullTransactions(transactions: TransactionSource[]) {
       let fullTransactions: TransactionSource[] = []
        for (let transaction in transactions) {
-        this.client.getTransaction(transactions[transaction].txid, true, (err:any, transaction: any) => {
+        this.client.getTransaction(transactions[transaction].txid, true, (err:any, result: any) => {
           if (err) {
             return err
           } else {
-            fullTransactions.push(transaction)
+            fullTransactions.push(result)
           }
         })
        }
