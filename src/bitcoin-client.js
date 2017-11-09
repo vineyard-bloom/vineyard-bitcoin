@@ -113,6 +113,8 @@ class BitcoinClient {
             let fullTransactions = [];
             for (let transaction of transactions) {
                 let result = yield this.getTransaction(transaction.txid);
+                if (!result)
+                    return fullTransactions;
                 for (let detail of result.details) {
                     fullTransactions.push({
                         txid: detail.txid,

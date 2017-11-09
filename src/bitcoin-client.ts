@@ -119,6 +119,7 @@ export class BitcoinClient {
       let fullTransactions: ExternalTransaction[] = []
        for (let transaction of transactions) {
        let result =  await this.getTransaction(transaction.txid)
+          if(!result) return fullTransactions
           for(let detail of result.details) {
             fullTransactions.push({
               txid: detail.txid,
