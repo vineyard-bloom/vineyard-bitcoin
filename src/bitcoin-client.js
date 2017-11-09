@@ -117,7 +117,7 @@ class BitcoinClient {
                     return fullTransactions;
                 for (let detail of result.details) {
                     fullTransactions.push({
-                        txid: detail.txid,
+                        txid: result.txid,
                         to: detail.address,
                         from: "",
                         amount: detail.amount,
