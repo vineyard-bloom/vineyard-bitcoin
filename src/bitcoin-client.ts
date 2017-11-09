@@ -102,23 +102,17 @@ export class BitcoinClient {
     })
    }
  
-  getFullBlock(block: BlockInfo): Promise<FullBlock> {
-    return new Promise((resolve: any, reject: any) => {
-        this.client.getBlock(String(block.hash), 2, (err: any, fullBlock: Block) => {
-          if(err) {
-            reject(err)
-          } else {
-            let fullTransactions = this.getFullTransactions(fullBlock.tx)
+  async getFullBlock(block: BlockInfo): Promise<FullBlock> {
+        return this.getBlock(String(block.hash)).then(async (fullBlock: Block) => {
+            let fullTransactions = await this.getFullTransactions(fullBlock.tx)
             let newFullBlock = {
               hash: fullBlock.hash,
               index: fullBlock.height,
-              timeMined: fullBlock.time,
+              timeMined: new Date(fullBlock.time),
               transactions: fullTransactions
             }
-            resolve(newFullBlock)
-          }
+            return newFullBlock 
         })
-    })
   }
 
   async getFullTransactions(transactions: BitcoinTransactionSource[]): Promise<ExternalTransaction[]> {
@@ -178,6 +172,17 @@ export class BitcoinClient {
           reject(err)
         else
           resolve(transaction)
+      })
+    })
+  }
+
+  getBlock(blockhash: string): Promise<Block> {
+    return new Promise((resolve, reject) => {
+      this.client.getBlock(blockhash, 2, (err: any, block: any) => {
+        if (err)
+          reject(err)
+        else
+          resolve(block)
       })
     })
   }

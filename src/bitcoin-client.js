@@ -95,22 +95,17 @@ class BitcoinClient {
         });
     }
     getFullBlock(block) {
-        return new Promise((resolve, reject) => {
-            this.client.getBlock(String(block.hash), 2, (err, fullBlock) => {
-                if (err) {
-                    reject(err);
-                }
-                else {
-                    let fullTransactions = this.getFullTransactions(fullBlock.tx);
-                    let newFullBlock = {
-                        hash: fullBlock.hash,
-                        index: fullBlock.height,
-                        timeMined: fullBlock.time,
-                        transactions: fullTransactions
-                    };
-                    resolve(newFullBlock);
-                }
-            });
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.getBlock(String(block.hash)).then((fullBlock) => __awaiter(this, void 0, void 0, function* () {
+                let fullTransactions = yield this.getFullTransactions(fullBlock.tx);
+                let newFullBlock = {
+                    hash: fullBlock.hash,
+                    index: fullBlock.height,
+                    timeMined: new Date(fullBlock.time),
+                    transactions: fullTransactions
+                };
+                return newFullBlock;
+            }));
         });
     }
     getFullTransactions(transactions) {
@@ -167,6 +162,16 @@ class BitcoinClient {
                     reject(err);
                 else
                     resolve(transaction);
+            });
+        });
+    }
+    getBlock(blockhash) {
+        return new Promise((resolve, reject) => {
+            this.client.getBlock(blockhash, 2, (err, block) => {
+                if (err)
+                    reject(err);
+                else
+                    resolve(block);
             });
         });
     }
