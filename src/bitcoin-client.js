@@ -119,10 +119,10 @@ class BitcoinClient {
                         to: detail.address,
                         from: "",
                         amount: detail.amount,
-                        timeReceived: new Date(transaction.timereceived),
-                        block: transaction.blockindex,
+                        timeReceived: new Date(result.timereceived),
+                        block: result.blockindex,
                         status: vineyard_blockchain_1.TransactionStatus.pending,
-                        confirmations: transaction.confirmations
+                        confirmations: result.confirmations
                     });
                 }
             }
