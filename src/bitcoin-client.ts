@@ -168,9 +168,6 @@ export class BitcoinClient {
   getTransaction(txid: string): Promise<BitcoinTransactionSource> {
     return new Promise((resolve, reject) => {
       this.client.getTransaction(txid, true, (err: any, transaction: any) => {
-        if (err)
-          reject(err)
-        else
           resolve(transaction)
       })
     })

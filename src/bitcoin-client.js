@@ -158,10 +158,7 @@ class BitcoinClient {
     getTransaction(txid) {
         return new Promise((resolve, reject) => {
             this.client.getTransaction(txid, true, (err, transaction) => {
-                if (err)
-                    reject(err);
-                else
-                    resolve(transaction);
+                resolve(transaction);
             });
         });
     }
