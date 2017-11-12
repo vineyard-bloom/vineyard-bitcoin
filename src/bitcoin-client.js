@@ -29,23 +29,15 @@ class BitcoinClient {
         });
     }
     getLastBlock() {
-        return new Promise((resolve, reject) => {
-            return this.getBlockCount().then(blockHeight => {
-                return this.getBlockHash(blockHeight).then(blockHash => {
-                    this.client.getBlock(String(blockHash), (err, lastBlock) => {
-                        if (err) {
-                            reject(err);
-                        }
-                        else {
-                            let newLastBlock = {
-                                hash: lastBlock.hash,
-                                index: lastBlock.height,
-                                timeMined: new Date(lastBlock.time),
-                                currency: 'BTC00000-0000-0000-0000-000000000000'
-                            };
-                            resolve(newLastBlock);
-                        }
-                    });
+        return this.getBlockCount().then((blockHeight) => {
+            return this.getBlockHash(blockHeight).then((blockHash) => {
+                return this.getBlock(blockHash).then((lastBlock) => {
+                    return {
+                        hash: lastBlock.hash,
+                        index: lastBlock.height,
+                        timeMined: new Date(lastBlock.time),
+                        currency: 'BTC00000-0000-0000-0000-000000000000'
+                    };
                 });
             });
         });
@@ -76,21 +68,14 @@ class BitcoinClient {
     }
     getNextBlockInfo(previousBlock) {
         const nextBlockIndex = previousBlock ? previousBlock.index + 1 : 0;
-        return new Promise((resolve, reject) => {
-            return this.getBlockHash(nextBlockIndex).then(blockHash => {
-                this.client.getBlock(String(blockHash), (err, nextBlock) => {
-                    if (err) {
-                        reject(err);
-                    }
-                    else {
-                        let newNextBlock = {
-                            hash: nextBlock.hash,
-                            index: nextBlock.height,
-                            timeMined: nextBlock.time
-                        };
-                        resolve(newNextBlock);
-                    }
-                });
+        return this.getBlockHash(nextBlockIndex).then(blockHash => {
+            return this.getBlock(blockHash).then((nextBlock) => {
+                return {
+                    hash: nextBlock.hash,
+                    index: nextBlock.height,
+                    timeMined: new Date(nextBlock.time),
+                    currency: 'BTC00000-0000-0000-0000-000000000000'
+                };
             });
         });
     }
@@ -135,7 +120,7 @@ class BitcoinClient {
         return new Promise((resolve, reject) => {
             this.client.listSinceBlock(lastBlock || "", 1, true, (err, info) => {
                 if (err)
-                    reject(new Error(err));
+                    reject(err);
                 else {
                     // const transactions = info.transactions
                     // const lastTransaction = transactions[transactions.length - 1]
@@ -151,7 +136,7 @@ class BitcoinClient {
         return new Promise((resolve, reject) => {
             this.client.listTransactions('', 100, 0, true, (err, transactions) => {
                 if (err)
-                    reject(new Error(err));
+                    reject(err);
                 else
                     resolve(transactions);
             });

@@ -1,6 +1,6 @@
 const bitcoin = require('bitcoin')
 import {BitcoinTransactionSource, Block, TransactionDetails} from "./types";
-import {ExternalTransaction, FullBlock, BlockInfo, Resolve, BaseBlock, TransactionStatus} from "vineyard-blockchain";
+import {ExternalTransaction, FullBlock, BlockInfo, Resolve, BaseBlock, TransactionStatus, Transaction} from "vineyard-blockchain";
 
 export interface BitcoinConfig {
   port?: number
@@ -37,29 +37,22 @@ export class BitcoinClient {
   }
 
   getLastBlock(): Promise<BaseBlock> {
-    return new Promise((resolve: (value: PromiseLike<BaseBlock>|BaseBlock|undefined) => void, reject) => {
-      return this.getBlockCount().then(blockHeight => {
-        return this.getBlockHash(blockHeight).then(blockHash => {
-          this.client.getBlock(String(blockHash), (err: any, lastBlock: Block) => {
-            if(err) {
-              reject(err)
-            } else {
-              let newLastBlock: BaseBlock = {
+      return this.getBlockCount().then((blockHeight: number) => {
+        return this.getBlockHash(blockHeight).then((blockHash: string) => {
+          return this.getBlock(blockHash).then((lastBlock: Block) => {
+              return {
                 hash: lastBlock.hash,
                 index: lastBlock.height,
                 timeMined: new Date(lastBlock.time),
                 currency: 'BTC00000-0000-0000-0000-000000000000'
               }
-              resolve(newLastBlock)
-            }
-          })
+            })
         })
-      })
     })
   }
 
   getBlockHash(blockHeight: number): Promise<string> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve: Resolve<string>, reject) => {
       this.client.getBlockHash(blockHeight, (err: any, blockHash: string) => {
         if(err) {
           reject(err)
@@ -71,7 +64,7 @@ export class BitcoinClient {
   }
 
   getBlockCount(): Promise<number> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve: Resolve<number>, reject) => {
       this.client.getBlockCount((err: any, blockCount: number) => {
         if(err) {
           reject(err)
@@ -82,24 +75,18 @@ export class BitcoinClient {
     })
   }
 
-  getNextBlockInfo(previousBlock: BlockInfo | undefined): Promise<BlockInfo> {
+  getNextBlockInfo(previousBlock: BlockInfo | undefined): Promise<BaseBlock> {
     const nextBlockIndex = previousBlock ? previousBlock.index + 1 : 0  
-    return new Promise((resolve: any, reject: any) => {
         return this.getBlockHash(nextBlockIndex).then(blockHash => {
-          this.client.getBlock(String(blockHash), (err: any, nextBlock: Block) => {
-            if(err) {
-              reject(err)
-            } else {
-              let newNextBlock = {
+          return this.getBlock(blockHash).then((nextBlock: Block) => {
+              return {
                 hash: nextBlock.hash,
                 index: nextBlock.height,
-                timeMined: nextBlock.time
+                timeMined: new Date(nextBlock.time),
+                currency: 'BTC00000-0000-0000-0000-000000000000'
               }
-              resolve(newNextBlock)
-            }
           })
         })
-    })
    }
  
   async getFullBlock(block: BlockInfo): Promise<FullBlock> {
@@ -138,10 +125,10 @@ export class BitcoinClient {
  
 
   getHistory(lastBlock: string): Promise<BlockList> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve: Resolve<BlockList>, reject) => {
       this.client.listSinceBlock(lastBlock || "", 1, true, (err: any, info: any) => {
         if (err)
-          reject(new Error(err));
+          reject(err);
         else {
           // const transactions = info.transactions
           // const lastTransaction = transactions[transactions.length - 1]
@@ -155,11 +142,11 @@ export class BitcoinClient {
     })
   }
 
-  listTransactions(): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.client.listTransactions('', 100, 0, true, (err: any, transactions: any) => {
+  listTransactions(): Promise<BitcoinTransactionSource[]> {
+    return new Promise((resolve: Resolve<BitcoinTransactionSource[]>, reject) => {
+      this.client.listTransactions('', 100, 0, true, (err: any, transactions: BitcoinTransactionSource[]) => {
         if (err)
-          reject(new Error(err));
+          reject(err);
         else
           resolve(transactions)
       })
@@ -167,16 +154,16 @@ export class BitcoinClient {
   }
 
   getTransaction(txid: string): Promise<BitcoinTransactionSource> {
-    return new Promise((resolve, reject) => {
-      this.client.getTransaction(txid, true, (err: any, transaction: any) => {
+    return new Promise((resolve: Resolve<BitcoinTransactionSource>, reject) => {
+      this.client.getTransaction(txid, true, (err: any, transaction: BitcoinTransactionSource) => {
           resolve(transaction)
       })
     })
   }
 
   getBlock(blockhash: string): Promise<Block> {
-    return new Promise((resolve, reject) => {
-      this.client.getBlock(blockhash, 2, (err: any, block: any) => {
+    return new Promise((resolve: Resolve<Block>, reject) => {
+      this.client.getBlock(blockhash, 2, (err: any, block: Block) => {
         if (err)
           reject(err)
         else
@@ -185,8 +172,8 @@ export class BitcoinClient {
     })
   }
 
-  importAddress(address: string, rescan: boolean = false) {
-    return new Promise((resolve, reject) => {
+  importAddress(address: string, rescan: boolean = false): Promise<string> {
+    return new Promise((resolve: Resolve<string>, reject) => {
       this.client.importAddress(address, "", rescan, (err: any, result: any) => {
         if (err)
           reject(err)
@@ -196,8 +183,8 @@ export class BitcoinClient {
     })
   }
 
-  getInfo() {
-    return new Promise((resolve, reject) => {
+  getInfo(): Promise<any> {
+    return new Promise((resolve: Resolve<any>, reject) => {
       this.client.getInfo((err: any, info: any) => {
         if (err)
           reject(err)
@@ -207,9 +194,9 @@ export class BitcoinClient {
     })
   }
 
-  listAddresses() {
-    return new Promise((resolve, reject) => {
-      this.client.listAddressGroupings((err: any, info: any) => {
+  listAddresses(): Promise<string[][]> {
+    return new Promise((resolve: Resolve<string[][]>, reject) => {
+      this.client.listAddressGroupings((err: any, info: string[][]) => {
         if (err)
           reject(err)
         else
@@ -218,8 +205,8 @@ export class BitcoinClient {
     })
   }
 
-  createAddress() {
-    return new Promise((resolve, reject) => {
+  createAddress(): Promise<string> {
+    return new Promise((resolve: Resolve<string>, reject) => {
       this.client.getNewAddress((err: any, newAddress: string) => {
         if (err)
           reject(err)
@@ -230,7 +217,7 @@ export class BitcoinClient {
   }
 
   createTestAddress(): Promise<string> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve: Resolve<string>, reject) => {
       this.client.getNewAddress((err: any, newAddress: string) => {
         if (err)
           reject(err);
@@ -240,9 +227,9 @@ export class BitcoinClient {
     })
   }
 
-  generate(amount: number): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.client.generate(amount, (err: any, amount: any) => {
+  generate(amount: number): Promise<number> {
+    return new Promise((resolve: Resolve<number>, reject) => {
+      this.client.generate(amount, (err: any, amount: number) => {
         if (err)
           reject(err);
         resolve(amount);
@@ -251,7 +238,7 @@ export class BitcoinClient {
   }
 
   send(amount: number, address: any): Promise<string> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve: Resolve<string>, reject) => {
       this.client.sendToAddress(address, amount, (err: any, txid: string) => {
         if (err)
           reject(err);

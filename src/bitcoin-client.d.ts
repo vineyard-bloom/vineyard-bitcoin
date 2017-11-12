@@ -19,18 +19,18 @@ export declare class BitcoinClient {
     getLastBlock(): Promise<BaseBlock>;
     getBlockHash(blockHeight: number): Promise<string>;
     getBlockCount(): Promise<number>;
-    getNextBlockInfo(previousBlock: BlockInfo | undefined): Promise<BlockInfo>;
+    getNextBlockInfo(previousBlock: BlockInfo | undefined): Promise<BaseBlock>;
     getFullBlock(block: BlockInfo): Promise<FullBlock>;
     getFullTransactions(transactions: BitcoinTransactionSource[]): Promise<ExternalTransaction[]>;
     getHistory(lastBlock: string): Promise<BlockList>;
-    listTransactions(): Promise<any>;
+    listTransactions(): Promise<BitcoinTransactionSource[]>;
     getTransaction(txid: string): Promise<BitcoinTransactionSource>;
     getBlock(blockhash: string): Promise<Block>;
-    importAddress(address: string, rescan?: boolean): Promise<{}>;
-    getInfo(): Promise<{}>;
-    listAddresses(): Promise<{}>;
-    createAddress(): Promise<{}>;
+    importAddress(address: string, rescan?: boolean): Promise<string>;
+    getInfo(): Promise<any>;
+    listAddresses(): Promise<string[][]>;
+    createAddress(): Promise<string>;
     createTestAddress(): Promise<string>;
-    generate(amount: number): Promise<any>;
+    generate(amount: number): Promise<number>;
     send(amount: number, address: any): Promise<string>;
 }
