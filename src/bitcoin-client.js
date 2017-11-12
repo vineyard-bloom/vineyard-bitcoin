@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const bitcoin = require('bitcoin');
 const vineyard_blockchain_1 = require("vineyard-blockchain");
+const BigNumber = require("bignumber.js");
 class BitcoinClient {
     constructor(bitcoinConfig) {
         this.client = new bitcoin.Client(bitcoinConfig);
@@ -105,7 +106,7 @@ class BitcoinClient {
                         txid: result.txid,
                         to: detail.address,
                         from: "",
-                        amount: detail.amount.absoluteValue(),
+                        amount: new BigNumber(detail.amount).abs(),
                         timeReceived: new Date(result.timereceived),
                         block: result.blockindex,
                         status: vineyard_blockchain_1.TransactionStatus.pending,

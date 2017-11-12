@@ -1,6 +1,7 @@
 const bitcoin = require('bitcoin')
 import {BitcoinTransactionSource, Block, TransactionDetails} from "./types";
 import {ExternalSingleTransaction as ExternalTransaction, FullBlock, BlockInfo, Resolve, BaseBlock, TransactionStatus, SingleTransaction as Transaction} from "vineyard-blockchain";
+const BigNumber = require("bignumber.js")
 
 export interface BitcoinConfig {
   port?: number
@@ -112,7 +113,7 @@ export class BitcoinClient {
               txid: result.txid,
               to: detail.address,
               from: "",
-              amount: detail.amount.absoluteValue(),
+              amount: new BigNumber(detail.amount).abs(),
               timeReceived: new Date(result.timereceived),
               block: result.blockindex,
               status: TransactionStatus.pending,
