@@ -1,6 +1,6 @@
 const bitcoin = require('bitcoin')
 import {BitcoinTransactionSource, Block, TransactionDetails} from "./types";
-import {ExternalTransaction, FullBlock, BlockInfo, Resolve, BaseBlock, TransactionStatus, Transaction} from "vineyard-blockchain";
+import {ExternalSingleTransaction as ExternalTransaction, FullBlock, BlockInfo, Resolve, BaseBlock, TransactionStatus, SingleTransaction as Transaction} from "vineyard-blockchain";
 
 export interface BitcoinConfig {
   port?: number
@@ -89,8 +89,8 @@ export class BitcoinClient {
         })
    }
  
-  async getFullBlock(block: BlockInfo): Promise<FullBlock> {
-        return this.getBlock(String(block.hash)).then(async (fullBlock: Block) => {
+  async getFullBlock(block: BlockInfo): Promise<FullBlock<ExternalTransaction>> {
+        return this.getBlock(block.hash).then(async (fullBlock: Block) => {
             let fullTransactions = await this.getFullTransactions(fullBlock.tx)
             let newFullBlock = {
               hash: fullBlock.hash,

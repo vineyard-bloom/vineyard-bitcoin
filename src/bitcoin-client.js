@@ -81,7 +81,7 @@ class BitcoinClient {
     }
     getFullBlock(block) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.getBlock(String(block.hash)).then((fullBlock) => __awaiter(this, void 0, void 0, function* () {
+            return this.getBlock(block.hash).then((fullBlock) => __awaiter(this, void 0, void 0, function* () {
                 let fullTransactions = yield this.getFullTransactions(fullBlock.tx);
                 let newFullBlock = {
                     hash: fullBlock.hash,
