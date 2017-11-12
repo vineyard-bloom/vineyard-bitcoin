@@ -112,7 +112,7 @@ export class BitcoinClient {
               txid: result.txid,
               to: detail.address,
               from: "",
-              amount: detail.amount,
+              amount: detail.amount.absoluteValue(),
               timeReceived: new Date(result.timereceived),
               block: result.blockindex,
               status: TransactionStatus.pending,
