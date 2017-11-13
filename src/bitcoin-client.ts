@@ -55,13 +55,9 @@ export class BitcoinClient {
   getBlockHash(blockHeight: number): Promise<string> {
     return new Promise((resolve: Resolve<string>, reject) => {
       this.client.getBlockHash(blockHeight, (err: any, blockHash: string) => {
-        if(err) {
-          reject(err)
-        } else {
           resolve(blockHash)
-        }
-      })
-    })
+        })
+     })
   }
 
   getBlockCount(): Promise<number> {

@@ -46,12 +46,7 @@ class BitcoinClient {
     getBlockHash(blockHeight) {
         return new Promise((resolve, reject) => {
             this.client.getBlockHash(blockHeight, (err, blockHash) => {
-                if (err) {
-                    reject(err);
-                }
-                else {
-                    resolve(blockHash);
-                }
+                resolve(blockHash);
             });
         });
     }
