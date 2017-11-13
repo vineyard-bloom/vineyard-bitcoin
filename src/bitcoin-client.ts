@@ -75,6 +75,7 @@ export class BitcoinClient {
   getNextBlockInfo(previousBlock: BlockInfo | undefined): Promise<BaseBlock> {
     const nextBlockIndex = previousBlock ? previousBlock.index + 1 : 0  
         return this.getBlockHash(nextBlockIndex).then(blockHash => {
+          if(!blockHash) {return}
           return this.getBlock(blockHash).then((nextBlock: Block) => {
               return {
                 hash: nextBlock.hash,

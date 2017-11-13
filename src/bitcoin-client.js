@@ -65,6 +65,9 @@ class BitcoinClient {
     getNextBlockInfo(previousBlock) {
         const nextBlockIndex = previousBlock ? previousBlock.index + 1 : 0;
         return this.getBlockHash(nextBlockIndex).then(blockHash => {
+            if (!blockHash) {
+                return;
+            }
             return this.getBlock(blockHash).then((nextBlock) => {
                 return {
                     hash: nextBlock.hash,
