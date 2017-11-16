@@ -19,7 +19,7 @@ export declare class BitcoinClient {
     getLastBlock(): Promise<BaseBlock>;
     getBlockHash(blockHeight: number): Promise<string>;
     getBlockCount(): Promise<number>;
-    getNextBlockInfo(previousBlock: BlockInfo | undefined): Promise<BaseBlock>;
+    getNextBlockInfo(previousBlock: BlockInfo | undefined): Promise<BaseBlock | undefined>;
     getFullBlock(block: BlockInfo): Promise<FullBlock<ExternalTransaction>>;
     getFullTransactions(transactions: BitcoinTransactionSource[]): Promise<ExternalTransaction[]>;
     getHistory(lastBlock: string): Promise<BlockList>;

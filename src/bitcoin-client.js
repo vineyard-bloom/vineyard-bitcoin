@@ -19,7 +19,8 @@ class BitcoinClient {
         return this.client;
     }
     getTransactionStatus(txid) {
-        return this.getTransaction(txid).then((transaction) => {
+        return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield this.getTransaction(txid);
             if (transaction.confirmations == -1)
                 return vineyard_blockchain_1.TransactionStatus.rejected;
             if (transaction.confirmations == 0)
@@ -30,17 +31,16 @@ class BitcoinClient {
         });
     }
     getLastBlock() {
-        return this.getBlockCount().then((blockHeight) => {
-            return this.getBlockHash(blockHeight).then((blockHash) => {
-                return this.getBlock(blockHash).then((lastBlock) => {
-                    return {
-                        hash: lastBlock.hash,
-                        index: lastBlock.height,
-                        timeMined: new Date(lastBlock.time),
-                        currency: 'BTC00000-0000-0000-0000-000000000000'
-                    };
-                });
-            });
+        return __awaiter(this, void 0, void 0, function* () {
+            const blockHeight = yield this.getBlockCount();
+            const blockHash = yield this.getBlockHash(blockHeight);
+            const lastBlock = yield this.getBlock(blockHash);
+            return {
+                hash: lastBlock.hash,
+                index: lastBlock.height,
+                timeMined: new Date(lastBlock.time),
+                currency: 'BTC00000-0000-0000-0000-000000000000'
+            };
         });
     }
     getBlockHash(blockHeight) {
@@ -63,33 +63,32 @@ class BitcoinClient {
         });
     }
     getNextBlockInfo(previousBlock) {
-        const nextBlockIndex = previousBlock ? previousBlock.index + 1 : 0;
-        return this.getBlockHash(nextBlockIndex).then(blockHash => {
+        return __awaiter(this, void 0, void 0, function* () {
+            const nextBlockIndex = previousBlock ? previousBlock.index + 1 : 0;
+            const blockHash = yield this.getBlockHash(nextBlockIndex);
             if (!blockHash) {
                 return;
             }
-            return this.getBlock(blockHash).then((nextBlock) => {
-                return {
-                    hash: nextBlock.hash,
-                    index: nextBlock.height,
-                    timeMined: new Date(nextBlock.time),
-                    currency: 'BTC00000-0000-0000-0000-000000000000'
-                };
-            });
+            const nextBlock = yield this.getBlock(blockHash);
+            return {
+                hash: nextBlock.hash,
+                index: nextBlock.height,
+                timeMined: new Date(nextBlock.time),
+                currency: 'BTC00000-0000-0000-0000-000000000000'
+            };
         });
     }
     getFullBlock(block) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.getBlock(block.hash).then((fullBlock) => __awaiter(this, void 0, void 0, function* () {
-                let fullTransactions = yield this.getFullTransactions(fullBlock.tx);
-                let newFullBlock = {
-                    hash: fullBlock.hash,
-                    index: fullBlock.height,
-                    timeMined: new Date(fullBlock.time),
-                    transactions: fullTransactions
-                };
-                return newFullBlock;
-            }));
+            const fullBlock = yield this.getBlock(block.hash);
+            let fullTransactions = yield this.getFullTransactions(fullBlock.tx);
+            let newFullBlock = {
+                hash: fullBlock.hash,
+                index: fullBlock.height,
+                timeMined: new Date(fullBlock.time),
+                transactions: fullTransactions
+            };
+            return newFullBlock;
         });
     }
     getFullTransactions(transactions) {

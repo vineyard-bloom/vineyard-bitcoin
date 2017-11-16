@@ -27,29 +27,25 @@ export class BitcoinClient {
     return this.client
   }
 
-  getTransactionStatus(txid: string): Promise<TransactionStatus> {
-    return this.getTransaction(txid).then((transaction: BitcoinTransactionSource) => {
+  async getTransactionStatus(txid: string): Promise<TransactionStatus> {
+    const transaction: BitcoinTransactionSource = await this.getTransaction(txid) 
       if(transaction.confirmations == -1) return TransactionStatus.rejected
       if(transaction.confirmations == 0 ) return TransactionStatus.pending 
       else {
         return TransactionStatus.accepted 
       }
-    })
   }
 
-  getLastBlock(): Promise<BaseBlock> {
-      return this.getBlockCount().then((blockHeight: number) => {
-        return this.getBlockHash(blockHeight).then((blockHash: string) => {
-          return this.getBlock(blockHash).then((lastBlock: Block) => {
-              return {
+  async getLastBlock(): Promise<BaseBlock> {
+    const blockHeight: number = await this.getBlockCount()
+    const blockHash: string = await this.getBlockHash(blockHeight)
+    const lastBlock: Block = await this.getBlock(blockHash)
+        return {
                 hash: lastBlock.hash,
                 index: lastBlock.height,
                 timeMined: new Date(lastBlock.time),
                 currency: 'BTC00000-0000-0000-0000-000000000000'
-              }
-            })
-        })
-    })
+            }
   }
 
   getBlockHash(blockHeight: number): Promise<string> {
@@ -72,32 +68,29 @@ export class BitcoinClient {
     })
   }
 
-  getNextBlockInfo(previousBlock: BlockInfo | undefined): Promise<BaseBlock> {
+  async getNextBlockInfo(previousBlock: BlockInfo | undefined): Promise<BaseBlock | undefined> {
     const nextBlockIndex = previousBlock ? previousBlock.index + 1 : 0  
-        return this.getBlockHash(nextBlockIndex).then(blockHash => {
-          if(!blockHash) {return}
-          return this.getBlock(blockHash).then((nextBlock: Block) => {
-              return {
-                hash: nextBlock.hash,
-                index: nextBlock.height,
-                timeMined: new Date(nextBlock.time),
-                currency: 'BTC00000-0000-0000-0000-000000000000'
-              }
-          })
-        })
+    const blockHash: string = await this.getBlockHash(nextBlockIndex)
+      if(!blockHash) {return}
+    const nextBlock: Block = await this.getBlock(blockHash)
+      return {
+        hash: nextBlock.hash,
+        index: nextBlock.height,
+        timeMined: new Date(nextBlock.time),
+        currency: 'BTC00000-0000-0000-0000-000000000000'
+      }
    }
  
   async getFullBlock(block: BlockInfo): Promise<FullBlock<ExternalTransaction>> {
-        return this.getBlock(block.hash).then(async (fullBlock: Block) => {
-            let fullTransactions = await this.getFullTransactions(fullBlock.tx)
-            let newFullBlock = {
+    const fullBlock: Block = await this.getBlock(block.hash)
+    let fullTransactions = await this.getFullTransactions(fullBlock.tx)
+        let newFullBlock = {
               hash: fullBlock.hash,
               index: fullBlock.height,
               timeMined: new Date(fullBlock.time),
               transactions: fullTransactions
-            }
-            return newFullBlock 
-        })
+          }
+        return newFullBlock 
   }
 
   async getFullTransactions(transactions: BitcoinTransactionSource[]): Promise<ExternalTransaction[]> {
