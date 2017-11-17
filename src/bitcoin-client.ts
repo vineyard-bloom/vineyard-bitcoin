@@ -44,7 +44,7 @@ export class BitcoinClient {
                 hash: lastBlock.hash,
                 index: lastBlock.height,
                 timeMined: new Date(lastBlock.time),
-                currency: 'BTC00000-0000-0000-0000-000000000000'
+                currency: 1
             }
   }
 
@@ -77,7 +77,7 @@ export class BitcoinClient {
         hash: nextBlock.hash,
         index: nextBlock.height,
         timeMined: new Date(nextBlock.time),
-        currency: 'BTC00000-0000-0000-0000-000000000000'
+        currency: 1
       }
    }
  
