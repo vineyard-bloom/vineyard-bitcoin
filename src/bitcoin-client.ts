@@ -43,7 +43,7 @@ export class BitcoinClient {
         return {
                 hash: lastBlock.hash,
                 index: lastBlock.height,
-                timeMined: new Date(lastBlock.time),
+                timeMined: new Date(lastBlock.time  * 1000),
                 currency: 1
             }
   }
@@ -76,7 +76,7 @@ export class BitcoinClient {
       return {
         hash: nextBlock.hash,
         index: nextBlock.height,
-        timeMined: new Date(nextBlock.time),
+        timeMined: new Date(nextBlock.time * 1000),
         currency: 1
       }
    }
@@ -87,7 +87,7 @@ export class BitcoinClient {
         let newFullBlock = {
               hash: fullBlock.hash,
               index: fullBlock.height,
-              timeMined: new Date(fullBlock.time),
+              timeMined: new Date(fullBlock.time * 1000),
               transactions: fullTransactions
           }
         return newFullBlock 
@@ -104,7 +104,7 @@ export class BitcoinClient {
               to: detail.address,
               from: "",
               amount: new BigNumber(detail.amount).abs(),
-              timeReceived: new Date(result.timereceived),
+              timeReceived: new Date(result.timereceived * 1000),
               block: result.blockindex,
               status: TransactionStatus.pending,
               confirmations: result.confirmations
