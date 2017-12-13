@@ -149,7 +149,7 @@ class BitcoinClient {
     }
     getBlock(blockhash) {
         return new Promise((resolve, reject) => {
-            this.client.getBlock(blockhash, 2, (err, block) => {
+            this.client.getBlock(blockhash, (err, block) => {
                 if (err)
                     reject(err);
                 else

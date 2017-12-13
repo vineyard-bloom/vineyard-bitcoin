@@ -154,7 +154,7 @@ export class BitcoinClient {
 
   getBlock(blockhash: string): Promise<Block> {
     return new Promise((resolve: Resolve<Block>, reject) => {
-      this.client.getBlock(blockhash, 2, (err: any, block: Block) => {
+      this.client.getBlock(blockhash, (err: any, block: Block) => {
         if (err)
           reject(err)
         else
