@@ -50,6 +50,18 @@ class BitcoinClient {
             });
         });
     }
+    getBlockIndex() {
+        return new Promise((resolve, reject) => {
+            this.client.getBlockCount((err, blockCount) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(blockCount);
+                }
+            });
+        });
+    }
     getBlockCount() {
         return new Promise((resolve, reject) => {
             this.client.getBlockCount((err, blockCount) => {

@@ -56,6 +56,18 @@ export class BitcoinClient {
      })
   }
 
+  getBlockIndex(): Promise<number> {
+    return new Promise((resolve: Resolve<number>, reject) => {
+      this.client.getBlockCount((err: any, blockCount: number) => {
+        if(err) {
+          reject(err)
+        } else {
+          resolve(blockCount)
+        }
+      })
+    })
+  }
+
   getBlockCount(): Promise<number> {
     return new Promise((resolve: Resolve<number>, reject) => {
       this.client.getBlockCount((err: any, blockCount: number) => {
