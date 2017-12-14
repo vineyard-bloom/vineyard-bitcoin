@@ -96,7 +96,7 @@ export class BitcoinClient {
   async getFullTransactions(transactions: BitcoinTransactionSource[]): Promise<ExternalTransaction[]> {
       let fullTransactions: ExternalTransaction[] = []
        for (let transaction of transactions) {
-       let result =  await this.getTransaction(transaction.txid)
+       let result =  await this.getTransaction(transaction)
           if(!result) return fullTransactions
           const receiveDetail = result.details.find(detail => detail.category === 'receive')
             fullTransactions.push({
