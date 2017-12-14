@@ -99,16 +99,18 @@ class BitcoinClient {
                 if (!result)
                     return fullTransactions;
                 const receiveDetail = result.details.find(detail => detail.category === 'receive');
-                fullTransactions.push({
-                    txid: result.txid,
-                    to: receiveDetail.address,
-                    from: "",
-                    amount: new BigNumber(receiveDetail.amount).abs(),
-                    timeReceived: new Date(result.timereceived * 1000),
-                    block: result.blockindex,
-                    status: vineyard_blockchain_1.TransactionStatus.pending,
-                    confirmations: result.confirmations
-                });
+                if (receiveDetail) {
+                    fullTransactions.push({
+                        txid: result.txid,
+                        to: receiveDetail.address,
+                        from: "",
+                        amount: new BigNumber(receiveDetail.amount).abs(),
+                        timeReceived: new Date(result.timereceived * 1000),
+                        block: result.blockindex,
+                        status: vineyard_blockchain_1.TransactionStatus.pending,
+                        confirmations: result.confirmations
+                    });
+                }
             }
             return fullTransactions;
         });

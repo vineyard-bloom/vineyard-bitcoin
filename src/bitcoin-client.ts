@@ -99,6 +99,7 @@ export class BitcoinClient {
        let result =  await this.getTransaction(transaction)
           if(!result) return fullTransactions
           const receiveDetail = result.details.find(detail => detail.category === 'receive')
+          if (receiveDetail) {
             fullTransactions.push({
               txid: result.txid,
               to: receiveDetail.address,
@@ -109,6 +110,7 @@ export class BitcoinClient {
               status: TransactionStatus.pending,
               confirmations: result.confirmations
             })
+          }
        }
        return fullTransactions
   }
