@@ -110,13 +110,12 @@ class BitcoinClient {
                 let result = yield this.getTransaction(transaction);
                 if (!result)
                     return fullTransactions;
-                const receiveDetail = result.details.find(detail => detail.category === 'receive');
-                if (receiveDetail) {
+                for (let detail of result.details) {
                     fullTransactions.push({
                         txid: result.txid,
-                        to: receiveDetail.address,
+                        to: detail.address,
                         from: "",
-                        amount: new BigNumber(receiveDetail.amount).abs(),
+                        amount: new BigNumber(detail.amount).abs(),
                         timeReceived: new Date(result.timereceived * 1000),
                         block: result.blockindex,
                         status: vineyard_blockchain_1.TransactionStatus.pending,
