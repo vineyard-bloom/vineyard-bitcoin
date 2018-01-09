@@ -11,8 +11,8 @@
   "license": "MIT",
   "dependencies": {
     "bitcoin": "^3.0.1",
-    "bitcore-lib": "^0.14.0",
-    "bitcore-wallet-client": "^5.1.2",
+    "bitcore-lib": "^0.15.0",
+    "bitcore-wallet-client": "^6.4.0",
     "rimraf": "^2.6.2"
   },
   "devDependencies": {
