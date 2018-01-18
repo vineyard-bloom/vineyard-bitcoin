@@ -97,7 +97,7 @@ class BitcoinClient {
             for (let transaction of transactions) {
                 let result = yield this.getTransaction(transaction);
                 if (!result)
-                    return fullTransactions;
+                    continue;
                 const receiveDetail = result.details.find(detail => detail.category === 'receive');
                 if (receiveDetail) {
                     fullTransactions.push({

@@ -28,11 +28,11 @@ export class BitcoinClient {
   }
 
   async getTransactionStatus(txid: string): Promise<TransactionStatus> {
-    const transaction: BitcoinTransactionSource = await this.getTransaction(txid) 
+    const transaction: BitcoinTransactionSource = await this.getTransaction(txid)
       if(transaction.confirmations == -1) return TransactionStatus.rejected
-      if(transaction.confirmations == 0 ) return TransactionStatus.pending 
+      if(transaction.confirmations == 0 ) return TransactionStatus.pending
       else {
-        return TransactionStatus.accepted 
+        return TransactionStatus.accepted
       }
   }
 
@@ -69,7 +69,7 @@ export class BitcoinClient {
   }
 
   async getNextBlockInfo(previousBlock: BlockInfo | undefined): Promise<BaseBlock | undefined> {
-    const nextBlockIndex = previousBlock ? previousBlock.index + 1 : 0  
+    const nextBlockIndex = previousBlock ? previousBlock.index + 1 : 0
     const blockHash: string = await this.getBlockHash(nextBlockIndex)
       if(!blockHash) {return}
     const nextBlock: Block = await this.getBlock(blockHash)
@@ -80,7 +80,7 @@ export class BitcoinClient {
         currency: 1
       }
    }
- 
+
   async getFullBlock(block: BlockInfo): Promise<FullBlock<ExternalTransaction>> {
     const fullBlock: Block = await this.getBlock(block.hash)
     let fullTransactions = await this.getFullTransactions(fullBlock.tx)
@@ -90,14 +90,14 @@ export class BitcoinClient {
               timeMined: new Date(fullBlock.time * 1000),
               transactions: fullTransactions
           }
-        return newFullBlock 
+        return newFullBlock
   }
 
   async getFullTransactions(transactions: BitcoinTransactionSource[]): Promise<ExternalTransaction[]> {
       let fullTransactions: ExternalTransaction[] = []
        for (let transaction of transactions) {
        let result =  await this.getTransaction(transaction)
-          if(!result) return fullTransactions
+          if(!result) continue
           const receiveDetail = result.details.find(detail => detail.category === 'receive')
           if (receiveDetail) {
             fullTransactions.push({
@@ -114,7 +114,7 @@ export class BitcoinClient {
        }
        return fullTransactions
   }
- 
+
 
   getHistory(lastBlock: string): Promise<BlockList> {
     return new Promise((resolve: Resolve<BlockList>, reject) => {
