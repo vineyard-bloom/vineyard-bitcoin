@@ -1,3 +1,5 @@
+import {bitcoinToSatoshis} from "./conversions";
+
 const bitcoin = require('bitcoin')
 import {BitcoinTransactionSource, Block, TransactionDetails} from "./types";
 import {ExternalSingleTransaction as ExternalTransaction, FullBlock, BlockInfo, Resolve, BaseBlock, TransactionStatus, SingleTransaction as Transaction} from "vineyard-blockchain";
@@ -100,6 +102,7 @@ export class BitcoinClient {
           if(!result) continue
           const receiveDetail = result.details.find(detail => detail.category === 'receive')
           if (receiveDetail) {
+            const amountToSatoshis = bitcoinToSatoshis(receiveDetail.amount)
             fullTransactions.push({
               txid: result.txid,
               to: receiveDetail.address,
