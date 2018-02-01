@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var bitcore_client_1 = require("./bitcore/bitcore-client");
-var BitcoreAddressSource = (function () {
+var BitcoreAddressSource = /** @class */ (function () {
     function BitcoreAddressSource(bitcoinClient, bitcoreConfig) {
         this.bitcoinClient = bitcoinClient;
         this.bitcoreClient = new bitcore_client_1.BitcoreClient(bitcoreConfig);

@@ -4,7 +4,7 @@ var Client = require('bitcore-wallet-client');
 var utils = require('./cli-utils');
 var fs = require('fs');
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-var BitcoreClient = (function () {
+var BitcoreClient = /** @class */ (function () {
     function BitcoreClient(bitcoreConfig) {
         this.isOpen = false;
         this.bitcoreConfig = bitcoreConfig;

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var StandardBlockService = (function () {
+var StandardBlockService = /** @class */ (function () {
     function StandardBlockService() {
     }
     StandardBlockService.prototype.getLastBlock = function () {

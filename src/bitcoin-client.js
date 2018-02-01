@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var bitcoin = require("bitcoin");
-var BitcoinClient = (function () {
+var BitcoinClient = /** @class */ (function () {
     function BitcoinClient(bitcoinConfig) {
         this.client = new bitcoin.Client(bitcoinConfig);
     }

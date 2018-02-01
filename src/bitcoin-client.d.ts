@@ -17,10 +17,10 @@ export declare class BitcoinClient {
     getHistory(lastBlock: string): Promise<BlockList>;
     listTransactions(): Promise<any>;
     getTransaction(txid: string): Promise<any>;
-    importAddress(address: string, rescan?: boolean): Promise<{}>;
-    getInfo(): Promise<{}>;
-    listAddresses(): Promise<{}>;
-    createAddress(): Promise<{}>;
+    importAddress(address: string, rescan?: boolean): any;
+    getInfo(): any;
+    listAddresses(): any;
+    createAddress(): any;
     createTestAddress(): Promise<string>;
     generate(amount: number): Promise<any>;
     send(amount: number, address: any): Promise<string>;
