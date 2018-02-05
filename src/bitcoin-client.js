@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const bitcoin = require('bitcoin');
+const conversions_1 = require("./conversions");
 const vineyard_blockchain_1 = require("vineyard-blockchain");
 const BigNumber = require("bignumber.js");
 class BitcoinClient {
@@ -109,13 +110,15 @@ class BitcoinClient {
             for (let transaction of transactions) {
                 let result = yield this.getTransaction(transaction);
                 if (!result)
-                    return fullTransactions;
-                for (let detail of result.details) {
+                    continue;
+                const receiveDetail = result.details.find(detail => detail.category === 'receive');
+                if (receiveDetail) {
+                    const amountToSatoshis = conversions_1.bitcoinToSatoshis(receiveDetail.amount);
                     fullTransactions.push({
                         txid: result.txid,
-                        to: detail.address,
+                        to: receiveDetail.address,
                         from: "",
-                        amount: new BigNumber(detail.amount).abs(),
+                        amount: new BigNumber(receiveDetail.amount).abs(),
                         timeReceived: new Date(result.timereceived * 1000),
                         block: result.blockindex,
                         status: vineyard_blockchain_1.TransactionStatus.pending,

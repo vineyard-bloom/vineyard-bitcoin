@@ -1,4 +1,5 @@
 const bitcoin = require('bitcoin')
+import {bitcoinToSatoshis} from "./conversions";
 import {BitcoinTransactionSource, Block, TransactionDetails} from "./types";
 import {ExternalSingleTransaction as ExternalTransaction, FullBlock, BlockInfo, Resolve, BaseBlock, TransactionStatus, SingleTransaction as Transaction} from "vineyard-blockchain";
 const BigNumber = require("bignumber.js")
@@ -109,13 +110,15 @@ export class BitcoinClient {
     let fullTransactions: ExternalTransaction[] = []
      for (let transaction of transactions) {
      let result =  await this.getTransaction(transaction)
-        if(!result) return fullTransactions
-        for(let detail of result.details) {
-          fullTransactions.push({
-            txid: result.txid,
-            to: detail.address,
+      if(!result) continue
+      const receiveDetail = result.details.find(detail => detail.category === 'receive')
+      if (receiveDetail) {
+       const amountToSatoshis = bitcoinToSatoshis(receiveDetail.amount)
+       fullTransactions.push({
+         txid: result.txid,
+         to: receiveDetail.address,
             from: "",
-            amount: new BigNumber(detail.amount).abs(),
+            amount: new BigNumber(receiveDetail.amount).abs(),
             timeReceived: new Date(result.timereceived * 1000),
             block: result.blockindex,
             status: TransactionStatus.pending,
