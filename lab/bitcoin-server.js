@@ -6,10 +6,10 @@ var Status;
     Status[Status["inactive"] = 0] = "inactive";
     Status[Status["active"] = 1] = "active";
 })(Status || (Status = {}));
-function waitUntilRunning() {
+function waitUntilRunning(path) {
     return new Promise((resolve, reject) => {
         const poll = () => {
-            child_process.exec('bitcoin-cli getinfo', function (error, stdout, stderr) {
+            child_process.exec(path + 'bitcoin-cli -getinfo', function (error, stdout, stderr) {
                 if (error) {
                     // console.log('not yet', stderr)
                     setTimeout(poll, 100);
@@ -24,30 +24,45 @@ function waitUntilRunning() {
     });
 }
 class BitcoinServer {
-    constructor() {
+    constructor(config) {
         this.status = Status.inactive;
+        this.config = config;
     }
     start() {
         console.log('Starting bitcoind');
-        const childProcess = this.childProcess = child_process.spawn('bitcoind');
-        childProcess.stdout.on('data', (data) => {
-            console.log(`stdout: ${data}`);
-        });
+        const childProcess = this.childProcess = child_process.exec(this.config.path + 'bitcoind -daemon');
+        if (this.config.logging) {
+            childProcess.stdout.on('data', (data) => {
+                console.log(`stdout: ${data}`);
+            });
+            childProcess.on('close', (code) => {
+                console.log(`child process exited with code ${code}`);
+            });
+        }
+        // always log errors
         childProcess.stderr.on('data', (data) => {
             console.error(`stderr: ${data}`);
         });
-        childProcess.on('close', (code) => {
-            console.log(`child process exited with code ${code}`);
-        });
-        return waitUntilRunning();
+        return waitUntilRunning(this.config.path);
     }
     stop() {
-        if (!this.childProcess)
-            return Promise.resolve();
+        console.log('Stopping bitcoind');
         return new Promise((resolve, reject) => {
-            this.childProcess.kill();
-            this.childProcess.on('close', (code) => {
+            const childProcess = this.childProcess = child_process.exec(this.config.path + 'bitcoin-cli stop');
+            childProcess.stdout.on('data', (data) => {
+                if (this.config.logging)
+                    console.log(`stdout: ${data}`);
+                console.log('Terminated bitcoind');
                 resolve();
+            });
+            childProcess.on('close', (code) => {
+                if (this.config.logging)
+                    console.log(`child process exited with code ${code}`);
+            });
+            // always log errors
+            childProcess.stderr.on('data', (data) => {
+                console.error(`stderr: ${data}`);
+                reject();
             });
         });
     }

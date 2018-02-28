@@ -14,5 +14,5 @@ Object.defineProperty(exports, "__esModule", { value: true });
 //             ? this.bitcoinCollection.update(record, {lastblock: value})
 //             : this.bitcoinCollection.create({lastblock: value}))
 //     }
-// } 
+// }
 //# sourceMappingURL=transaction-storage.js.map

@@ -6,7 +6,7 @@ const child_process = require('child_process');
 const fs = require('fs');
 const rimraf = require('rimraf');
 class BitcoinLab {
-    constructor(config, client, server = new bitcoin_server_1.BitcoinServer()) {
+    constructor(config, client, server = new bitcoin_server_1.BitcoinServer(config)) {
         this.config = config;
         this.client = client;
         this.server = server;

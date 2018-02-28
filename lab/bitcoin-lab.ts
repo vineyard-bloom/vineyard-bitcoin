@@ -1,11 +1,11 @@
-import {BitcoinServer} from "./bitcoin-server"
+import {BitcoinServer, BitcoinServerConfig} from "./bitcoin-server"
 import {BitcoinClient, satoshisToBitcoin} from "../src"
 
 const child_process = require('child_process')
 const fs = require('fs')
 const rimraf = require('rimraf')
 
-export interface BitcoinLabConfig {
+export interface BitcoinLabConfig extends BitcoinServerConfig{
   walletPath: string
 }
 
@@ -14,7 +14,7 @@ export class BitcoinLab {
   client: BitcoinClient
   config: BitcoinLabConfig
 
-  constructor(config: BitcoinLabConfig, client: BitcoinClient, server: BitcoinServer = new BitcoinServer()) {
+  constructor(config: BitcoinLabConfig, client: BitcoinClient, server: BitcoinServer = new BitcoinServer(config)) {
     this.config = config
     this.client = client
     this.server = server
