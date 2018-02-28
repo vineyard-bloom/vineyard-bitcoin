@@ -67,5 +67,5 @@ export interface BitcoinTransactionSource {
   amount: number
   details: TransactionDetails[]
   timereceived: number
-  blockindex: string
+  blockindex: number
 }

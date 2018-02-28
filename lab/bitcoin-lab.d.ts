@@ -1,6 +1,6 @@
-import { BitcoinServer } from "./bitcoin-server";
+import { BitcoinServer, BitcoinServerConfig } from "./bitcoin-server";
 import { BitcoinClient } from "../src";
-export interface BitcoinLabConfig {
+export interface BitcoinLabConfig extends BitcoinServerConfig {
     walletPath: string;
 }
 export declare class BitcoinLab {
