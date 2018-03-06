@@ -56,6 +56,7 @@ export interface TransactionDetails {
   address: string
   txid: string
   amount: BigNumber
+  category: string
 }
 
 export interface BitcoinTransactionSource {
