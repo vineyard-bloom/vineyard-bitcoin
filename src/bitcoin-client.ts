@@ -105,26 +105,27 @@ export class BitcoinClient {
         return newFullBlock 
   }
 
-  async getFullTransactions(transactions: BitcoinTransactionSource[]): Promise<ExternalTransaction[]> {
-      let fullTransactions: ExternalTransaction[] = []
-       for (let transaction of transactions) {
-       let result =  await this.getTransaction(transaction)
-          if(!result) return fullTransactions
-          const receiveDetail = result.details.find(detail => detail.category === 'receive')
-          if (receiveDetail) {
-            fullTransactions.push({
-              txid: result.txid,
-              to: receiveDetail.address,
-              from: "",
-              amount: new BigNumber(receiveDetail.amount).abs(),
-              timeReceived: new Date(result.timereceived * 1000),
-              block: result.blockindex,
-              status: TransactionStatus.pending,
-              confirmations: result.confirmations
-            })
-          }
-       }
-       return fullTransactions
+  async getFullTransactions(transactions: string[]): Promise<ExternalTransaction[]> {
+    let fullTransactions: ExternalTransaction[] = []
+    for (let transaction of transactions) {
+      let result =  await this.getTransaction(transaction)
+      if (result) {
+        const receiveDetail = result.details.find(detail => detail.category === 'receive')
+        if (receiveDetail) {
+          fullTransactions.push({
+            txid: result.txid,
+            to: receiveDetail.address,
+            from: "",
+            amount: new BigNumber(receiveDetail.amount).abs(),
+            timeReceived: new Date(result.timereceived * 1000),
+            block: Number(result.blockindex),
+            status: TransactionStatus.pending,
+            confirmations: result.confirmations
+          })
+        }
+      }
+    }
+    return fullTransactions
   }
  
 
