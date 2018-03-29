@@ -1,4 +1,4 @@
-import {BigNumber} from 'bignumber.js'
+import { BigNumber } from 'bignumber.js'
 
 export interface AddressSource {
   createAddress(): Promise<string>
@@ -22,17 +22,18 @@ export interface NewTransaction {
 export interface Block {
   tx: BitcoinTransactionSource[]
   hash: string
-  height: number 
+  height: number
   time: number
 }
 
 export interface BlockService {
-  getLastBlock():Promise<string>
-  setLastBlock(value:string):Promise<void>
+  getLastBlock(): Promise<string>
+
+  setLastBlock(value: string): Promise<void>
 }
 
 export interface BasicTransaction {
-  txid:string
+  txid: string
   status: TransactionStatus
   index: number
   address: string
@@ -41,14 +42,17 @@ export interface BasicTransaction {
 }
 
 export interface AddTransactionResult<Transaction extends BasicTransaction> {
-  transaction:Transaction
-  isNew:boolean
+  transaction: Transaction
+  isNew: boolean
 }
 
 export interface TransactionService<Transaction extends BasicTransaction> extends BlockService {
   add(transaction: NewTransaction): Promise<AddTransactionResult<Transaction>>
+
   onConfirm(transaction: Transaction): Promise<Transaction>
-  setStatus(transaction: Transaction, status:TransactionStatus): Promise<Transaction>
+
+  setStatus(transaction: Transaction, status: TransactionStatus): Promise<Transaction>
+
   listPending(): Promise<Transaction []>
 }
 
@@ -69,4 +73,11 @@ export interface BitcoinTransactionSource {
   details: TransactionDetails[]
   timereceived: number
   blockindex: string
+}
+
+export interface BitcoinRpcClient {
+  getBlockCount(callback: (err: NodeJS.ErrnoException, count: number) => void): void
+  getBlockHash(index: number, callback: (err: NodeJS.ErrnoException, hash: string) => void): void
+  getBlock(hash: string, callback: (err: NodeJS.ErrnoException, block: Block) => void): void
+  getTransaction(txid: string, callback: (err: NodeJS.ErrnoException, transaction: BasicTransaction) => void): void
 }

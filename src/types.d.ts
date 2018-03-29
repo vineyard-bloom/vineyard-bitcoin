@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { BigNumber } from 'bignumber.js';
 export interface AddressSource {
     createAddress(): Promise<string>;
@@ -59,4 +60,10 @@ export interface BitcoinTransactionSource {
     details: TransactionDetails[];
     timereceived: number;
     blockindex: string;
+}
+export interface BitcoinRpcClient {
+    getBlockCount(callback: (err: NodeJS.ErrnoException, count: number) => void): void;
+    getBlockHash(index: number, callback: (err: NodeJS.ErrnoException, hash: string) => void): void;
+    getBlock(hash: string, callback: (err: NodeJS.ErrnoException, block: Block) => void): void;
+    getTransaction(txid: string, callback: (err: NodeJS.ErrnoException, transaction: BasicTransaction) => void): void;
 }

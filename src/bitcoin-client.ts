@@ -95,7 +95,7 @@ export class BitcoinClient {
  
   async getFullBlock(block: BlockInfo): Promise<FullBlock<ExternalTransaction>> {
     const fullBlock: Block = await this.getBlock(block.hash)
-    let fullTransactions = await this.getFullTransactions(fullBlock.tx)
+    let fullTransactions = await this.getFullTransactions(fullBlock.tx as any)
         let newFullBlock = {
               hash: fullBlock.hash,
               index: fullBlock.height,

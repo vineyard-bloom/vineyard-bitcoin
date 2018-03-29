@@ -1,0 +1,10 @@
+import { BitcoinRpcClient, BitcoinTransactionSource, Block } from "./types";
+import { blockchain } from 'vineyard-blockchain';
+export declare function getBlockCount(client: BitcoinRpcClient): Promise<number>;
+export declare function getBlockHash(client: BitcoinRpcClient, index: number): Promise<string>;
+export declare function getBlockByHash(client: BitcoinRpcClient, hash: string): Promise<Block>;
+export declare function getBlockByIndex(client: BitcoinRpcClient, index: number): Promise<Block>;
+export declare function getTransaction(client: BitcoinRpcClient, txid: string): Promise<BitcoinTransactionSource>;
+export declare function getFullTransactions(client: BitcoinRpcClient, transactions: string[]): Promise<blockchain.MultiTransaction[]>;
+export declare function bitcoinToBlockchainBlock(block: Block): blockchain.Block;
+export declare function getMultiTransactionBlock(client: BitcoinRpcClient, index: number): Promise<blockchain.FullBlock<blockchain.MultiTransaction> | undefined>;
