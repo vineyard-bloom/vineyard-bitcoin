@@ -1,15 +1,7 @@
 const bitcoin = require('bitcoin')
-import {BitcoinTransactionSource, Block, TransactionDetails} from "./types";
+import { BitcoinConfig, BitcoinTransactionSource, Block, TransactionDetails } from "./types";
 import {ExternalSingleTransaction as ExternalTransaction, FullBlock, BlockInfo, Resolve, BaseBlock, TransactionStatus, SingleTransaction as Transaction} from "vineyard-blockchain";
 const BigNumber = require("bignumber.js")
-
-export interface BitcoinConfig {
-  port?: number
-  user: string
-  pass: string
-  timeout?: number
-  host?: string
-}
 
 export interface BlockList {
   transactions: BitcoinTransactionSource[]

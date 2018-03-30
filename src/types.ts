@@ -41,6 +41,10 @@ export interface BasicTransaction {
   timeReceived: any
 }
 
+export interface RawTransaction {
+  txid: string
+}
+
 export interface AddTransactionResult<Transaction extends BasicTransaction> {
   transaction: Transaction
   isNew: boolean
@@ -75,9 +79,18 @@ export interface BitcoinTransactionSource {
   blockindex: string
 }
 
+export interface BitcoinConfig {
+  port?: number
+  user: string
+  pass: string
+  timeout?: number
+  host?: string
+}
+
 export interface BitcoinRpcClient {
   getBlockCount(callback: (err: NodeJS.ErrnoException, count: number) => void): void
   getBlockHash(index: number, callback: (err: NodeJS.ErrnoException, hash: string) => void): void
   getBlock(hash: string, callback: (err: NodeJS.ErrnoException, block: Block) => void): void
   getTransaction(txid: string, callback: (err: NodeJS.ErrnoException, transaction: BasicTransaction) => void): void
+  getRawTransaction(txid: string, callback: (err: NodeJS.ErrnoException, transaction: RawTransaction) => void): void
 }

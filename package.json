@@ -12,6 +12,7 @@
   "dependencies": {
     "bignumber.js": "^6.0.0",
     "bitcoin": "^3.0.1",
+    "bitcoin-core": "^2.0.0",
     "rimraf": "^2.6.2",
     "vineyard-blockchain": "vineyard-bloom/vineyard-blockchain#1.0.0-beta"
   },

@@ -1,12 +1,5 @@
-import { BitcoinTransactionSource, Block } from "./types";
+import { BitcoinConfig, BitcoinTransactionSource, Block } from "./types";
 import { ExternalSingleTransaction as ExternalTransaction, FullBlock, BlockInfo, BaseBlock, TransactionStatus } from "vineyard-blockchain";
-export interface BitcoinConfig {
-    port?: number;
-    user: string;
-    pass: string;
-    timeout?: number;
-    host?: string;
-}
 export interface BlockList {
     transactions: BitcoinTransactionSource[];
     lastBlock: string;
