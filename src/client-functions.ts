@@ -1,5 +1,8 @@
 import { BitcoinRpcClient, BitcoinTransactionSource, Block, RawTransaction } from "./types";
 import { blockchain } from 'vineyard-blockchain'
+import {BigNumber} from "bignumber.js"
+
+export const liveGenesisTxid = '4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b'
 
 const { promisify } = require('util')
 
@@ -50,15 +53,15 @@ export async function getMultiTransactions(client: any, transactions: string[], 
   //   // }
   // }
   // return fullTransactions
-  return Promise.all(transactions.map(async (t) => {
+  return Promise.all(transactions.filter(map(async (t) => {
     console.log('t', t)
     const raw = await client.getRawTransaction(t, true)
     return {
       txid: raw.txid,
         timeReceived: new Date(raw.blocktime * 1000),
-      status: undefined,
-      fee: 0,
-      nonce: undefined,
+      status: blockchain.TransactionStatus.unknown,
+      fee: new BigNumber(0),
+      nonce: 0,
       blockIndex: blockIndex,
       inputs: [],
       outputs: [],

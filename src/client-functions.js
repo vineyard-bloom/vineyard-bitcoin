@@ -8,6 +8,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const vineyard_blockchain_1 = require("vineyard-blockchain");
+const bignumber_js_1 = require("bignumber.js");
+exports.liveGenesisTxid = '4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b';
 const { promisify } = require('util');
 // export function getBlockCount(client: BitcoinRpcClient): Promise<number> {
 //   return promisify(client.getBlockCount.bind(client))()
@@ -56,21 +59,21 @@ function getMultiTransactions(client, transactions, blockIndex) {
         //   // }
         // }
         // return fullTransactions
-        return Promise.all(transactions.map((t) => __awaiter(this, void 0, void 0, function* () {
+        return Promise.all(transactions.filter(map((t) => __awaiter(this, void 0, void 0, function* () {
             console.log('t', t);
             const raw = yield client.getRawTransaction(t, true);
             return {
                 txid: raw.txid,
                 timeReceived: new Date(raw.blocktime * 1000),
-                status: undefined,
-                fee: 0,
-                nonce: undefined,
+                status: vineyard_blockchain_1.blockchain.TransactionStatus.unknown,
+                fee: new bignumber_js_1.BigNumber(0),
+                nonce: 0,
                 blockIndex: blockIndex,
                 inputs: [],
                 outputs: [],
                 original: raw
             };
-        })));
+        }))));
     });
 }
 exports.getMultiTransactions = getMultiTransactions;

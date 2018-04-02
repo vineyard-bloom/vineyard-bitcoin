@@ -87,6 +87,14 @@ export interface BitcoinConfig {
   host?: string
 }
 
+export interface BitcoinConfig2 {
+  port?: number
+  username: string
+  password: string
+  timeout?: number
+  host?: string
+}
+
 export interface BitcoinRpcClient {
   getBlockCount(callback: (err: NodeJS.ErrnoException, count: number) => void): void
   getBlockHash(index: number, callback: (err: NodeJS.ErrnoException, hash: string) => void): void

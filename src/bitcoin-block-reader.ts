@@ -1,5 +1,5 @@
 import { blockchain } from 'vineyard-blockchain'
-import { BitcoinConfig, BitcoinRpcClient } from "./types";
+import { BitcoinConfig2, BitcoinRpcClient } from "./types";
 import { getMultiTransactionBlock } from "./client-functions"
 const Client = require('bitcoin-core')
 
@@ -22,7 +22,7 @@ export class BitcoinBlockReader implements blockchain.BlockReader<blockchain.Mul
     return getMultiTransactionBlock(this.client, index)
   }
 
-  static createFromConfig(config: BitcoinConfig) {
+  static createFromConfig(config: BitcoinConfig2) {
     return new BitcoinBlockReader(new Client(config))
   }
 }
