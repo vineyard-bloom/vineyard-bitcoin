@@ -1,6 +1,6 @@
-import { BitcoinRpcClient, BitcoinTransactionSource, Block, RawTransaction } from "./types";
+import { BitcoinRpcClient, Block } from "./types";
 import { blockchain } from 'vineyard-blockchain'
-import {BigNumber} from "bignumber.js"
+import { BigNumber } from "bignumber.js"
 
 export const liveGenesisTxid = '4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b'
 
@@ -31,43 +31,37 @@ export async function getBlockByIndex(client: any, index: number): Promise<Block
 //   return promisify(client.getRawTransaction.bind(client))(txid)
 // }
 
+// function convertInput(input: any): blockchain.TransactionInput {
+//   return {
+//
+//   }
+// }
+//
+// function convertOutput(output: any): blockchain.TransactionOutput {
+//   return {
+//
+//   }
+// }
+
 export async function getMultiTransactions(client: any, transactions: string[], blockIndex: number): Promise<blockchain.MultiTransaction[]> {
-  // let fullTransactions: blockchain.MultiTransaction[] = []
-  // for (let transaction of transactions) {
-  //
-  //   // let result = await getTransaction(client, transaction)
-  //   // if (result) {
-  //   //   const receiveDetail = result.details.find(detail => detail.category === 'receive')
-  //   //   if (receiveDetail) {
-  //   //     fullTransactions.push({
-  //   //       txid: result.txid,
-  //   //       to: receiveDetail.address,
-  //   //       from: "",
-  //   //       amount: new BigNumber(receiveDetail.amount).abs(),
-  //   //       timeReceived: new Date(result.timereceived * 1000),
-  //   //       block: Number(result.blockindex),
-  //   //       status: TransactionStatus.pending,
-  //   //       confirmations: result.confirmations
-  //   //     })
-  //   //   }
-  //   // }
-  // }
-  // return fullTransactions
-  return Promise.all(transactions.filter(map(async (t) => {
-    console.log('t', t)
-    const raw = await client.getRawTransaction(t, true)
-    return {
-      txid: raw.txid,
+  const promises = transactions
+    .filter(t => t !== liveGenesisTxid)
+    .map(async (t) => {
+      console.log('t', t)
+      const raw = await client.getRawTransaction(t, true)
+      return {
+        txid: raw.txid,
         timeReceived: new Date(raw.blocktime * 1000),
-      status: blockchain.TransactionStatus.unknown,
-      fee: new BigNumber(0),
-      nonce: 0,
-      blockIndex: blockIndex,
-      inputs: [],
-      outputs: [],
-      original: raw
-    }
-  }))
+        status: blockchain.TransactionStatus.unknown,
+        fee: new BigNumber(0),
+        nonce: 0,
+        blockIndex: blockIndex,
+        inputs: raw.vin,
+        outputs: raw.vout,
+        original: raw
+      }
+    })
+  return Promise.all(promises)
 }
 
 export function bitcoinToBlockchainBlock(block: Block): blockchain.Block {

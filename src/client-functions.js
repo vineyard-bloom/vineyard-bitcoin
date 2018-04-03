@@ -36,30 +36,22 @@ exports.getBlockByIndex = getBlockByIndex;
 // export function getRawTransaction(client: BitcoinRpcClient, txid: string): Promise<RawTransaction> {
 //   return promisify(client.getRawTransaction.bind(client))(txid)
 // }
+// function convertInput(input: any): blockchain.TransactionInput {
+//   return {
+//
+//   }
+// }
+//
+// function convertOutput(output: any): blockchain.TransactionOutput {
+//   return {
+//
+//   }
+// }
 function getMultiTransactions(client, transactions, blockIndex) {
     return __awaiter(this, void 0, void 0, function* () {
-        // let fullTransactions: blockchain.MultiTransaction[] = []
-        // for (let transaction of transactions) {
-        //
-        //   // let result = await getTransaction(client, transaction)
-        //   // if (result) {
-        //   //   const receiveDetail = result.details.find(detail => detail.category === 'receive')
-        //   //   if (receiveDetail) {
-        //   //     fullTransactions.push({
-        //   //       txid: result.txid,
-        //   //       to: receiveDetail.address,
-        //   //       from: "",
-        //   //       amount: new BigNumber(receiveDetail.amount).abs(),
-        //   //       timeReceived: new Date(result.timereceived * 1000),
-        //   //       block: Number(result.blockindex),
-        //   //       status: TransactionStatus.pending,
-        //   //       confirmations: result.confirmations
-        //   //     })
-        //   //   }
-        //   // }
-        // }
-        // return fullTransactions
-        return Promise.all(transactions.filter(map((t) => __awaiter(this, void 0, void 0, function* () {
+        const promises = transactions
+            .filter(t => t !== exports.liveGenesisTxid)
+            .map((t) => __awaiter(this, void 0, void 0, function* () {
             console.log('t', t);
             const raw = yield client.getRawTransaction(t, true);
             return {
@@ -69,11 +61,12 @@ function getMultiTransactions(client, transactions, blockIndex) {
                 fee: new bignumber_js_1.BigNumber(0),
                 nonce: 0,
                 blockIndex: blockIndex,
-                inputs: [],
-                outputs: [],
+                inputs: raw.vin,
+                outputs: raw.vout,
                 original: raw
             };
-        }))));
+        }));
+        return Promise.all(promises);
     });
 }
 exports.getMultiTransactions = getMultiTransactions;
