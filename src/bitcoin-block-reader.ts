@@ -3,7 +3,7 @@ import { BitcoinConfig2, BitcoinRpcClient } from "./types";
 import { getMultiTransactionBlock } from "./client-functions"
 const Client = require('bitcoin-core')
 
-export class BitcoinBlockReader implements blockchain.BlockReader<blockchain.MultiTransaction> {
+export class BitcoinBlockReader implements blockchain.BlockReader<blockchain.FullBlock<blockchain.MultiTransaction>> {
   private client: any
 
   constructor(client: BitcoinRpcClient) {
@@ -12,10 +12,6 @@ export class BitcoinBlockReader implements blockchain.BlockReader<blockchain.Mul
 
   getHeighestBlockIndex(): Promise<number> {
     return this.client.getBlockCount()
-  }
-
-  getBlockInfo(index: number): Promise<blockchain.Block | undefined> {
-    throw new Error('Not implemented.')
   }
 
   getFullBlock(index: number): Promise<blockchain.FullBlock<blockchain.MultiTransaction> | undefined> {
