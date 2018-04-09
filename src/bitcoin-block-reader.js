@@ -9,9 +9,6 @@ class BitcoinBlockReader {
     getHeighestBlockIndex() {
         return this.client.getBlockCount();
     }
-    getBlockInfo(index) {
-        throw new Error('Not implemented.');
-    }
     getFullBlock(index) {
         return client_functions_1.getMultiTransactionBlock(this.client, index);
     }
