@@ -22,11 +22,11 @@ class BitcoinClient {
         return __awaiter(this, void 0, void 0, function* () {
             const transaction = yield this.getTransaction(txid);
             if (transaction.confirmations == -1)
-                return vineyard_blockchain_1.TransactionStatus.rejected;
+                return vineyard_blockchain_1.blockchain.TransactionStatus.rejected;
             if (transaction.confirmations == 0)
-                return vineyard_blockchain_1.TransactionStatus.pending;
+                return vineyard_blockchain_1.blockchain.TransactionStatus.pending;
             else {
-                return vineyard_blockchain_1.TransactionStatus.accepted;
+                return vineyard_blockchain_1.blockchain.TransactionStatus.accepted;
             }
         });
     }
@@ -38,8 +38,7 @@ class BitcoinClient {
             return {
                 hash: lastBlock.hash,
                 index: lastBlock.height,
-                timeMined: new Date(lastBlock.time * 1000),
-                currency: 1
+                timeMined: new Date(lastBlock.time * 1000)
             };
         });
     }
@@ -85,8 +84,7 @@ class BitcoinClient {
             return {
                 hash: nextBlock.hash,
                 index: nextBlock.height,
-                timeMined: new Date(nextBlock.time * 1000),
-                currency: 1
+                timeMined: new Date(nextBlock.time * 1000)
             };
         });
     }
@@ -117,9 +115,8 @@ class BitcoinClient {
                             from: "",
                             amount: new BigNumber(receiveDetail.amount).abs(),
                             timeReceived: new Date(result.timereceived * 1000),
-                            block: Number(result.blockindex),
-                            status: vineyard_blockchain_1.TransactionStatus.pending,
-                            confirmations: result.confirmations
+                            blockIndex: Number(result.blockindex),
+                            status: vineyard_blockchain_1.blockchain.TransactionStatus.pending
                         });
                     }
                 }
