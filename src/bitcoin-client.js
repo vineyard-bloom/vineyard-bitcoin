@@ -118,7 +118,7 @@ class BitcoinClient {
                         txid: result.txid,
                         to: receiveDetail.address,
                         from: "",
-                        amount: new BigNumber(receiveDetail.amount).abs(),
+                        amount: new BigNumber(amountToSatoshis).abs(),
                         timeReceived: new Date(result.timereceived * 1000),
                         block: result.blockindex,
                         status: vineyard_blockchain_1.TransactionStatus.pending,
