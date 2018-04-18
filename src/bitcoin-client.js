@@ -73,13 +73,12 @@ class BitcoinClient {
             });
         });
     }
-    getNextBlockInfo(previousBlock) {
+    getNextBlockInfo(blockIndex) {
         return __awaiter(this, void 0, void 0, function* () {
-            const nextBlockIndex = previousBlock ? previousBlock.index + 1 : 0;
+            const nextBlockIndex = blockIndex ? blockIndex + 1 : 0;
             const blockHash = yield this.getBlockHash(nextBlockIndex);
-            if (!blockHash) {
+            if (!blockHash)
                 return;
-            }
             const nextBlock = yield this.getBlock(blockHash);
             return {
                 hash: nextBlock.hash,

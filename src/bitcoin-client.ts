@@ -1,6 +1,10 @@
 const bitcoin = require('bitcoin')
-import { BitcoinConfig, BitcoinTransactionSource, Block, TransactionDetails } from "./types";
-import {blockchain, ExternalSingleTransaction as ExternalTransaction, FullBlock, BlockInfo, Resolve, BaseBlock} from "vineyard-blockchain";
+import { BitcoinConfig, BitcoinTransactionSource, Block } from "./types";
+import {
+  BaseBlock, blockchain, BlockInfo, ExternalSingleTransaction as ExternalTransaction, FullBlock,
+  Resolve
+} from "vineyard-blockchain";
+
 const BigNumber = require("bignumber.js")
 
 export interface BlockList {
@@ -21,36 +25,36 @@ export class BitcoinClient {
 
   async getTransactionStatus(txid: string): Promise<blockchain.TransactionStatus> {
     const transaction: BitcoinTransactionSource = await this.getTransaction(txid)
-      if(transaction.confirmations == -1) return blockchain.TransactionStatus.rejected
-      if(transaction.confirmations == 0 ) return blockchain.TransactionStatus.pending
-      else {
-        return blockchain.TransactionStatus.accepted
-      }
+    if (transaction.confirmations == -1) return blockchain.TransactionStatus.rejected
+    if (transaction.confirmations == 0) return blockchain.TransactionStatus.pending
+    else {
+      return blockchain.TransactionStatus.accepted
+    }
   }
 
   async getLastBlock(): Promise<BaseBlock> {
     const blockHeight: number = await this.getBlockCount()
     const blockHash: string = await this.getBlockHash(blockHeight)
     const lastBlock: Block = await this.getBlock(blockHash)
-        return {
-                hash: lastBlock.hash,
-                index: lastBlock.height,
-                timeMined: new Date(lastBlock.time  * 1000)
-            }
+    return {
+      hash: lastBlock.hash,
+      index: lastBlock.height,
+      timeMined: new Date(lastBlock.time * 1000)
+    }
   }
 
   getBlockHash(blockHeight: number): Promise<string> {
     return new Promise((resolve: Resolve<string>, reject) => {
       this.client.getBlockHash(blockHeight, (err: any, blockHash: string) => {
-          resolve(blockHash)
-        })
-     })
+        resolve(blockHash)
+      })
+    })
   }
 
   getBlockIndex(): Promise<number> {
     return new Promise((resolve: Resolve<number>, reject) => {
       this.client.getBlockCount((err: any, blockCount: number) => {
-        if(err) {
+        if (err) {
           reject(err)
         } else {
           resolve(blockCount)
@@ -62,7 +66,7 @@ export class BitcoinClient {
   getBlockCount(): Promise<number> {
     return new Promise((resolve: Resolve<number>, reject) => {
       this.client.getBlockCount((err: any, blockCount: number) => {
-        if(err) {
+        if (err) {
           reject(err)
         } else {
           resolve(blockCount)
@@ -71,34 +75,36 @@ export class BitcoinClient {
     })
   }
 
-  async getNextBlockInfo(previousBlock: BlockInfo | undefined): Promise<BaseBlock | undefined> {
-    const nextBlockIndex = previousBlock ? previousBlock.index + 1 : 0
+  async getNextBlockInfo(blockIndex: number | undefined): Promise<BaseBlock | undefined> {
+    const nextBlockIndex = blockIndex ? blockIndex + 1 : 0
     const blockHash: string = await this.getBlockHash(nextBlockIndex)
-      if(!blockHash) {return}
+    if (!blockHash)
+      return
+
     const nextBlock: Block = await this.getBlock(blockHash)
-      return {
-        hash: nextBlock.hash,
-        index: nextBlock.height,
-        timeMined: new Date(nextBlock.time * 1000)
-      }
-   }
+    return {
+      hash: nextBlock.hash,
+      index: nextBlock.height,
+      timeMined: new Date(nextBlock.time * 1000)
+    }
+  }
 
   async getFullBlock(block: BlockInfo): Promise<FullBlock<ExternalTransaction>> {
     const fullBlock: Block = await this.getBlock(block.hash)
     let fullTransactions = await this.getFullTransactions(fullBlock.tx as any)
-        let newFullBlock = {
-              hash: fullBlock.hash,
-              index: fullBlock.height,
-              timeMined: new Date(fullBlock.time * 1000),
-              transactions: fullTransactions
-          }
-        return newFullBlock
+    let newFullBlock = {
+      hash: fullBlock.hash,
+      index: fullBlock.height,
+      timeMined: new Date(fullBlock.time * 1000),
+      transactions: fullTransactions
+    }
+    return newFullBlock
   }
 
   async getFullTransactions(transactions: string[]): Promise<ExternalTransaction[]> {
     let fullTransactions: ExternalTransaction[] = []
     for (let transaction of transactions) {
-      let result =  await this.getTransaction(transaction)
+      let result = await this.getTransaction(transaction)
       if (result) {
         const receiveDetail = result.details.find(detail => detail.category === 'receive')
         if (receiveDetail) {
@@ -149,7 +155,7 @@ export class BitcoinClient {
   getTransaction(txid: string): Promise<BitcoinTransactionSource> {
     return new Promise((resolve: Resolve<BitcoinTransactionSource>, reject) => {
       this.client.getTransaction(txid, true, (err: any, transaction: BitcoinTransactionSource) => {
-          resolve(transaction)
+        resolve(transaction)
       })
     })
   }

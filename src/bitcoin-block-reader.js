@@ -1,20 +1,20 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var client_functions_1 = require("./client-functions");
-var Client = require('bitcoin-core');
-var BitcoinBlockReader = /** @class */ (function () {
-    function BitcoinBlockReader(client) {
+const client_functions_1 = require("./client-functions");
+const Client = require('bitcoin-core');
+class BitcoinBlockReader {
+    constructor(client) {
         this.client = client;
     }
-    BitcoinBlockReader.prototype.getHeighestBlockIndex = function () {
+    getHeighestBlockIndex() {
         return this.client.getBlockCount();
-    };
-    BitcoinBlockReader.prototype.getFullBlock = function (index) {
+    }
+    getFullBlock(index) {
         return client_functions_1.getMultiTransactionBlock(this.client, index);
-    };
-    BitcoinBlockReader.createFromConfig = function (config) {
+    }
+    static createFromConfig(config) {
         return new BitcoinBlockReader(new Client(config));
-    };
-    return BitcoinBlockReader;
-}());
+    }
+}
 exports.BitcoinBlockReader = BitcoinBlockReader;
+//# sourceMappingURL=bitcoin-block-reader.js.map
