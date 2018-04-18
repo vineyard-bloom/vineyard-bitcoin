@@ -1,10 +1,11 @@
+import { ReadClient } from "vineyard-blockchain";
 import { BitcoinConfig, BitcoinTransactionSource, Block } from "./types";
-import { BaseBlock, blockchain, BlockInfo, ExternalSingleTransaction as ExternalTransaction, FullBlock } from "vineyard-blockchain";
+import { BaseBlock, blockchain, ExternalSingleTransaction as ExternalTransaction, FullBlock } from "vineyard-blockchain";
 export interface BlockList {
     transactions: BitcoinTransactionSource[];
     lastBlock: string;
 }
-export declare class BitcoinClient {
+export declare class BitcoinClient implements ReadClient<ExternalTransaction> {
     private client;
     constructor(bitcoinConfig: BitcoinConfig);
     getClient(): any;
@@ -14,7 +15,7 @@ export declare class BitcoinClient {
     getBlockIndex(): Promise<number>;
     getBlockCount(): Promise<number>;
     getNextBlockInfo(blockIndex: number | undefined): Promise<BaseBlock | undefined>;
-    getFullBlock(block: BlockInfo): Promise<FullBlock<ExternalTransaction>>;
+    getFullBlock(blockindex: number): Promise<FullBlock<ExternalTransaction> | undefined>;
     getFullTransactions(transactions: string[]): Promise<ExternalTransaction[]>;
     getHistory(lastBlock: string): Promise<BlockList>;
     listTransactions(): Promise<BitcoinTransactionSource[]>;

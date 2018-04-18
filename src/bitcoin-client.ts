@@ -1,3 +1,5 @@
+import { ReadClient } from "vineyard-blockchain"
+
 const bitcoin = require('bitcoin')
 import { BitcoinConfig, BitcoinTransactionSource, Block } from "./types";
 import {
@@ -12,7 +14,7 @@ export interface BlockList {
   lastBlock: string
 }
 
-export class BitcoinClient {
+export class BitcoinClient implements ReadClient<ExternalTransaction> {
   private client: any
 
   constructor(bitcoinConfig: BitcoinConfig) {
@@ -89,8 +91,12 @@ export class BitcoinClient {
     }
   }
 
-  async getFullBlock(block: BlockInfo): Promise<FullBlock<ExternalTransaction>> {
-    const fullBlock: Block = await this.getBlock(block.hash)
+  async getFullBlock(blockindex: number): Promise<FullBlock<ExternalTransaction> | undefined> {
+    const blockHash: string = await this.getBlockHash(blockindex)
+    if (!blockHash)
+      return
+
+    const fullBlock: Block = await this.getBlock(blockHash)
     let fullTransactions = await this.getFullTransactions(fullBlock.tx as any)
     let newFullBlock = {
       hash: fullBlock.hash,

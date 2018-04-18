@@ -87,9 +87,12 @@ class BitcoinClient {
             };
         });
     }
-    getFullBlock(block) {
+    getFullBlock(blockindex) {
         return __awaiter(this, void 0, void 0, function* () {
-            const fullBlock = yield this.getBlock(block.hash);
+            const blockHash = yield this.getBlockHash(blockindex);
+            if (!blockHash)
+                return;
+            const fullBlock = yield this.getBlock(blockHash);
             let fullTransactions = yield this.getFullTransactions(fullBlock.tx);
             let newFullBlock = {
                 hash: fullBlock.hash,
