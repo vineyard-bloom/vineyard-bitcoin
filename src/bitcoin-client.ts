@@ -6,6 +6,7 @@ import {
   BaseBlock, blockchain, BlockInfo, ExternalSingleTransaction as ExternalTransaction, FullBlock,
   Resolve
 } from "vineyard-blockchain";
+import {isNullOrUndefined} from "util";
 
 const BigNumber = require("bignumber.js")
 
@@ -78,7 +79,7 @@ export class BitcoinClient implements ReadClient<ExternalTransaction> {
   }
 
   async getNextBlockInfo(blockIndex: number | undefined): Promise<BaseBlock | undefined> {
-    const nextBlockIndex = blockIndex ? blockIndex + 1 : 0
+    const nextBlockIndex = isNullOrUndefined(blockIndex) ? 0 : blockIndex + 1
     const blockHash: string = await this.getBlockHash(nextBlockIndex)
     if (!blockHash)
       return

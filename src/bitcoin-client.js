@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const bitcoin = require('bitcoin');
 const vineyard_blockchain_1 = require("vineyard-blockchain");
+const util_1 = require("util");
 const BigNumber = require("bignumber.js");
 class BitcoinClient {
     constructor(bitcoinConfig) {
@@ -75,7 +76,7 @@ class BitcoinClient {
     }
     getNextBlockInfo(blockIndex) {
         return __awaiter(this, void 0, void 0, function* () {
-            const nextBlockIndex = blockIndex ? blockIndex + 1 : 0;
+            const nextBlockIndex = util_1.isNullOrUndefined(blockIndex) ? 0 : blockIndex + 1;
             const blockHash = yield this.getBlockHash(nextBlockIndex);
             if (!blockHash)
                 return;
