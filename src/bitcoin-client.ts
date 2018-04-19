@@ -78,7 +78,7 @@ export class BitcoinClient implements ReadClient<ExternalTransaction> {
   }
 
   async getNextBlockInfo(blockIndex: number | undefined): Promise<BaseBlock | undefined> {
-    const nextBlockIndex = blockIndex ? blockIndex + 1 : 0
+    const nextBlockIndex = blockIndex === (null || undefined) ? 0 : blockIndex + 1
     const blockHash: string = await this.getBlockHash(nextBlockIndex)
     if (!blockHash)
       return

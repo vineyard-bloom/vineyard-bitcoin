@@ -75,7 +75,7 @@ class BitcoinClient {
     }
     getNextBlockInfo(blockIndex) {
         return __awaiter(this, void 0, void 0, function* () {
-            const nextBlockIndex = blockIndex ? blockIndex + 1 : 0;
+            const nextBlockIndex = blockIndex === (null || undefined) ? 0 : blockIndex + 1;
             const blockHash = yield this.getBlockHash(nextBlockIndex);
             if (!blockHash)
                 return;
