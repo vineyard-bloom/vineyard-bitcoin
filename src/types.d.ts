@@ -24,7 +24,7 @@ export declare enum TransactionStatus {
 }
 export interface NewTransaction {
     address: string;
-    index: number[];
+    index: number;
     txid: string;
     status: TransactionStatus;
     amount: number;

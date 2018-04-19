@@ -20,6 +20,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const blockchain_1 = require("vineyard-blockchain/src/blockchain");
 const client_functions_1 = require("./client-functions");
 const bitcoinjs_lib_1 = require("bitcoinjs-lib");
+const util_1 = require("util");
 const Client = require('bitcoin-core');
 const bitcoin = require('bitcoin');
 const BigNumber = require("bignumber.js");
@@ -94,7 +95,7 @@ class BitcoinClient {
     }
     getNextBlockInfo(blockIndex) {
         return __awaiter(this, void 0, void 0, function* () {
-            const nextBlockIndex = blockIndex ? blockIndex + 1 : 0;
+            const nextBlockIndex = util_1.isNullOrUndefined(blockIndex) ? 0 : blockIndex + 1;
             const blockHash = yield this.getBlockHash(nextBlockIndex);
             if (!blockHash)
                 return;

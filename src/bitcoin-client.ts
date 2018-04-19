@@ -1,11 +1,5 @@
 import { blockchain } from "vineyard-blockchain/src/blockchain"
-import {
-  AsyncBitcoinRpcClient,
-  BitcoinConfig,
-  BitcoinConfig2,
-  BitcoinRPCBlock,
-  BitcoinTransactionSource
-} from "./types";
+import { AsyncBitcoinRpcClient, BitcoinConfig, BitcoinRPCBlock, BitcoinTransactionSource } from "./types";
 import {
   BaseBlock,
   ExternalSingleTransaction as ExternalTransaction,
@@ -14,7 +8,8 @@ import {
   Resolve
 } from "vineyard-blockchain";
 import { getMultiTransactions } from "./client-functions"
-import { address, Network, networks, script } from "bitcoinjs-lib"
+import { address, Network, networks } from "bitcoinjs-lib"
+import { isNullOrUndefined } from "util"
 
 const Client = require('bitcoin-core')
 const bitcoin = require('bitcoin')
@@ -103,7 +98,7 @@ export class BitcoinClient implements ReadClient<ExternalTransaction> {
   }
 
   async getNextBlockInfo(blockIndex: number | undefined): Promise<BaseBlock | undefined> {
-    const nextBlockIndex = blockIndex ? blockIndex + 1 : 0
+    const nextBlockIndex = isNullOrUndefined(blockIndex) ? 0 : blockIndex + 1
     const blockHash: string = await this.getBlockHash(nextBlockIndex)
     if (!blockHash)
       return
