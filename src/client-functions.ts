@@ -1,10 +1,9 @@
-import { BitcoinRpcClient, Block } from "./types";
-import { blockchain } from 'vineyard-blockchain'
+import { AsyncBitcoinRpcClient, BitcoinRPCBlock, Omit, RawRPCDeserializedTransaction, TxId } from "./types";
 import { BigNumber } from "bignumber.js"
+import { blockchain } from "vineyard-blockchain"
+import TransactionOutput = blockchain.TransactionOutput
 
 export const liveGenesisTxid = '4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b'
-
-const { promisify } = require('util')
 
 // export function getBlockCount(client: BitcoinRpcClient): Promise<number> {
 //   return promisify(client.getBlockCount.bind(client))()
@@ -18,7 +17,7 @@ const { promisify } = require('util')
 //   return await promisify(client.getBlockHash.bind(client))(hash)
 // }
 
-export async function getBlockByIndex(client: any, index: number): Promise<Block> {
+export async function getBlockByIndex(client: AsyncBitcoinRpcClient, index: number): Promise<BitcoinRPCBlock> {
   const hash = await client.getBlockHash(index)
   return client.getBlock(hash)
 }
@@ -43,28 +42,32 @@ export async function getBlockByIndex(client: any, index: number): Promise<Block
 //   }
 // }
 
-export async function getMultiTransactions(client: any, transactions: string[], blockIndex: number): Promise<blockchain.MultiTransaction[]> {
-  const promises = transactions
-    .filter(t => t !== liveGenesisTxid)
-    .map(async (t) => {
-      console.log('t', t)
-      const raw = await client.getRawTransaction(t, true)
-      return {
-        txid: raw.txid,
-        timeReceived: new Date(raw.blocktime * 1000),
-        status: blockchain.TransactionStatus.unknown,
-        fee: new BigNumber(0),
-        nonce: 0,
-        blockIndex: blockIndex,
-        inputs: raw.vin,
-        outputs: raw.vout,
-        original: raw
-      }
-    })
-  return Promise.all(promises)
+export async function getMultiTransactions(client: AsyncBitcoinRpcClient, transactionIds: TxId[], blockIndex: number): Promise<blockchain.MultiTransaction[]> {
+  return Promise.all(transactionIds
+    .filter(txid => txid !== liveGenesisTxid)
+    .map(txid => getMultiTransaction(client, txid).then( tx => { return {...tx, blockIndex }} ).catch(e => {
+      throw new Error(`Unable to acquire full multi transaction for ${txid}: ${e}`)
+    })))
 }
 
-export function bitcoinToBlockchainBlock(block: Block): blockchain.Block {
+// TODO: Consider the fee below, can we compute this?
+export async function getMultiTransaction(client: AsyncBitcoinRpcClient, txid: TxId): Promise<Omit<blockchain.MultiTransaction, 'blockIndex'>>{
+  const raw = await client.getRawTransaction(txid, true) as RawRPCDeserializedTransaction
+
+  return {
+    txid: raw.txid,
+    timeReceived: new Date(raw.blocktime * 1000),
+    status: blockchain.TransactionStatus.unknown,
+    fee: new BigNumber(0),
+    nonce: 0,
+    inputs: raw.vin,
+    outputs: raw.vout.filter(notOpReturn)
+  }
+}
+
+const notOpReturn = (out: TransactionOutput) => out.scriptPubKey.type !== 'nulldata'
+
+export function bitcoinToBlockchainBlock(block: BitcoinRPCBlock): blockchain.Block {
   return {
     hash: block.hash,
     index: block.height,
@@ -72,14 +75,13 @@ export function bitcoinToBlockchainBlock(block: Block): blockchain.Block {
   }
 }
 
-export async function getMultiTransactionBlock(client: BitcoinRpcClient, index: number): Promise<blockchain.FullBlock<blockchain.MultiTransaction> | undefined> {
-  const fullBlock: Block = await getBlockByIndex(client, index)
-  let transactions = await getMultiTransactions(client, fullBlock.tx as any, index)
-  let newFullBlock = {
+export async function getMultiTransactionBlock(client: AsyncBitcoinRpcClient, index: number): Promise<blockchain.FullBlock<blockchain.MultiTransaction>> {
+  const fullBlock: BitcoinRPCBlock = await getBlockByIndex(client, index)
+  let transactions = await getMultiTransactions(client, fullBlock.tx, index)
+  return  {
     hash: fullBlock.hash,
     index: fullBlock.height,
     timeMined: new Date(fullBlock.time * 1000),
     transactions: transactions
   }
-  return newFullBlock
 }

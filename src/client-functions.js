@@ -8,10 +8,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const vineyard_blockchain_1 = require("vineyard-blockchain");
 const bignumber_js_1 = require("bignumber.js");
+const vineyard_blockchain_1 = require("vineyard-blockchain");
 exports.liveGenesisTxid = '4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b';
-const { promisify } = require('util');
 // export function getBlockCount(client: BitcoinRpcClient): Promise<number> {
 //   return promisify(client.getBlockCount.bind(client))()
 // }
@@ -47,29 +46,33 @@ exports.getBlockByIndex = getBlockByIndex;
 //
 //   }
 // }
-function getMultiTransactions(client, transactions, blockIndex) {
+function getMultiTransactions(client, transactionIds, blockIndex) {
     return __awaiter(this, void 0, void 0, function* () {
-        const promises = transactions
-            .filter(t => t !== exports.liveGenesisTxid)
-            .map((t) => __awaiter(this, void 0, void 0, function* () {
-            console.log('t', t);
-            const raw = yield client.getRawTransaction(t, true);
-            return {
-                txid: raw.txid,
-                timeReceived: new Date(raw.blocktime * 1000),
-                status: vineyard_blockchain_1.blockchain.TransactionStatus.unknown,
-                fee: new bignumber_js_1.BigNumber(0),
-                nonce: 0,
-                blockIndex: blockIndex,
-                inputs: raw.vin,
-                outputs: raw.vout,
-                original: raw
-            };
-        }));
-        return Promise.all(promises);
+        return Promise.all(transactionIds
+            .filter(txid => txid !== exports.liveGenesisTxid)
+            .map(txid => getMultiTransaction(client, txid).then(tx => { return Object.assign({}, tx, { blockIndex }); }).catch(e => {
+            throw new Error(`Unable to acquire full multi transaction for ${txid}: ${e}`);
+        })));
     });
 }
 exports.getMultiTransactions = getMultiTransactions;
+// TODO: Consider the fee below, can we compute this?
+function getMultiTransaction(client, txid) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const raw = yield client.getRawTransaction(txid, true);
+        return {
+            txid: raw.txid,
+            timeReceived: new Date(raw.blocktime * 1000),
+            status: vineyard_blockchain_1.blockchain.TransactionStatus.unknown,
+            fee: new bignumber_js_1.BigNumber(0),
+            nonce: 0,
+            inputs: raw.vin,
+            outputs: raw.vout.filter(notOpReturn)
+        };
+    });
+}
+exports.getMultiTransaction = getMultiTransaction;
+const notOpReturn = (out) => out.scriptPubKey.type !== 'nulldata';
 function bitcoinToBlockchainBlock(block) {
     return {
         hash: block.hash,
@@ -82,13 +85,12 @@ function getMultiTransactionBlock(client, index) {
     return __awaiter(this, void 0, void 0, function* () {
         const fullBlock = yield getBlockByIndex(client, index);
         let transactions = yield getMultiTransactions(client, fullBlock.tx, index);
-        let newFullBlock = {
+        return {
             hash: fullBlock.hash,
             index: fullBlock.height,
             timeMined: new Date(fullBlock.time * 1000),
             transactions: transactions
         };
-        return newFullBlock;
     });
 }
 exports.getMultiTransactionBlock = getMultiTransactionBlock;

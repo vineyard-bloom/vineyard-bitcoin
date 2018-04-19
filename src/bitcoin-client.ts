@@ -1,11 +1,24 @@
-import { ReadClient } from "vineyard-blockchain"
-
-const bitcoin = require('bitcoin')
-import { BitcoinConfig, BitcoinTransactionSource, Block } from "./types";
+import { blockchain } from "vineyard-blockchain/src/blockchain"
 import {
-  BaseBlock, blockchain, BlockInfo, ExternalSingleTransaction as ExternalTransaction, FullBlock,
+  AsyncBitcoinRpcClient,
+  BitcoinConfig,
+  BitcoinConfig2,
+  BitcoinRPCBlock,
+  BitcoinTransactionSource
+} from "./types";
+import {
+  BaseBlock,
+  ExternalSingleTransaction as ExternalTransaction,
+  FullBlock,
+  ReadClient,
   Resolve
 } from "vineyard-blockchain";
+import { getMultiTransactions } from "./client-functions"
+import { address, Network, networks, script } from "bitcoinjs-lib"
+
+const Client = require('bitcoin-core')
+const bitcoin = require('bitcoin')
+import TransactionOutput = blockchain.TransactionOutput
 
 const BigNumber = require("bignumber.js")
 
@@ -15,14 +28,26 @@ export interface BlockList {
 }
 
 export class BitcoinClient implements ReadClient<ExternalTransaction> {
-  private client: any
+  private readonly client: any
+  private readonly asyncClient: AsyncBitcoinRpcClient
+  private readonly network: Network
 
   constructor(bitcoinConfig: BitcoinConfig) {
-    this.client = new bitcoin.Client(bitcoinConfig)
+    const { network, ...callbackConfig } = bitcoinConfig
+    this.client = new bitcoin.Client(callbackConfig)
+
+    const { user: username, pass: password, ...asyncConfig } = callbackConfig
+    this.asyncClient = new Client({ username, password, ...asyncConfig })
+
+    this.network = network || networks.bitcoin
   }
 
   getClient() {
     return this.client
+  }
+
+  getAsyncClient(): AsyncBitcoinRpcClient {
+    return this.asyncClient
   }
 
   async getTransactionStatus(txid: string): Promise<blockchain.TransactionStatus> {
@@ -37,7 +62,7 @@ export class BitcoinClient implements ReadClient<ExternalTransaction> {
   async getLastBlock(): Promise<BaseBlock> {
     const blockHeight: number = await this.getBlockCount()
     const blockHash: string = await this.getBlockHash(blockHeight)
-    const lastBlock: Block = await this.getBlock(blockHash)
+    const lastBlock: BitcoinRPCBlock = await this.getBlock(blockHash)
     return {
       hash: lastBlock.hash,
       index: lastBlock.height,
@@ -83,7 +108,7 @@ export class BitcoinClient implements ReadClient<ExternalTransaction> {
     if (!blockHash)
       return
 
-    const nextBlock: Block = await this.getBlock(blockHash)
+    const nextBlock: BitcoinRPCBlock = await this.getBlock(blockHash)
     return {
       hash: nextBlock.hash,
       index: nextBlock.height,
@@ -92,41 +117,46 @@ export class BitcoinClient implements ReadClient<ExternalTransaction> {
   }
 
   async getFullBlock(blockindex: number): Promise<FullBlock<ExternalTransaction> | undefined> {
-    const blockHash: string = await this.getBlockHash(blockindex)
-    if (!blockHash)
-      return
+    const blockHash = await this.asyncClient.getBlockHash(blockindex)
+    if (!blockHash) {
+      console.warn(`Queried for blockhash for block index ${blockindex} but got none.`)
+      return undefined
+    }
 
-    const fullBlock: Block = await this.getBlock(blockHash)
-    let fullTransactions = await this.getFullTransactions(fullBlock.tx as any)
-    let newFullBlock = {
+    const fullBlock: BitcoinRPCBlock = await this.asyncClient.getBlock(blockHash)
+    let fullTransactions = await this.getFullTransactions(fullBlock.tx, blockindex)
+    return {
       hash: fullBlock.hash,
       index: fullBlock.height,
       timeMined: new Date(fullBlock.time * 1000),
       transactions: fullTransactions
     }
-    return newFullBlock
   }
 
-  async getFullTransactions(transactions: string[]): Promise<ExternalTransaction[]> {
-    let fullTransactions: ExternalTransaction[] = []
-    for (let transaction of transactions) {
-      let result = await this.getTransaction(transaction)
-      if (result) {
-        const receiveDetail = result.details.find(detail => detail.category === 'receive')
-        if (receiveDetail) {
-          fullTransactions.push({
-            txid: result.txid,
-            to: receiveDetail.address,
+  private async getFullTransactions(txids: string[], blockIndex: number): Promise<ExternalTransaction[]> {
+    const singleTxs = [] as ExternalTransaction[]
+    const multiTxs = await getMultiTransactions(this.asyncClient, txids, blockIndex)
+
+    multiTxs.forEach( mtx => {
+      const { txid, outputs, status, timeReceived } = mtx
+
+      outputs.forEach( (output: TransactionOutput) => {
+        const { scriptPubKey, value } = output
+        singleTxs.push(
+          {
+            txid,
+            timeReceived,
+            to: parseAddress(scriptPubKey.hex, this.network),
             from: "",
-            amount: new BigNumber(receiveDetail.amount).abs(),
-            timeReceived: new Date(result.timereceived * 1000),
-            blockIndex: Number(result.blockindex),
-            status: blockchain.TransactionStatus.pending
-          })
-        }
-      }
-    }
-    return fullTransactions
+            amount: new BigNumber(value),
+            blockIndex,
+            status
+          }
+        )
+      })
+    })
+
+    return singleTxs
   }
 
   getHistory(lastBlock: string): Promise<BlockList> {
@@ -166,9 +196,9 @@ export class BitcoinClient implements ReadClient<ExternalTransaction> {
     })
   }
 
-  getBlock(blockhash: string): Promise<Block> {
-    return new Promise((resolve: Resolve<Block>, reject) => {
-      this.client.getBlock(blockhash, (err: any, block: Block) => {
+  getBlock(blockhash: string): Promise<BitcoinRPCBlock> {
+    return new Promise((resolve: Resolve<BitcoinRPCBlock>, reject) => {
+      this.client.getBlock(blockhash, (err: any, block: BitcoinRPCBlock) => {
         if (err)
           reject(err)
         else
@@ -250,5 +280,15 @@ export class BitcoinClient implements ReadClient<ExternalTransaction> {
         resolve(txid);
       })
     })
+  }
+}
+
+
+export function parseAddress (pubKeyHex: string, network: Network): string | undefined {
+  try {
+    return address.fromOutputScript(new Buffer(pubKeyHex, "hex"), network)
+  } catch (e) {
+    console.error(`Unable to parse address from output script: ${pubKeyHex}: ${e}`)
+    return undefined
   }
 }

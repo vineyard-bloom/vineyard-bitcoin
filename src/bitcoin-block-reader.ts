@@ -1,24 +1,25 @@
 import { blockchain } from 'vineyard-blockchain'
-import { BitcoinConfig2, BitcoinRpcClient } from "./types";
+import { AsyncBitcoinRpcClient, BitcoinConfig2 } from "./types";
 import { getMultiTransactionBlock } from "./client-functions"
+
 const Client = require('bitcoin-core')
 
 export class BitcoinBlockReader implements blockchain.BlockReader<blockchain.FullBlock<blockchain.MultiTransaction>> {
-  private client: any
+  private client: AsyncBitcoinRpcClient
 
-  constructor(client: BitcoinRpcClient) {
+  constructor(client: AsyncBitcoinRpcClient) {
     this.client = client
   }
 
-  getHeighestBlockIndex(): Promise<number> {
+  async getHeighestBlockIndex(): Promise<number> {
     return this.client.getBlockCount()
   }
 
-  getFullBlock(index: number): Promise<blockchain.FullBlock<blockchain.MultiTransaction> | undefined> {
+  async getFullBlock(index: number): Promise<blockchain.FullBlock<blockchain.MultiTransaction>> {
     return getMultiTransactionBlock(this.client, index)
   }
 
-  static createFromConfig(config: BitcoinConfig2) {
+  static createFromConfig(config: BitcoinConfig2): BitcoinBlockReader {
     return new BitcoinBlockReader(new Client(config))
   }
 }
