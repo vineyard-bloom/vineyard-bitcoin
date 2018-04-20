@@ -5,4 +5,3 @@ function __export(m) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __export(require("./bitcoin-lab"));
 __export(require("./bitcoin-server"));
-//# sourceMappingURL=index.js.map

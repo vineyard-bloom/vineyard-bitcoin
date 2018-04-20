@@ -9,6 +9,7 @@ import * as assert from "assert"
 import { isNumber, isString } from "util"
 import { BitcoinBlockReader } from "../../src/bitcoin-block-reader"
 import { BitcoinClient } from "../../src/bitcoin-client"
+import { networks } from "bitcoinjs-lib"
 
 const Client = require('bitcoin-core')
 
@@ -16,7 +17,7 @@ const Client = require('bitcoin-core')
 
 describe('Bitcoin-core type sanity checking', function() {
   const bitcoinCoreClient = new Client(regtestConfig) as AsyncBitcoinRpcClient
-  const bitcoinBlockReader = new BitcoinBlockReader(bitcoinCoreClient)
+  const bitcoinBlockReader = new BitcoinBlockReader(bitcoinCoreClient, networks.testnet)
 
   it('returns a blockheight number', async function() {
     const blockHeight = await bitcoinCoreClient.getBlockCount()
@@ -82,7 +83,6 @@ describe('Bitcoin-core type sanity checking', function() {
     rawTx.vin.forEach(input => {
       assert(input.vout || input.coinbase)
       assert(input.txid || input.coinbase)
-      assert(isNumber(input.amount) || input.coinbase)
     })
   })
 })

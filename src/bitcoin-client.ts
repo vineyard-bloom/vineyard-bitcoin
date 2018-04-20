@@ -7,16 +7,13 @@ import {
   ReadClient,
   Resolve
 } from "vineyard-blockchain";
-import { getMultiTransactions } from "./client-functions"
-import { address, Network, networks } from "bitcoinjs-lib"
+import { addressFromOutScriptHex, getMultiTransactions } from "./client-functions"
+import { Network, networks } from "bitcoinjs-lib"
 import { isNullOrUndefined } from "util"
 
 const Client = require('bitcoin-core')
 const bitcoin = require('bitcoin')
 import TransactionOutput = blockchain.TransactionOutput
-import { addressFromOutScriptHex } from "vineyard-blockchain/src/bitcoin-utility"
-
-const BigNumber = require("bignumber.js")
 
 export interface BlockList {
   transactions: BitcoinTransactionSource[]
@@ -131,18 +128,18 @@ export class BitcoinClient implements ReadClient<ExternalTransaction> {
 
   private async getFullTransactions(txids: string[], blockIndex: number): Promise<ExternalTransaction[]> {
     const singleTxs = [] as ExternalTransaction[]
-    const multiTxs = await getMultiTransactions(this.asyncClient, txids, blockIndex)
+    const multiTxs = await getMultiTransactions(this.asyncClient, txids, blockIndex, this.network)
 
     multiTxs.forEach( mtx => {
       const { txid, outputs, status, timeReceived } = mtx
 
       outputs.forEach( (output: TransactionOutput) => {
-        const { scriptPubKey, valueSat } = output
+        const { scriptPubKey, valueSat, address } = output
         singleTxs.push(
           {
             txid,
             timeReceived,
-            to: addressFromOutScriptHex(scriptPubKey.hex, this.network),
+            to: address,
             from: "",
             amount: valueSat,
             blockIndex,

@@ -11,6 +11,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const bignumber_js_1 = require("bignumber.js");
 const vineyard_blockchain_1 = require("vineyard-blockchain");
 const util_1 = require("util");
+const bitcoinjs_lib_1 = require("bitcoinjs-lib");
 exports.liveGenesisTxid = '4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b';
 // export function getBlockCount(client: BitcoinRpcClient): Promise<number> {
 //   return promisify(client.getBlockCount.bind(client))()
@@ -47,18 +48,18 @@ exports.getBlockByIndex = getBlockByIndex;
 //
 //   }
 // }
-function getMultiTransactions(client, transactionIds, blockIndex) {
+function getMultiTransactions(client, transactionIds, blockIndex, network) {
     return __awaiter(this, void 0, void 0, function* () {
         return Promise.all(transactionIds
             .filter(txid => txid !== exports.liveGenesisTxid)
-            .map(txid => getMultiTransaction(client, txid).then(tx => { return Object.assign({}, tx, { blockIndex }); }).catch(e => {
+            .map(txid => getMultiTransaction(client, txid, network).then(tx => { return Object.assign({}, tx, { blockIndex }); }).catch(e => {
             throw new Error(`Unable to acquire full multi transaction for ${txid}: ${e}`);
         })));
     });
 }
 exports.getMultiTransactions = getMultiTransactions;
 // TODO: Consider the fee below, can we compute this?
-function getMultiTransaction(client, txid) {
+function getMultiTransaction(client, txid, network) {
     return __awaiter(this, void 0, void 0, function* () {
         const raw = yield client.getRawTransaction(txid, true);
         return {
@@ -68,11 +69,12 @@ function getMultiTransaction(client, txid) {
             fee: new bignumber_js_1.BigNumber(0),
             nonce: 0,
             inputs: raw.vin,
-            outputs: raw.vout.filter(notOpReturn).map(ensureValueInSatoshis)
+            outputs: raw.vout.filter(notOpReturn).map(ensureValueInSatoshis).map(populateAddress(network))
         };
     });
 }
 exports.getMultiTransaction = getMultiTransaction;
+const populateAddress = network => out => Object.assign(out, { address: addressFromOutScriptHex(out.scriptPubKey.hex, network) });
 const notOpReturn = (out) => out.scriptPubKey.type !== 'nulldata';
 const ensureValueInSatoshis = (out) => {
     const valueSat = util_1.isNullOrUndefined(out.valueSat) ? new bignumber_js_1.BigNumber(out.value).times(1e8) : new bignumber_js_1.BigNumber(out.valueSat);
@@ -86,10 +88,10 @@ function bitcoinToBlockchainBlock(block) {
     };
 }
 exports.bitcoinToBlockchainBlock = bitcoinToBlockchainBlock;
-function getMultiTransactionBlock(client, index) {
+function getMultiTransactionBlock(client, index, network) {
     return __awaiter(this, void 0, void 0, function* () {
         const fullBlock = yield getBlockByIndex(client, index);
-        let transactions = yield getMultiTransactions(client, fullBlock.tx, index);
+        let transactions = yield getMultiTransactions(client, fullBlock.tx, index, network);
         return {
             hash: fullBlock.hash,
             index: fullBlock.height,
@@ -99,4 +101,14 @@ function getMultiTransactionBlock(client, index) {
     });
 }
 exports.getMultiTransactionBlock = getMultiTransactionBlock;
+function addressFromOutScriptHex(pubKeyHex, network) {
+    try {
+        return bitcoinjs_lib_1.address.fromOutputScript(new Buffer(pubKeyHex, "hex"), network);
+    }
+    catch (e) {
+        console.error(`Unable to parse address from output script: ${pubKeyHex}: ${e}`);
+        return 'FAILED PARSE';
+    }
+}
+exports.addressFromOutScriptHex = addressFromOutScriptHex;
 //# sourceMappingURL=client-functions.js.map

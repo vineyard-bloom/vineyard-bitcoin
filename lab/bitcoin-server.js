@@ -1,14 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const child_process = require('child_process');
+var child_process = require('child_process');
 var Status;
 (function (Status) {
     Status[Status["inactive"] = 0] = "inactive";
     Status[Status["active"] = 1] = "active";
 })(Status || (Status = {}));
 function waitUntilRunning() {
-    return new Promise((resolve, reject) => {
-        const poll = () => {
+    return new Promise(function (resolve, reject) {
+        var poll = function () {
             child_process.exec('bitcoin-cli getinfo', function (error, stdout, stderr) {
                 if (error) {
                     // console.log('not yet', stderr)
@@ -23,34 +23,35 @@ function waitUntilRunning() {
         setTimeout(poll, 3000);
     });
 }
-class BitcoinServer {
-    constructor() {
+var BitcoinServer = (function () {
+    function BitcoinServer() {
         this.status = Status.inactive;
     }
-    start() {
+    BitcoinServer.prototype.start = function () {
         console.log('Starting bitcoind');
-        const childProcess = this.childProcess = child_process.spawn('bitcoind');
-        childProcess.stdout.on('data', (data) => {
-            console.log(`stdout: ${data}`);
+        var childProcess = this.childProcess = child_process.spawn('bitcoind');
+        childProcess.stdout.on('data', function (data) {
+            console.log("stdout: " + data);
         });
-        childProcess.stderr.on('data', (data) => {
-            console.error(`stderr: ${data}`);
+        childProcess.stderr.on('data', function (data) {
+            console.error("stderr: " + data);
         });
-        childProcess.on('close', (code) => {
-            console.log(`child process exited with code ${code}`);
+        childProcess.on('close', function (code) {
+            console.log("child process exited with code " + code);
         });
         return waitUntilRunning();
-    }
-    stop() {
+    };
+    BitcoinServer.prototype.stop = function () {
+        var _this = this;
         if (!this.childProcess)
             return Promise.resolve();
-        return new Promise((resolve, reject) => {
-            this.childProcess.kill();
-            this.childProcess.on('close', (code) => {
+        return new Promise(function (resolve, reject) {
+            _this.childProcess.kill();
+            _this.childProcess.on('close', function (code) {
                 resolve();
             });
         });
-    }
-}
+    };
+    return BitcoinServer;
+}());
 exports.BitcoinServer = BitcoinServer;
-//# sourceMappingURL=bitcoin-server.js.map
