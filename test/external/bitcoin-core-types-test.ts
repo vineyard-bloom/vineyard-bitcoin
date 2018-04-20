@@ -39,11 +39,12 @@ describe('Bitcoin-core type sanity checking', function() {
   })
 
   it('returns a multitx in BitcoinRPCBlock format', async function() {
-    const blockIndex = 0
+    const blockIndex = 1
     const multi = await bitcoinBlockReader.getFullBlock(blockIndex)
+
     multi.transactions.forEach( tx => {
       tx.outputs.forEach( out => {
-        assert(out.scriptPubKey.addresses.length > 0)
+        assert.equal(out.scriptPubKey.addresses[0], out.address)
       } )
     } )
   })

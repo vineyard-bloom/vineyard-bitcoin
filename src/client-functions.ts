@@ -2,47 +2,16 @@ import { AsyncBitcoinRpcClient, BitcoinRPCBlock, Omit, RawRPCDeserializedTransac
 import { BigNumber } from "bignumber.js"
 import { blockchain } from "vineyard-blockchain"
 import { isNullOrUndefined } from "util"
-import { address, Network } from "bitcoinjs-lib"
+import { address, ECPair, Network, networks } from "bitcoinjs-lib"
 import TransactionOutput = blockchain.TransactionOutput
+import ScriptPubKey = blockchain.ScriptPubKey
 
 export const liveGenesisTxid = '4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b'
-
-// export function getBlockCount(client: BitcoinRpcClient): Promise<number> {
-//   return promisify(client.getBlockCount.bind(client))()
-// }
-//
-// export function getBlockHash(client: BitcoinRpcClient, index: number): Promise<string> {
-//   return promisify(client.getBlockHash.bind(client))(index)
-// }
-//
-// export async function getBlockByHash(client: BitcoinRpcClient, hash: string): Promise<Block> {
-//   return await promisify(client.getBlockHash.bind(client))(hash)
-// }
 
 export async function getBlockByIndex(client: AsyncBitcoinRpcClient, index: number): Promise<BitcoinRPCBlock> {
   const hash = await client.getBlockHash(index)
   return client.getBlock(hash)
 }
-
-// export function getTransaction(client: BitcoinRpcClient, txid: string): Promise<BitcoinTransactionSource> {
-//   return promisify(client.getTransaction.bind(client))(txid)
-// }
-
-// export function getRawTransaction(client: BitcoinRpcClient, txid: string): Promise<RawTransaction> {
-//   return promisify(client.getRawTransaction.bind(client))(txid)
-// }
-
-// function convertInput(input: any): blockchain.TransactionInput {
-//   return {
-//
-//   }
-// }
-//
-// function convertOutput(output: any): blockchain.TransactionOutput {
-//   return {
-//
-//   }
-// }
 
 export async function getMultiTransactions(client: AsyncBitcoinRpcClient, transactionIds: TxId[], blockIndex: number, network: Network): Promise<blockchain.MultiTransaction[]> {
   return Promise.all(transactionIds
@@ -68,7 +37,7 @@ export async function getMultiTransaction(client: AsyncBitcoinRpcClient, txid: T
 }
 
 const populateAddress : (network: Network) => (out: TransactionOutput) => TransactionOutput =
-  network => out =>  Object.assign(out, {address: addressFromOutScriptHex(out.scriptPubKey.hex, network)})
+  network => out =>  Object.assign(out, {address: addressFromOutScriptHex(out.scriptPubKey, network)})
 
 const notOpReturn = (out: TransactionOutput) => out.scriptPubKey.type !== 'nulldata'
 const ensureValueInSatoshis: (out: TransactionOutput) => TransactionOutput = (out) => {
@@ -95,11 +64,19 @@ export async function getMultiTransactionBlock(client: AsyncBitcoinRpcClient, in
   }
 }
 
-export function addressFromOutScriptHex (pubKeyHex: string, network: Network): string {
+export function addressFromOutScriptHex (scriptPubKey: ScriptPubKey, network: Network): string {
   try {
-    return address.fromOutputScript(new Buffer(pubKeyHex, "hex"), network)
+    return address.fromOutputScript(new Buffer(scriptPubKey.hex, "hex"), network)
   } catch (e) {
-    console.error(`Unable to parse address from output script: ${pubKeyHex}: ${e}`)
-    return 'FAILED PARSE'
+    console.warn(`Unable to parse address from output script: ${scriptPubKey.hex}: ${e}`)
+    console.warn(`Trying p2pk parse`)
+  }
+
+  try {
+    const pubKey = scriptPubKey.asm.split(' ')[0]
+    return ECPair.fromPublicKeyBuffer(new Buffer(pubKey, 'hex'), network).getAddress()
+  } catch (e) {
+    console.warn(`Unable to parse address as p2pk: ${scriptPubKey.asm}: ${e}`)
+    return 'UNABLE TO PARSE: ' + scriptPubKey.hex
   }
 }

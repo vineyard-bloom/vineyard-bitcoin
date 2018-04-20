@@ -13,17 +13,6 @@ const vineyard_blockchain_1 = require("vineyard-blockchain");
 const util_1 = require("util");
 const bitcoinjs_lib_1 = require("bitcoinjs-lib");
 exports.liveGenesisTxid = '4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b';
-// export function getBlockCount(client: BitcoinRpcClient): Promise<number> {
-//   return promisify(client.getBlockCount.bind(client))()
-// }
-//
-// export function getBlockHash(client: BitcoinRpcClient, index: number): Promise<string> {
-//   return promisify(client.getBlockHash.bind(client))(index)
-// }
-//
-// export async function getBlockByHash(client: BitcoinRpcClient, hash: string): Promise<Block> {
-//   return await promisify(client.getBlockHash.bind(client))(hash)
-// }
 function getBlockByIndex(client, index) {
     return __awaiter(this, void 0, void 0, function* () {
         const hash = yield client.getBlockHash(index);
@@ -31,23 +20,6 @@ function getBlockByIndex(client, index) {
     });
 }
 exports.getBlockByIndex = getBlockByIndex;
-// export function getTransaction(client: BitcoinRpcClient, txid: string): Promise<BitcoinTransactionSource> {
-//   return promisify(client.getTransaction.bind(client))(txid)
-// }
-// export function getRawTransaction(client: BitcoinRpcClient, txid: string): Promise<RawTransaction> {
-//   return promisify(client.getRawTransaction.bind(client))(txid)
-// }
-// function convertInput(input: any): blockchain.TransactionInput {
-//   return {
-//
-//   }
-// }
-//
-// function convertOutput(output: any): blockchain.TransactionOutput {
-//   return {
-//
-//   }
-// }
 function getMultiTransactions(client, transactionIds, blockIndex, network) {
     return __awaiter(this, void 0, void 0, function* () {
         return Promise.all(transactionIds
@@ -74,7 +46,7 @@ function getMultiTransaction(client, txid, network) {
     });
 }
 exports.getMultiTransaction = getMultiTransaction;
-const populateAddress = network => out => Object.assign(out, { address: addressFromOutScriptHex(out.scriptPubKey.hex, network) });
+const populateAddress = network => out => Object.assign(out, { address: addressFromOutScriptHex(out.scriptPubKey, network) });
 const notOpReturn = (out) => out.scriptPubKey.type !== 'nulldata';
 const ensureValueInSatoshis = (out) => {
     const valueSat = util_1.isNullOrUndefined(out.valueSat) ? new bignumber_js_1.BigNumber(out.value).times(1e8) : new bignumber_js_1.BigNumber(out.valueSat);
@@ -101,13 +73,21 @@ function getMultiTransactionBlock(client, index, network) {
     });
 }
 exports.getMultiTransactionBlock = getMultiTransactionBlock;
-function addressFromOutScriptHex(pubKeyHex, network) {
+function addressFromOutScriptHex(scriptPubKey, network) {
     try {
-        return bitcoinjs_lib_1.address.fromOutputScript(new Buffer(pubKeyHex, "hex"), network);
+        return bitcoinjs_lib_1.address.fromOutputScript(new Buffer(scriptPubKey.hex, "hex"), network);
     }
     catch (e) {
-        console.error(`Unable to parse address from output script: ${pubKeyHex}: ${e}`);
-        return 'FAILED PARSE';
+        console.warn(`Unable to parse address from output script: ${scriptPubKey.hex}: ${e}`);
+        console.warn(`Trying p2pk parse`);
+    }
+    try {
+        const pubKey = scriptPubKey.asm.split(' ')[0];
+        return bitcoinjs_lib_1.ECPair.fromPublicKeyBuffer(new Buffer(pubKey, 'hex'), network).getAddress();
+    }
+    catch (e) {
+        console.warn(`Unable to parse address as p2pk: ${scriptPubKey.asm}: ${e}`);
+        return 'UNABLE TO PARSE: ' + scriptPubKey.hex;
     }
 }
 exports.addressFromOutScriptHex = addressFromOutScriptHex;
