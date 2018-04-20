@@ -37,7 +37,7 @@ export async function getMultiTransaction(client: AsyncBitcoinRpcClient, txid: T
 }
 
 const populateAddress : (network: Network) => (out: TransactionOutput) => TransactionOutput =
-  network => out =>  Object.assign(out, {address: addressFromOutScriptHex(out.scriptPubKey, network)})
+  network => out =>  Object.assign(out, {address: addressFromOutScript(out.scriptPubKey, network)})
 
 const notOpReturn = (out: TransactionOutput) => out.scriptPubKey.type !== 'nulldata'
 const ensureValueInSatoshis: (out: TransactionOutput) => TransactionOutput = (out) => {
@@ -64,12 +64,11 @@ export async function getMultiTransactionBlock(client: AsyncBitcoinRpcClient, in
   }
 }
 
-export function addressFromOutScriptHex (scriptPubKey: ScriptPubKey, network: Network): string {
+export function addressFromOutScript (scriptPubKey: ScriptPubKey, network: Network): string {
   try {
     return address.fromOutputScript(new Buffer(scriptPubKey.hex, "hex"), network)
   } catch (e) {
-    console.warn(`Unable to parse address from output script: ${scriptPubKey.hex}: ${e}`)
-    console.warn(`Trying p2pk parse`)
+    console.log(`Unable to parse address from output script. Trying p2pk parse.`)
   }
 
   try {

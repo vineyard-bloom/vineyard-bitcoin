@@ -7,7 +7,7 @@ import {
   ReadClient,
   Resolve
 } from "vineyard-blockchain";
-import { addressFromOutScriptHex, getMultiTransactions } from "./client-functions"
+import { addressFromOutScript, getMultiTransactions } from "./client-functions"
 import { Network, networks } from "bitcoinjs-lib"
 import { isNullOrUndefined } from "util"
 

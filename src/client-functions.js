@@ -46,7 +46,7 @@ function getMultiTransaction(client, txid, network) {
     });
 }
 exports.getMultiTransaction = getMultiTransaction;
-const populateAddress = network => out => Object.assign(out, { address: addressFromOutScriptHex(out.scriptPubKey, network) });
+const populateAddress = network => out => Object.assign(out, { address: addressFromOutScript(out.scriptPubKey, network) });
 const notOpReturn = (out) => out.scriptPubKey.type !== 'nulldata';
 const ensureValueInSatoshis = (out) => {
     const valueSat = util_1.isNullOrUndefined(out.valueSat) ? new bignumber_js_1.BigNumber(out.value).times(1e8) : new bignumber_js_1.BigNumber(out.valueSat);
@@ -73,13 +73,12 @@ function getMultiTransactionBlock(client, index, network) {
     });
 }
 exports.getMultiTransactionBlock = getMultiTransactionBlock;
-function addressFromOutScriptHex(scriptPubKey, network) {
+function addressFromOutScript(scriptPubKey, network) {
     try {
         return bitcoinjs_lib_1.address.fromOutputScript(new Buffer(scriptPubKey.hex, "hex"), network);
     }
     catch (e) {
-        console.warn(`Unable to parse address from output script: ${scriptPubKey.hex}: ${e}`);
-        console.warn(`Trying p2pk parse`);
+        console.log(`Unable to parse address from output script. Trying p2pk parse.`);
     }
     try {
         const pubKey = scriptPubKey.asm.split(' ')[0];
@@ -90,5 +89,5 @@ function addressFromOutScriptHex(scriptPubKey, network) {
         return 'UNABLE TO PARSE: ' + scriptPubKey.hex;
     }
 }
-exports.addressFromOutScriptHex = addressFromOutScriptHex;
+exports.addressFromOutScript = addressFromOutScript;
 //# sourceMappingURL=client-functions.js.map

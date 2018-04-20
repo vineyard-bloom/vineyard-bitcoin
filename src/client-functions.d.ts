@@ -8,4 +8,4 @@ export declare function getMultiTransactions(client: AsyncBitcoinRpcClient, tran
 export declare function getMultiTransaction(client: AsyncBitcoinRpcClient, txid: TxId, network: Network): Promise<Omit<blockchain.MultiTransaction, 'blockIndex'>>;
 export declare function bitcoinToBlockchainBlock(block: BitcoinRPCBlock): blockchain.Block;
 export declare function getMultiTransactionBlock(client: AsyncBitcoinRpcClient, index: number, network: Network): Promise<blockchain.FullBlock<blockchain.MultiTransaction>>;
-export declare function addressFromOutScriptHex(scriptPubKey: ScriptPubKey, network: Network): string;
+export declare function addressFromOutScript(scriptPubKey: ScriptPubKey, network: Network): string;
