@@ -68,7 +68,7 @@ export async function getMultiTransaction(client: AsyncBitcoinRpcClient, txid: T
 
 const notOpReturn = (out: TransactionOutput) => out.scriptPubKey.type !== 'nulldata'
 const ensureValueInSatoshis: (out: TransactionOutput) => TransactionOutput = (out) => {
-  const valueSat = isNullOrUndefined(out.valueSat) ? new BigNumber(out.value).times(10e8) : new BigNumber(out.valueSat)
+  const valueSat = isNullOrUndefined(out.valueSat) ? new BigNumber(out.value).times(1e8) : new BigNumber(out.valueSat)
   return { ...out, valueSat }
 }
 

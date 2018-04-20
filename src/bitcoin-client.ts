@@ -137,14 +137,14 @@ export class BitcoinClient implements ReadClient<ExternalTransaction> {
       const { txid, outputs, status, timeReceived } = mtx
 
       outputs.forEach( (output: TransactionOutput) => {
-        const { scriptPubKey, amount } = output
+        const { scriptPubKey, valueSat } = output
         singleTxs.push(
           {
             txid,
             timeReceived,
             to: addressFromOutScriptHex(scriptPubKey.hex, this.network),
             from: "",
-            amount: new BigNumber(value),
+            amount: valueSat,
             blockIndex,
             status
           }

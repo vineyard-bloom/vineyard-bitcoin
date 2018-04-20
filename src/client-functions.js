@@ -75,7 +75,7 @@ function getMultiTransaction(client, txid) {
 exports.getMultiTransaction = getMultiTransaction;
 const notOpReturn = (out) => out.scriptPubKey.type !== 'nulldata';
 const ensureValueInSatoshis = (out) => {
-    const valueSat = util_1.isNullOrUndefined(out.valueSat) ? new bignumber_js_1.BigNumber(out.value).times(10e8) : new bignumber_js_1.BigNumber(out.valueSat);
+    const valueSat = util_1.isNullOrUndefined(out.valueSat) ? new bignumber_js_1.BigNumber(out.value).times(1e8) : new bignumber_js_1.BigNumber(out.valueSat);
     return Object.assign({}, out, { valueSat });
 };
 function bitcoinToBlockchainBlock(block) {
