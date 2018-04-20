@@ -1,7 +1,6 @@
 import { blockchain } from "vineyard-blockchain/src/blockchain";
 import { AsyncBitcoinRpcClient, BitcoinConfig, BitcoinRPCBlock, BitcoinTransactionSource } from "./types";
 import { BaseBlock, ExternalSingleTransaction as ExternalTransaction, FullBlock, ReadClient } from "vineyard-blockchain";
-import { Network } from "bitcoinjs-lib";
 export interface BlockList {
     transactions: BitcoinTransactionSource[];
     lastBlock: string;
@@ -33,4 +32,3 @@ export declare class BitcoinClient implements ReadClient<ExternalTransaction> {
     generate(amount: number): Promise<number>;
     send(amount: number, address: any): Promise<string>;
 }
-export declare function parseAddress(pubKeyHex: string, network: Network): string | undefined;

@@ -14,6 +14,7 @@ import { isNullOrUndefined } from "util"
 const Client = require('bitcoin-core')
 const bitcoin = require('bitcoin')
 import TransactionOutput = blockchain.TransactionOutput
+import { addressFromOutScriptHex } from "vineyard-blockchain/src/bitcoin-utility"
 
 const BigNumber = require("bignumber.js")
 
@@ -136,12 +137,12 @@ export class BitcoinClient implements ReadClient<ExternalTransaction> {
       const { txid, outputs, status, timeReceived } = mtx
 
       outputs.forEach( (output: TransactionOutput) => {
-        const { scriptPubKey, value } = output
+        const { scriptPubKey, amount } = output
         singleTxs.push(
           {
             txid,
             timeReceived,
-            to: parseAddress(scriptPubKey.hex, this.network),
+            to: addressFromOutScriptHex(scriptPubKey.hex, this.network),
             from: "",
             amount: new BigNumber(value),
             blockIndex,
@@ -275,15 +276,5 @@ export class BitcoinClient implements ReadClient<ExternalTransaction> {
         resolve(txid);
       })
     })
-  }
-}
-
-
-export function parseAddress (pubKeyHex: string, network: Network): string | undefined {
-  try {
-    return address.fromOutputScript(new Buffer(pubKeyHex, "hex"), network)
-  } catch (e) {
-    console.error(`Unable to parse address from output script: ${pubKeyHex}: ${e}`)
-    return undefined
   }
 }

@@ -2,6 +2,7 @@ import { AsyncBitcoinRpcClient, BitcoinRPCBlock, Omit, RawRPCDeserializedTransac
 import { BigNumber } from "bignumber.js"
 import { blockchain } from "vineyard-blockchain"
 import TransactionOutput = blockchain.TransactionOutput
+import { isNullOrUndefined } from "util"
 
 export const liveGenesisTxid = '4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b'
 
@@ -61,11 +62,15 @@ export async function getMultiTransaction(client: AsyncBitcoinRpcClient, txid: T
     fee: new BigNumber(0),
     nonce: 0,
     inputs: raw.vin,
-    outputs: raw.vout.filter(notOpReturn)
+    outputs: raw.vout.filter(notOpReturn).map(ensureValueInSatoshis)
   }
 }
 
 const notOpReturn = (out: TransactionOutput) => out.scriptPubKey.type !== 'nulldata'
+const ensureValueInSatoshis: (out: TransactionOutput) => TransactionOutput = (out) => {
+  const valueSat = isNullOrUndefined(out.valueSat) ? new BigNumber(out.value).times(10e8) : new BigNumber(out.valueSat)
+  return { ...out, valueSat }
+}
 
 export function bitcoinToBlockchainBlock(block: BitcoinRPCBlock): blockchain.Block {
   return {

@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const bignumber_js_1 = require("bignumber.js");
 const vineyard_blockchain_1 = require("vineyard-blockchain");
+const util_1 = require("util");
 exports.liveGenesisTxid = '4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b';
 // export function getBlockCount(client: BitcoinRpcClient): Promise<number> {
 //   return promisify(client.getBlockCount.bind(client))()
@@ -67,12 +68,16 @@ function getMultiTransaction(client, txid) {
             fee: new bignumber_js_1.BigNumber(0),
             nonce: 0,
             inputs: raw.vin,
-            outputs: raw.vout.filter(notOpReturn)
+            outputs: raw.vout.filter(notOpReturn).map(ensureValueInSatoshis)
         };
     });
 }
 exports.getMultiTransaction = getMultiTransaction;
 const notOpReturn = (out) => out.scriptPubKey.type !== 'nulldata';
+const ensureValueInSatoshis = (out) => {
+    const valueSat = util_1.isNullOrUndefined(out.valueSat) ? new bignumber_js_1.BigNumber(out.value).times(10e8) : new bignumber_js_1.BigNumber(out.valueSat);
+    return Object.assign({}, out, { valueSat });
+};
 function bitcoinToBlockchainBlock(block) {
     return {
         hash: block.hash,

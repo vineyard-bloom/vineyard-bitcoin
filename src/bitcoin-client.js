@@ -23,6 +23,7 @@ const bitcoinjs_lib_1 = require("bitcoinjs-lib");
 const util_1 = require("util");
 const Client = require('bitcoin-core');
 const bitcoin = require('bitcoin');
+const bitcoin_utility_1 = require("vineyard-blockchain/src/bitcoin-utility");
 const BigNumber = require("bignumber.js");
 class BitcoinClient {
     constructor(bitcoinConfig) {
@@ -131,11 +132,11 @@ class BitcoinClient {
             multiTxs.forEach(mtx => {
                 const { txid, outputs, status, timeReceived } = mtx;
                 outputs.forEach((output) => {
-                    const { scriptPubKey, value } = output;
+                    const { scriptPubKey, amount } = output;
                     singleTxs.push({
                         txid,
                         timeReceived,
-                        to: parseAddress(scriptPubKey.hex, this.network),
+                        to: bitcoin_utility_1.addressFromOutScriptHex(scriptPubKey.hex, this.network),
                         from: "",
                         amount: new BigNumber(value),
                         blockIndex,
@@ -259,14 +260,4 @@ class BitcoinClient {
     }
 }
 exports.BitcoinClient = BitcoinClient;
-function parseAddress(pubKeyHex, network) {
-    try {
-        return bitcoinjs_lib_1.address.fromOutputScript(new Buffer(pubKeyHex, "hex"), network);
-    }
-    catch (e) {
-        console.error(`Unable to parse address from output script: ${pubKeyHex}: ${e}`);
-        return undefined;
-    }
-}
-exports.parseAddress = parseAddress;
 //# sourceMappingURL=bitcoin-client.js.map
