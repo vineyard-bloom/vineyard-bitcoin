@@ -14,11 +14,24 @@ export async function getBlockByIndex(client: AsyncBitcoinRpcClient, index: numb
 }
 
 export async function getMultiTransactions(client: AsyncBitcoinRpcClient, transactionIds: TxId[], blockIndex: number, network: Network): Promise<blockchain.MultiTransaction[]> {
-  return Promise.all(transactionIds
-    .filter(txid => txid !== liveGenesisTxid)
-    .map(txid => getMultiTransaction(client, txid, network).then( tx => { return {...tx, blockIndex }} ).catch(e => {
-      throw new Error(`Unable to acquire full multi transaction for ${txid}: ${e}`)
-    })))
+  const chunks = [] as TxId[][]
+  let result = [] as blockchain.MultiTransaction[]
+  //break transactionIds array into chunks of n
+  for (let i = 0; i < transactionIds.length; i += 10) {
+    chunks.push(transactionIds.slice(i, i + 10))
+  }
+  //only resolve n async calls by looping through chunks
+  for (let chunk of chunks) {
+    const promises = chunk.map(tx => getMultiTransactionWithBlockIndex(client, tx, network, blockIndex))
+    const newItems = await Promise.all(promises)
+    result = result.concat(newItems)
+  }
+  return result
+}
+
+export async function getMultiTransactionWithBlockIndex(client: AsyncBitcoinRpcClient, txid: TxId, network: Network, blockIndex: number): Promise<blockchain.MultiTransaction>{
+  const transaction = {...await getMultiTransaction(client, txid, network), blockIndex}
+  return transaction
 }
 
 // TODO: Consider the fee below, can we compute this?
