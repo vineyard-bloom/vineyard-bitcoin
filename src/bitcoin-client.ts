@@ -1,5 +1,5 @@
 import { blockchain } from "vineyard-blockchain/src/blockchain"
-import { AsyncBitcoinRpcClient, BitcoinConfig, BitcoinRPCBlock, BitcoinTransactionSource } from "./types";
+import { AsyncBitcoinRpcClient, BitcoinConfig, BitcoinRPCBlock, BitcoinTransactionSource, Defaults } from "./types";
 import {
   BaseBlock,
   ExternalSingleTransaction as ExternalTransaction,
@@ -23,6 +23,7 @@ export interface BlockList {
 export class BitcoinClient implements ReadClient<ExternalTransaction> {
   private readonly client: any
   private readonly asyncClient: AsyncBitcoinRpcClient
+  private readonly transactionChunkSize: number
   private readonly network: Network
 
   constructor(bitcoinConfig: BitcoinConfig) {
@@ -31,7 +32,7 @@ export class BitcoinClient implements ReadClient<ExternalTransaction> {
 
     const { user: username, pass: password, ...asyncConfig } = callbackConfig
     this.asyncClient = new Client({ username, password, ...asyncConfig })
-
+    this.transactionChunkSize = bitcoinConfig.transactionChunkSize || Defaults.TRANSACTION_CHUNK_SIZE
     this.network = network || networks.bitcoin
   }
 
@@ -128,7 +129,7 @@ export class BitcoinClient implements ReadClient<ExternalTransaction> {
 
   private async getFullTransactions(txids: string[], blockIndex: number): Promise<ExternalTransaction[]> {
     const singleTxs = [] as ExternalTransaction[]
-    const multiTxs = await getMultiTransactions(this.asyncClient, txids, blockIndex, this.network)
+    const multiTxs = await getMultiTransactions(this.asyncClient, txids, blockIndex, this.network, this.transactionChunkSize)
 
     multiTxs.forEach( mtx => {
       const { txid, outputs, status, timeReceived } = mtx

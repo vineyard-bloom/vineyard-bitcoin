@@ -1,5 +1,5 @@
 import { blockchain } from 'vineyard-blockchain'
-import { AsyncBitcoinRpcClient, BitcoinConfig2 } from "./types";
+import { AsyncBitcoinRpcClient, BitcoinConfig2, Defaults } from "./types";
 import { getMultiTransactionBlock } from "./client-functions"
 import { Network, networks } from "bitcoinjs-lib"
 
@@ -7,10 +7,12 @@ const Client = require('bitcoin-core')
 export class BitcoinBlockReader implements blockchain.BlockReader<blockchain.FullBlock<blockchain.MultiTransaction>> {
   private client: AsyncBitcoinRpcClient
   private network: Network
+  private transactionChunkSize: number
 
-  constructor(client: AsyncBitcoinRpcClient, network: Network) {
+  constructor(client: AsyncBitcoinRpcClient, network: Network, transactionChunkSize: number = Defaults.TRANSACTION_CHUNK_SIZE) {
     this.client = client
     this.network = network
+    this.transactionChunkSize = transactionChunkSize
   }
 
   async getHeighestBlockIndex(): Promise<number> {
@@ -18,11 +20,11 @@ export class BitcoinBlockReader implements blockchain.BlockReader<blockchain.Ful
   }
 
   async getFullBlock(index: number): Promise<blockchain.FullBlock<blockchain.MultiTransaction>> {
-    return getMultiTransactionBlock(this.client, index, this.network)
+    return getMultiTransactionBlock(this.client, index, this.network, this.transactionChunkSize)
   }
 
   static createFromConfig(config: BitcoinConfig2): BitcoinBlockReader {
-    const { network, ...blockReaderConfig } = config
-    return new BitcoinBlockReader(new Client(blockReaderConfig), network || networks.bitcoin)
+    const { network, transactionChunkSize, ...blockReaderConfig } = config
+    return new BitcoinBlockReader(new Client(blockReaderConfig), network || networks.bitcoin, transactionChunkSize)
   }
 }

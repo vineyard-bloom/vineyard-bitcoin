@@ -4,7 +4,8 @@ import { Network } from "bitcoinjs-lib";
 export declare class BitcoinBlockReader implements blockchain.BlockReader<blockchain.FullBlock<blockchain.MultiTransaction>> {
     private client;
     private network;
-    constructor(client: AsyncBitcoinRpcClient, network: Network);
+    private transactionChunkSize;
+    constructor(client: AsyncBitcoinRpcClient, network: Network, transactionChunkSize?: number);
     getHeighestBlockIndex(): Promise<number>;
     getFullBlock(index: number): Promise<blockchain.FullBlock<blockchain.MultiTransaction>>;
     static createFromConfig(config: BitcoinConfig2): BitcoinBlockReader;

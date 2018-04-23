@@ -18,6 +18,7 @@ var __rest = (this && this.__rest) || function (s, e) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const blockchain_1 = require("vineyard-blockchain/src/blockchain");
+const types_1 = require("./types");
 const client_functions_1 = require("./client-functions");
 const bitcoinjs_lib_1 = require("bitcoinjs-lib");
 const util_1 = require("util");
@@ -29,6 +30,7 @@ class BitcoinClient {
         this.client = new bitcoin.Client(callbackConfig);
         const { user: username, pass: password } = callbackConfig, asyncConfig = __rest(callbackConfig, ["user", "pass"]);
         this.asyncClient = new Client(Object.assign({ username, password }, asyncConfig));
+        this.transactionChunkSize = bitcoinConfig.transactionChunkSize || types_1.Defaults.TRANSACTION_CHUNK_SIZE;
         this.network = network || bitcoinjs_lib_1.networks.bitcoin;
     }
     getClient() {
@@ -126,7 +128,7 @@ class BitcoinClient {
     getFullTransactions(txids, blockIndex) {
         return __awaiter(this, void 0, void 0, function* () {
             const singleTxs = [];
-            const multiTxs = yield client_functions_1.getMultiTransactions(this.asyncClient, txids, blockIndex, this.network);
+            const multiTxs = yield client_functions_1.getMultiTransactions(this.asyncClient, txids, blockIndex, this.network, this.transactionChunkSize);
             multiTxs.forEach(mtx => {
                 const { txid, outputs, status, timeReceived } = mtx;
                 outputs.forEach((output) => {

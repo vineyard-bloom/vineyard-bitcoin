@@ -20,13 +20,13 @@ function getBlockByIndex(client, index) {
     });
 }
 exports.getBlockByIndex = getBlockByIndex;
-function getMultiTransactions(client, transactionIds, blockIndex, network) {
+function getMultiTransactions(client, transactionIds, blockIndex, network, chunkSize) {
     return __awaiter(this, void 0, void 0, function* () {
         const chunks = [];
         let result = [];
         //break transactionIds array into chunks of n
-        for (let i = 0; i < transactionIds.length; i += 10) {
-            chunks.push(transactionIds.slice(i, i + 10));
+        for (let i = 0; i < transactionIds.length; i += chunkSize) {
+            chunks.push(transactionIds.slice(i, i + chunkSize));
         }
         //only resolve n async calls by looping through chunks
         for (let chunk of chunks) {
@@ -75,10 +75,10 @@ function bitcoinToBlockchainBlock(block) {
     };
 }
 exports.bitcoinToBlockchainBlock = bitcoinToBlockchainBlock;
-function getMultiTransactionBlock(client, index, network) {
+function getMultiTransactionBlock(client, index, network, transactionChunkSize) {
     return __awaiter(this, void 0, void 0, function* () {
         const fullBlock = yield getBlockByIndex(client, index);
-        let transactions = yield getMultiTransactions(client, fullBlock.tx, index, network);
+        let transactions = yield getMultiTransactions(client, fullBlock.tx, index, network, transactionChunkSize);
         return {
             hash: fullBlock.hash,
             index: fullBlock.height,
