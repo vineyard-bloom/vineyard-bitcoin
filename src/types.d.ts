@@ -90,6 +90,7 @@ export interface BitcoinConfig {
     timeout?: number;
     host?: string;
     network?: Network;
+    transactionChunkSize?: number;
 }
 export interface BitcoinConfig2 {
     port?: number;
@@ -98,6 +99,7 @@ export interface BitcoinConfig2 {
     timeout?: number;
     host?: string;
     network?: Network;
+    transactionChunkSize?: number;
 }
 export interface BitcoinRpcClient {
     getBlockCount(callback: (err: NodeJS.ErrnoException, count: number) => void): void;
@@ -112,3 +114,6 @@ export interface AsyncBitcoinRpcClient {
     getTransaction(txid: string): Promise<BasicTransaction>;
     getRawTransaction(txid: string, returnDeserialized?: boolean): Promise<RawRPCSerializedTransaction | RawRPCDeserializedTransaction>;
 }
+export declare const Defaults: {
+    TRANSACTION_CHUNK_SIZE: number;
+};

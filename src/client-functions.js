@@ -20,16 +20,28 @@ function getBlockByIndex(client, index) {
     });
 }
 exports.getBlockByIndex = getBlockByIndex;
-function getMultiTransactions(client, transactionIds, blockIndex, network) {
+function getMultiTransactions(client, transactionIds, blockIndex, network, chunkSize) {
     return __awaiter(this, void 0, void 0, function* () {
-        return Promise.all(transactionIds
-            .filter(txid => txid !== exports.liveGenesisTxid)
-            .map(txid => getMultiTransaction(client, txid, network).then(tx => { return Object.assign({}, tx, { blockIndex }); }).catch(e => {
-            throw new Error(`Unable to acquire full multi transaction for ${txid}: ${e}`);
-        })));
+        const chunks = [];
+        let result = [];
+        //break transactionIds array into chunks of n and only resolve n async calls
+        for (let i = 0; i < transactionIds.length; i += chunkSize) {
+            const chunk = transactionIds.slice(i, i + chunkSize);
+            const promises = chunk.map(tx => getMultiTransactionWithBlockIndex(client, tx, network, blockIndex));
+            const newItems = yield Promise.all(promises);
+            result = result.concat(newItems);
+        }
+        return result;
     });
 }
 exports.getMultiTransactions = getMultiTransactions;
+function getMultiTransactionWithBlockIndex(client, txid, network, blockIndex) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const transaction = Object.assign({}, yield getMultiTransaction(client, txid, network), { blockIndex });
+        return transaction;
+    });
+}
+exports.getMultiTransactionWithBlockIndex = getMultiTransactionWithBlockIndex;
 // TODO: Consider the fee below, can we compute this?
 function getMultiTransaction(client, txid, network) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -60,10 +72,10 @@ function bitcoinToBlockchainBlock(block) {
     };
 }
 exports.bitcoinToBlockchainBlock = bitcoinToBlockchainBlock;
-function getMultiTransactionBlock(client, index, network) {
+function getMultiTransactionBlock(client, index, network, transactionChunkSize) {
     return __awaiter(this, void 0, void 0, function* () {
         const fullBlock = yield getBlockByIndex(client, index);
-        let transactions = yield getMultiTransactions(client, fullBlock.tx, index, network);
+        let transactions = yield getMultiTransactions(client, fullBlock.tx, index, network, transactionChunkSize);
         return {
             hash: fullBlock.hash,
             index: fullBlock.height,
