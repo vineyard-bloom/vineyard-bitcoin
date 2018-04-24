@@ -24,12 +24,9 @@ function getMultiTransactions(client, transactionIds, blockIndex, network, chunk
     return __awaiter(this, void 0, void 0, function* () {
         const chunks = [];
         let result = [];
-        //break transactionIds array into chunks of n
+        //break transactionIds array into chunks of n and only resolve n async calls
         for (let i = 0; i < transactionIds.length; i += chunkSize) {
-            chunks.push(transactionIds.slice(i, i + chunkSize));
-        }
-        //only resolve n async calls by looping through chunks
-        for (let chunk of chunks) {
+            const chunk = transactionIds.slice(i, i + chunkSize);
             const promises = chunk.map(tx => getMultiTransactionWithBlockIndex(client, tx, network, blockIndex));
             const newItems = yield Promise.all(promises);
             result = result.concat(newItems);
