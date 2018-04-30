@@ -184,7 +184,7 @@ class BitcoinClient {
     }
     getInfo() {
         return new Promise((resolve, reject) => {
-            this.client.getInfo((err, info) => {
+            this.client.getNetworkInfo((err, info) => {
                 if (err)
                     reject(err);
                 else

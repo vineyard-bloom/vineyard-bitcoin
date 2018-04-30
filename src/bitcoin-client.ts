@@ -191,7 +191,7 @@ export class BitcoinClient {
 
   getInfo(): Promise<any> {
     return new Promise((resolve: Resolve<any>, reject) => {
-      this.client.getInfo((err: any, info: any) => {
+      this.client.getNetworkInfo((err: any, info: any) => {
         if (err)
           reject(err)
         else
