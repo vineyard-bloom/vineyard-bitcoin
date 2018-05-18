@@ -10,3 +10,4 @@ __export(require("./types"));
 __export(require("./conversions"));
 __export(require("./bitcoin-block-reader"));
 __export(require("./client-functions"));
+//# sourceMappingURL=index.js.map

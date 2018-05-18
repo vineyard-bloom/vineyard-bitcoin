@@ -8,3 +8,4 @@ function bitcoinToSatoshis(value) {
     return value * 100000000;
 }
 exports.bitcoinToSatoshis = bitcoinToSatoshis;
+//# sourceMappingURL=conversions.js.map

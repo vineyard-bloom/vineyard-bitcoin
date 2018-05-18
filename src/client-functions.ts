@@ -13,12 +13,19 @@ export async function getBlockByIndex(client: AsyncBitcoinRpcClient, index: numb
   return client.getBlock(hash)
 }
 
-export async function getMultiTransactions(client: AsyncBitcoinRpcClient, transactionIds: TxId[], blockIndex: number, network: Network): Promise<blockchain.MultiTransaction[]> {
-  return Promise.all(transactionIds
-    .filter(txid => txid !== liveGenesisTxid)
-    .map(txid => getMultiTransaction(client, txid, network).then( tx => { return {...tx, blockIndex }} ).catch(e => {
-      throw new Error(`Unable to acquire full multi transaction for ${txid}: ${e}`)
-    })))
+export async function getMultiTransactions(client: AsyncBitcoinRpcClient, transactionIds: TxId[], blockIndex: number, network: Network, batchSize: number = 1): Promise<blockchain.MultiTransaction[]> {
+  const toReturn = []
+  for(let i = 0 ; i < transactionIds.length; i += batchSize){
+    const txid = transactionIds[i]
+    if(txid === liveGenesisTxid) continue
+    try{
+      const tx = await getMultiTransaction(client, txid, network)
+      toReturn.push({...tx, blockIndex})
+    } catch (e) {
+      console.error(e)
+    }
+  }
+  return toReturn
 }
 
 // TODO: Consider the fee below, can we compute this?
@@ -68,14 +75,14 @@ export function addressFromOutScript (scriptPubKey: ScriptPubKey, network: Netwo
   try {
     return address.fromOutputScript(new Buffer(scriptPubKey.hex, "hex"), network)
   } catch (e) {
-    console.log(`Unable to parse address from output script. Trying p2pk parse.`)
+    console.debug(`Unable to parse address from output script. Trying p2pk parse.`)
   }
 
   try {
     const pubKey = scriptPubKey.asm.split(' ')[0]
     return ECPair.fromPublicKeyBuffer(new Buffer(pubKey, 'hex'), network).getAddress()
   } catch (e) {
-    console.warn(`Unable to parse address as p2pk: ${scriptPubKey.asm}: ${e}`)
-    return 'UNABLE TO PARSE: ' + scriptPubKey.hex
+    console.warn(`Unable to parse address as p2pk or p2sh: ${scriptPubKey.asm}: ${e}`)
+    return ''
   }
 }

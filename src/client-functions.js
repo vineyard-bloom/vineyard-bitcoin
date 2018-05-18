@@ -20,13 +20,22 @@ function getBlockByIndex(client, index) {
     });
 }
 exports.getBlockByIndex = getBlockByIndex;
-function getMultiTransactions(client, transactionIds, blockIndex, network) {
+function getMultiTransactions(client, transactionIds, blockIndex, network, batchSize = 1) {
     return __awaiter(this, void 0, void 0, function* () {
-        return Promise.all(transactionIds
-            .filter(txid => txid !== exports.liveGenesisTxid)
-            .map(txid => getMultiTransaction(client, txid, network).then(tx => { return Object.assign({}, tx, { blockIndex }); }).catch(e => {
-            throw new Error(`Unable to acquire full multi transaction for ${txid}: ${e}`);
-        })));
+        const toReturn = [];
+        for (let i = 0; i < transactionIds.length; i += batchSize) {
+            const txid = transactionIds[i];
+            if (txid === exports.liveGenesisTxid)
+                continue;
+            try {
+                const tx = yield getMultiTransaction(client, txid, network);
+                toReturn.push(Object.assign({}, tx, { blockIndex }));
+            }
+            catch (e) {
+                console.error(e);
+            }
+        }
+        return toReturn;
     });
 }
 exports.getMultiTransactions = getMultiTransactions;
@@ -78,15 +87,15 @@ function addressFromOutScript(scriptPubKey, network) {
         return bitcoinjs_lib_1.address.fromOutputScript(new Buffer(scriptPubKey.hex, "hex"), network);
     }
     catch (e) {
-        console.log(`Unable to parse address from output script. Trying p2pk parse.`);
+        console.debug(`Unable to parse address from output script. Trying p2pk parse.`);
     }
     try {
         const pubKey = scriptPubKey.asm.split(' ')[0];
         return bitcoinjs_lib_1.ECPair.fromPublicKeyBuffer(new Buffer(pubKey, 'hex'), network).getAddress();
     }
     catch (e) {
-        console.warn(`Unable to parse address as p2pk: ${scriptPubKey.asm}: ${e}`);
-        return 'UNABLE TO PARSE: ' + scriptPubKey.hex;
+        console.warn(`Unable to parse address as p2pk or p2sh: ${scriptPubKey.asm}: ${e}`);
+        return '';
     }
 }
 exports.addressFromOutScript = addressFromOutScript;

@@ -4,7 +4,8 @@ import { getMultiTransactionBlock } from "./client-functions"
 import { Network, networks } from "bitcoinjs-lib"
 
 const Client = require('bitcoin-core')
-export class BitcoinBlockReader implements blockchain.BlockReader<blockchain.FullBlock<blockchain.MultiTransaction>> {
+export type FullMultiTransactionBlock = blockchain.FullBlock<blockchain.MultiTransaction>
+export class BitcoinBlockReader implements blockchain.BlockReader<FullMultiTransactionBlock> {
   private client: AsyncBitcoinRpcClient
   private network: Network
 
@@ -17,7 +18,7 @@ export class BitcoinBlockReader implements blockchain.BlockReader<blockchain.Ful
     return this.client.getBlockCount()
   }
 
-  async getFullBlock(index: number): Promise<blockchain.FullBlock<blockchain.MultiTransaction>> {
+  async getFullBlock(index: number): Promise<FullMultiTransactionBlock> {
     return getMultiTransactionBlock(this.client, index, this.network)
   }
 
