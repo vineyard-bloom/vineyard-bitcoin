@@ -99,6 +99,7 @@ export interface BitcoinConfig {
   timeout?: number
   host?: string
   network?: Network
+  transactionChunkSize?: number
 }
 
 export interface BitcoinConfig2 {
@@ -108,6 +109,7 @@ export interface BitcoinConfig2 {
   timeout?: number
   host?: string
   network?: Network
+  transactionChunkSize?: number
 }
 
 export interface BitcoinRpcClient {
@@ -124,4 +126,8 @@ export interface AsyncBitcoinRpcClient {
   getBlock(hash: string): Promise<BitcoinRPCBlock>
   getTransaction(txid: string): Promise<BasicTransaction>
   getRawTransaction(txid: string, returnDeserialized?: boolean): Promise<RawRPCSerializedTransaction | RawRPCDeserializedTransaction>
+}
+
+export const Defaults = {
+  TRANSACTION_CHUNK_SIZE: 10
 }

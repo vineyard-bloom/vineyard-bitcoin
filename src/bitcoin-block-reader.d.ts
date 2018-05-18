@@ -5,7 +5,8 @@ export declare type FullMultiTransactionBlock = blockchain.FullBlock<blockchain.
 export declare class BitcoinBlockReader implements blockchain.BlockReader<FullMultiTransactionBlock> {
     private client;
     private network;
-    constructor(client: AsyncBitcoinRpcClient, network: Network);
+    private transactionChunkSize;
+    constructor(client: AsyncBitcoinRpcClient, network: Network, transactionChunkSize?: number);
     getHeighestBlockIndex(): Promise<number>;
     getFullBlock(index: number): Promise<FullMultiTransactionBlock>;
     static createFromConfig(config: BitcoinConfig2): BitcoinBlockReader;

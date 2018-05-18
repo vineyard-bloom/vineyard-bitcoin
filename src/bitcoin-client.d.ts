@@ -8,6 +8,7 @@ export interface BlockList {
 export declare class BitcoinClient implements ReadClient<ExternalTransaction> {
     private readonly client;
     private readonly asyncClient;
+    private readonly transactionChunkSize;
     private readonly network;
     constructor(bitcoinConfig: BitcoinConfig);
     getClient(): any;

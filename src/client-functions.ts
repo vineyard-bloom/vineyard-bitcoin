@@ -13,19 +13,22 @@ export async function getBlockByIndex(client: AsyncBitcoinRpcClient, index: numb
   return client.getBlock(hash)
 }
 
-export async function getMultiTransactions(client: AsyncBitcoinRpcClient, transactionIds: TxId[], blockIndex: number, network: Network, batchSize: number = 1): Promise<blockchain.MultiTransaction[]> {
-  const toReturn = []
-  for(let i = 0 ; i < transactionIds.length; i += batchSize){
-    const txid = transactionIds[i]
-    if(txid === liveGenesisTxid) continue
-    try{
-      const tx = await getMultiTransaction(client, txid, network)
-      toReturn.push({...tx, blockIndex})
-    } catch (e) {
-      console.error(e)
-    }
+export async function getMultiTransactions(client: AsyncBitcoinRpcClient, transactionIds: TxId[], blockIndex: number, network: Network, chunkSize:number): Promise<blockchain.MultiTransaction[]> {
+  const chunks = [] as TxId[][]
+  let result = [] as blockchain.MultiTransaction[]
+
+  //break transactionIds array into chunks of n and only resolve n async calls
+  for (let i = 0; i < transactionIds.length; i += chunkSize) {
+    const chunk = transactionIds.slice(i, i + chunkSize)
+    const promises = chunk.map(tx => getMultiTransactionWithBlockIndex(client, tx, network, blockIndex))
+    const newItems = await Promise.all(promises)
+    result = result.concat(newItems)
   }
-  return toReturn
+  return result
+}
+
+export async function getMultiTransactionWithBlockIndex(client: AsyncBitcoinRpcClient, txid: TxId, network: Network, blockIndex: number): Promise<blockchain.MultiTransaction>{
+  return {...await getMultiTransaction(client, txid, network), blockIndex}
 }
 
 // TODO: Consider the fee below, can we compute this?
@@ -60,9 +63,9 @@ export function bitcoinToBlockchainBlock(block: BitcoinRPCBlock): blockchain.Blo
   }
 }
 
-export async function getMultiTransactionBlock(client: AsyncBitcoinRpcClient, index: number, network: Network): Promise<blockchain.FullBlock<blockchain.MultiTransaction>> {
+export async function getMultiTransactionBlock(client: AsyncBitcoinRpcClient, index: number, network: Network, transactionChunkSize: number): Promise<blockchain.FullBlock<blockchain.MultiTransaction>> {
   const fullBlock: BitcoinRPCBlock = await getBlockByIndex(client, index)
-  let transactions = await getMultiTransactions(client, fullBlock.tx, index, network)
+  let transactions = await getMultiTransactions(client, fullBlock.tx, index, network, transactionChunkSize)
   return  {
     hash: fullBlock.hash,
     index: fullBlock.height,
