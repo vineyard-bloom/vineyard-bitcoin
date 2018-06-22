@@ -12,6 +12,6 @@ export const testnetConfig: BitcoinConfig = {
   port: 18332,
   user: 'bitcoin',
   pass: 'staging321',
-  host: '52.39.29.244',
+  host: 'localhost',
   network: networks.testnet
 }

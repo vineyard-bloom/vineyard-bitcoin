@@ -15,6 +15,8 @@ const Client = require('bitcoin-core')
 const bitcoin = require('bitcoin')
 import TransactionOutput = blockchain.TransactionOutput
 
+// All of this is deprecated
+
 export interface BlockList {
   transactions: BitcoinTransactionSource[]
   lastBlock: string

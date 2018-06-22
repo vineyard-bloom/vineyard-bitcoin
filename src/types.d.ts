@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import { BigNumber } from 'bignumber.js';
 import { blockchain } from "vineyard-blockchain/src/blockchain";
 import TransactionInput = blockchain.TransactionInput;
@@ -14,21 +13,10 @@ export declare type Diff<T extends string, U extends string> = ({
 export declare type Omit<T, K extends keyof T> = {
     [P in Diff<keyof T, K>]: T[P];
 };
-export interface AddressSource {
-    createAddress(): Promise<string>;
-}
 export declare enum TransactionStatus {
     pending = 0,
     accepted = 1,
     rejected = 2,
-}
-export interface NewTransaction {
-    address: string;
-    index: number;
-    txid: string;
-    status: TransactionStatus;
-    amount: number;
-    timeReceived: any;
 }
 export declare type TxId = string;
 export interface BitcoinRPCBlock {
@@ -36,10 +24,6 @@ export interface BitcoinRPCBlock {
     hash: string;
     height: number;
     time: number;
-}
-export interface BlockService {
-    getLastBlock(): Promise<string>;
-    setLastBlock(value: string): Promise<void>;
 }
 export interface BasicTransaction {
     txid: TxId;
@@ -55,16 +39,6 @@ export interface RawRPCDeserializedTransaction {
     blocktime: number;
     vin: TransactionInput[];
     vout: TransactionOutput[];
-}
-export interface AddTransactionResult<Transaction extends BasicTransaction> {
-    transaction: Transaction;
-    isNew: boolean;
-}
-export interface TransactionService<Transaction extends BasicTransaction> extends BlockService {
-    add(transaction: NewTransaction): Promise<AddTransactionResult<Transaction>>;
-    onConfirm(transaction: Transaction): Promise<Transaction>;
-    setStatus(transaction: Transaction, status: TransactionStatus): Promise<Transaction>;
-    listPending(): Promise<Transaction[]>;
 }
 export interface TransactionDetails {
     address: string;
@@ -100,12 +74,6 @@ export interface BitcoinConfig2 {
     host?: string;
     network?: Network;
     transactionChunkSize?: number;
-}
-export interface BitcoinRpcClient {
-    getBlockCount(callback: (err: NodeJS.ErrnoException, count: number) => void): void;
-    getBlockHash(index: number, callback: (err: NodeJS.ErrnoException, hash: string) => void): void;
-    getBlock(hash: string, callback: (err: NodeJS.ErrnoException, block: BitcoinRPCBlock) => void): void;
-    getTransaction(txid: string, callback: (err: NodeJS.ErrnoException, transaction: BasicTransaction) => void): void;
 }
 export interface AsyncBitcoinRpcClient {
     getBlockCount(): Promise<number>;

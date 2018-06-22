@@ -7,23 +7,10 @@ import { Network } from "bitcoinjs-lib"
 export type Diff<T extends string, U extends string> = ({ [P in T]: P } & { [P in U]: never } & { [x: string]: never })[T];
 export type Omit<T, K extends keyof T> = { [P in Diff<keyof T, K>]: T[P] };
 
-export interface AddressSource {
-  createAddress(): Promise<string>
-}
-
 export enum TransactionStatus {
   pending,
   accepted,
   rejected,
-}
-
-export interface NewTransaction {
-  address: string
-  index: number
-  txid: string
-  status: TransactionStatus
-  amount: number
-  timeReceived: any
 }
 
 export type TxId = string
@@ -32,12 +19,6 @@ export interface BitcoinRPCBlock {
   hash: string
   height: number
   time: number //in epoch ms
-}
-
-export interface BlockService {
-  getLastBlock(): Promise<string>
-
-  setLastBlock(value: string): Promise<void>
 }
 
 export interface BasicTransaction {
@@ -55,22 +36,6 @@ export interface RawRPCDeserializedTransaction {
   blocktime: number,
   vin: TransactionInput[],
   vout: TransactionOutput[],
-}
-
-
-export interface AddTransactionResult<Transaction extends BasicTransaction> {
-  transaction: Transaction
-  isNew: boolean
-}
-
-export interface TransactionService<Transaction extends BasicTransaction> extends BlockService {
-  add(transaction: NewTransaction): Promise<AddTransactionResult<Transaction>>
-
-  onConfirm(transaction: Transaction): Promise<Transaction>
-
-  setStatus(transaction: Transaction, status: TransactionStatus): Promise<Transaction>
-
-  listPending(): Promise<Transaction []>
 }
 
 export interface TransactionDetails {
@@ -110,14 +75,6 @@ export interface BitcoinConfig2 {
   host?: string
   network?: Network
   transactionChunkSize?: number
-}
-
-export interface BitcoinRpcClient {
-  getBlockCount(callback: (err: NodeJS.ErrnoException, count: number) => void): void
-  getBlockHash(index: number, callback: (err: NodeJS.ErrnoException, hash: string) => void): void
-  getBlock(hash: string, callback: (err: NodeJS.ErrnoException, block: BitcoinRPCBlock) => void): void
-  getTransaction(txid: string, callback: (err: NodeJS.ErrnoException, transaction: BasicTransaction) => void): void
-  // getRawTransaction(txid: string, callback: (err: NodeJS.ErrnoException, transaction: RawTransaction) => void): void
 }
 
 export interface AsyncBitcoinRpcClient {
