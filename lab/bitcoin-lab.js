@@ -36,6 +36,9 @@ var BitcoinLab = (function () {
             });
         }); });
     };
+    BitcoinLab.prototype.importAddress = function (address) {
+        return this.client.importAddress(address);
+    };
     BitcoinLab.prototype.start = function () {
         return this.server.start();
     };
@@ -53,7 +56,7 @@ var BitcoinLab = (function () {
         return new Promise(function (resolve, reject) {
             _this.client.getClient().generate(blockCount, function (error) {
                 if (error)
-                    reject(new Error(error));
+                    reject(error);
                 else
                     resolve();
             });
@@ -64,7 +67,7 @@ var BitcoinLab = (function () {
         return new Promise(function (resolve, reject) {
             _this.client.getClient().sendToAddress(address, src_1.satoshisToBitcoin(amount), function (error) {
                 if (error)
-                    reject(new Error(error));
+                    reject(error);
                 else
                     resolve();
             });
@@ -78,7 +81,7 @@ var BitcoinLab = (function () {
             }
             _this.client.getClient().sendMany('', addressAmounts, function (error) {
                 if (error)
-                    reject(new Error(error));
+                    reject(error);
                 else
                     resolve();
             });
@@ -87,4 +90,3 @@ var BitcoinLab = (function () {
     return BitcoinLab;
 }());
 exports.BitcoinLab = BitcoinLab;
-//# sourceMappingURL=bitcoin-lab.js.map

@@ -47,6 +47,10 @@ export class BitcoinLab {
       )
   }
 
+  importAddress(address: string): Promise<any> {
+    return this.client.importAddress(address)
+  }
+
   start(): Promise<any> {
     return this.server.start()
   }

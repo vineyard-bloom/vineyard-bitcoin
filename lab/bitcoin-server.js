@@ -55,4 +55,3 @@ var BitcoinServer = (function () {
     return BitcoinServer;
 }());
 exports.BitcoinServer = BitcoinServer;
-//# sourceMappingURL=bitcoin-server.js.map

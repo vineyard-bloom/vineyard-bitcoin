@@ -1,27 +1,35 @@
-import { TransactionSource } from "./types";
-export interface BitcoinConfig {
-    port?: number;
-    user: string;
-    pass: string;
-    timeout?: number;
-    host?: string;
-}
+import { blockchain } from "vineyard-blockchain/src/blockchain";
+import { AsyncBitcoinRpcClient, BitcoinConfig, BitcoinRPCBlock, BitcoinTransactionSource } from "./types";
+import { BaseBlock, ExternalSingleTransaction as ExternalTransaction, FullBlock, ReadClient } from "vineyard-blockchain";
 export interface BlockList {
-    transactions: TransactionSource[];
+    transactions: BitcoinTransactionSource[];
     lastBlock: string;
 }
-export declare class BitcoinClient {
-    private client;
+export declare class BitcoinClient implements ReadClient<ExternalTransaction> {
+    private readonly client;
+    private readonly asyncClient;
+    private readonly transactionChunkSize;
+    private readonly network;
     constructor(bitcoinConfig: BitcoinConfig);
     getClient(): any;
+    getAsyncClient(): AsyncBitcoinRpcClient;
+    getTransactionStatus(txid: string): Promise<blockchain.TransactionStatus>;
+    getLastBlock(): Promise<BaseBlock>;
+    getBlockHash(blockHeight: number): Promise<string>;
+    getBlockIndex(): Promise<number>;
+    getBlockCount(): Promise<number>;
+    getNextBlockInfo(blockIndex: number | undefined): Promise<BaseBlock | undefined>;
+    getFullBlock(blockindex: number): Promise<FullBlock<ExternalTransaction> | undefined>;
+    private getFullTransactions(txids, blockIndex);
     getHistory(lastBlock: string): Promise<BlockList>;
-    listTransactions(): Promise<any>;
-    getTransaction(txid: string): Promise<any>;
-    importAddress(address: string, rescan?: boolean): Promise<{}>;
-    getInfo(): Promise<{}>;
-    listAddresses(): Promise<{}>;
-    createAddress(): Promise<{}>;
+    listTransactions(): Promise<BitcoinTransactionSource[]>;
+    getTransaction(txid: string): Promise<BitcoinTransactionSource>;
+    getBlock(blockhash: string): Promise<BitcoinRPCBlock>;
+    importAddress(address: string, rescan?: boolean): Promise<string>;
+    getInfo(): Promise<any>;
+    listAddresses(): Promise<string[][]>;
+    createAddress(): Promise<string>;
     createTestAddress(): Promise<string>;
-    generate(amount: number): Promise<any>;
+    generate(amount: number): Promise<number>;
     send(amount: number, address: any): Promise<string>;
 }

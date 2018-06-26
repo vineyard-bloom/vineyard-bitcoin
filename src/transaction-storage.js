@@ -1,20 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var StandardBlockService = (function () {
-    function StandardBlockService() {
-    }
-    StandardBlockService.prototype.getLastBlock = function () {
-        return this.bitcoinCollection.first_or_null()
-            .then(function (record) { return record ? record.lastblock : ''; });
-    };
-    StandardBlockService.prototype.setLastBlock = function (value) {
-        var _this = this;
-        return this.bitcoinCollection.first_or_null()
-            .then(function (record) { return record
-            ? _this.bitcoinCollection.update(record, { lastblock: value })
-            : _this.bitcoinCollection.create({ lastblock: value }); });
-    };
-    return StandardBlockService;
-}());
-exports.StandardBlockService = StandardBlockService;
+// export class StandardBlockService implements BlockService{
+//     bitcoinCollection:Collection<any>
+//
+//     getLastBlock(): Promise<string> {
+//         return this.bitcoinCollection.first_or_null()
+//           .then(record => record ? record.lastblock : '')
+//     }
+//
+//     setLastBlock(value: string): Promise<void> {
+//         return this.bitcoinCollection.first_or_null()
+//           .then(record => record
+//             ? this.bitcoinCollection.update(record, {lastblock: value})
+//             : this.bitcoinCollection.create({lastblock: value}))
+//     }
+// } 
 //# sourceMappingURL=transaction-storage.js.map

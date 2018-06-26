@@ -1,129 +1,263 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0)
+            t[p[i]] = s[p[i]];
+    return t;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var bitcoin = require("bitcoin");
-var BitcoinClient = (function () {
-    function BitcoinClient(bitcoinConfig) {
-        this.client = new bitcoin.Client(bitcoinConfig);
+const blockchain_1 = require("vineyard-blockchain/src/blockchain");
+const types_1 = require("./types");
+const client_functions_1 = require("./client-functions");
+const bitcoinjs_lib_1 = require("bitcoinjs-lib");
+const util_1 = require("util");
+const Client = require('bitcoin-core');
+const bitcoin = require('bitcoin');
+class BitcoinClient {
+    constructor(bitcoinConfig) {
+        const { network } = bitcoinConfig, callbackConfig = __rest(bitcoinConfig, ["network"]);
+        this.client = new bitcoin.Client(callbackConfig);
+        const { user: username, pass: password } = callbackConfig, asyncConfig = __rest(callbackConfig, ["user", "pass"]);
+        this.asyncClient = new Client(Object.assign({ username, password }, asyncConfig));
+        this.transactionChunkSize = bitcoinConfig.transactionChunkSize || types_1.Defaults.TRANSACTION_CHUNK_SIZE;
+        this.network = network || bitcoinjs_lib_1.networks.bitcoin;
     }
-    BitcoinClient.prototype.getClient = function () {
+    getClient() {
         return this.client;
-    };
-    BitcoinClient.prototype.getHistory = function (lastBlock) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.client.listSinceBlock(lastBlock || "", 1, true, function (err, info) {
-                if (err)
-                    reject(new Error(err));
+    }
+    getAsyncClient() {
+        return this.asyncClient;
+    }
+    getTransactionStatus(txid) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield this.getTransaction(txid);
+            if (transaction.confirmations == -1)
+                return blockchain_1.blockchain.TransactionStatus.rejected;
+            if (transaction.confirmations == 0)
+                return blockchain_1.blockchain.TransactionStatus.pending;
+            else {
+                return blockchain_1.blockchain.TransactionStatus.accepted;
+            }
+        });
+    }
+    getLastBlock() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const blockHeight = yield this.getBlockCount();
+            const blockHash = yield this.getBlockHash(blockHeight);
+            const lastBlock = yield this.getBlock(blockHash);
+            return {
+                hash: lastBlock.hash,
+                index: lastBlock.height,
+                timeMined: new Date(lastBlock.time * 1000)
+            };
+        });
+    }
+    getBlockHash(blockHeight) {
+        return new Promise((resolve, reject) => {
+            this.client.getBlockHash(blockHeight, (err, blockHash) => {
+                resolve(blockHash);
+            });
+        });
+    }
+    getBlockIndex() {
+        return new Promise((resolve, reject) => {
+            this.client.getBlockCount((err, blockCount) => {
+                if (err) {
+                    reject(err);
+                }
                 else {
-                    var transactions = info.transactions;
+                    resolve(blockCount);
+                }
+            });
+        });
+    }
+    getBlockCount() {
+        return new Promise((resolve, reject) => {
+            this.client.getBlockCount((err, blockCount) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(blockCount);
+                }
+            });
+        });
+    }
+    getNextBlockInfo(blockIndex) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const nextBlockIndex = util_1.isNullOrUndefined(blockIndex) ? 0 : blockIndex + 1;
+            const blockHash = yield this.getBlockHash(nextBlockIndex);
+            if (!blockHash)
+                return;
+            const nextBlock = yield this.getBlock(blockHash);
+            return {
+                hash: nextBlock.hash,
+                index: nextBlock.height,
+                timeMined: new Date(nextBlock.time * 1000)
+            };
+        });
+    }
+    getFullBlock(blockindex) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const blockHash = yield this.asyncClient.getBlockHash(blockindex);
+            if (!blockHash) {
+                console.warn(`Queried for blockhash for block index ${blockindex} but got none.`);
+                return undefined;
+            }
+            const fullBlock = yield this.asyncClient.getBlock(blockHash);
+            let fullTransactions = yield this.getFullTransactions(fullBlock.tx, blockindex);
+            return {
+                hash: fullBlock.hash,
+                index: fullBlock.height,
+                timeMined: new Date(fullBlock.time * 1000),
+                transactions: fullTransactions
+            };
+        });
+    }
+    getFullTransactions(txids, blockIndex) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const singleTxs = [];
+            const multiTxs = yield client_functions_1.getMultiTransactions(this.asyncClient, txids, blockIndex, this.network, this.transactionChunkSize);
+            multiTxs.forEach(mtx => {
+                const { txid, outputs, status, timeReceived } = mtx;
+                outputs.forEach((output) => {
+                    const { scriptPubKey, valueSat, address } = output;
+                    singleTxs.push({
+                        txid,
+                        timeReceived,
+                        to: address,
+                        from: "",
+                        amount: valueSat,
+                        blockIndex,
+                        status
+                    });
+                });
+            });
+            return singleTxs;
+        });
+    }
+    getHistory(lastBlock) {
+        return new Promise((resolve, reject) => {
+            this.client.listSinceBlock(lastBlock || "", 1, true, (err, info) => {
+                if (err)
+                    reject(err);
+                else {
+                    // const transactions = info.transactions
                     // const lastTransaction = transactions[transactions.length - 1]
                     resolve({
-                        transactions: info.transactions.filter(function (t) { return t.category == 'receive'; }),
+                        transactions: info.transactions.filter((t) => t.category == 'receive'),
                         lastBlock: info.lastblock //lastTransaction ? lastTransaction.blockhash : null
                     });
                 }
             });
         });
-    };
-    BitcoinClient.prototype.listTransactions = function () {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.client.listTransactions('', 100, 0, true, function (err, transactions) {
+    }
+    listTransactions() {
+        return new Promise((resolve, reject) => {
+            this.client.listTransactions('', 100, 0, true, (err, transactions) => {
                 if (err)
-                    reject(new Error(err));
+                    reject(err);
                 else
                     resolve(transactions);
             });
         });
-    };
-    BitcoinClient.prototype.getTransaction = function (txid) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.client.getTransaction(txid, true, function (err, transaction) {
+    }
+    getTransaction(txid) {
+        return new Promise((resolve, reject) => {
+            this.client.getTransaction(txid, true, (err, transaction) => {
+                resolve(transaction);
+            });
+        });
+    }
+    getBlock(blockhash) {
+        return new Promise((resolve, reject) => {
+            this.client.getBlock(blockhash, (err, block) => {
                 if (err)
                     reject(err);
                 else
-                    resolve(transaction);
+                    resolve(block);
             });
         });
-    };
-    BitcoinClient.prototype.importAddress = function (address, rescan) {
-        var _this = this;
-        if (rescan === void 0) { rescan = false; }
-        return new Promise(function (resolve, reject) {
-            _this.client.importAddress(address, "", rescan, function (err, result) {
+    }
+    importAddress(address, rescan = false) {
+        return new Promise((resolve, reject) => {
+            this.client.importAddress(address, "", rescan, (err, result) => {
                 if (err)
                     reject(err);
                 else
                     resolve(address);
             });
         });
-    };
-    BitcoinClient.prototype.getInfo = function () {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.client.getInfo(function (err, info) {
+    }
+    getInfo() {
+        return new Promise((resolve, reject) => {
+            this.client.getInfo((err, info) => {
                 if (err)
                     reject(err);
                 else
                     resolve(info);
             });
         });
-    };
-    BitcoinClient.prototype.listAddresses = function () {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.client.listAddressGroupings(function (err, info) {
+    }
+    listAddresses() {
+        return new Promise((resolve, reject) => {
+            this.client.listAddressGroupings((err, info) => {
                 if (err)
                     reject(err);
                 else
                     resolve(info);
             });
         });
-    };
-    BitcoinClient.prototype.createAddress = function () {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.client.getNewAddress(function (err, newAddress) {
+    }
+    createAddress() {
+        return new Promise((resolve, reject) => {
+            this.client.getNewAddress((err, newAddress) => {
                 if (err)
                     reject(err);
                 else
                     resolve(newAddress);
             });
         });
-    };
-    BitcoinClient.prototype.createTestAddress = function () {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.client.getNewAddress(function (err, newAddress) {
+    }
+    createTestAddress() {
+        return new Promise((resolve, reject) => {
+            this.client.getNewAddress((err, newAddress) => {
                 if (err)
                     reject(err);
                 else
                     return resolve(newAddress);
             });
         });
-    };
-    BitcoinClient.prototype.generate = function (amount) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.client.generate(amount, function (err, amount) {
+    }
+    generate(amount) {
+        return new Promise((resolve, reject) => {
+            this.client.generate(amount, (err, amount) => {
                 if (err)
                     reject(err);
                 resolve(amount);
             });
         });
-    };
-    BitcoinClient.prototype.send = function (amount, address) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.client.sendToAddress(address, amount, function (err, txid) {
+    }
+    send(amount, address) {
+        return new Promise((resolve, reject) => {
+            this.client.sendToAddress(address, amount, (err, txid) => {
                 if (err)
                     reject(err);
                 resolve(txid);
             });
         });
-    };
-    return BitcoinClient;
-}());
+    }
+}
 exports.BitcoinClient = BitcoinClient;
 //# sourceMappingURL=bitcoin-client.js.map

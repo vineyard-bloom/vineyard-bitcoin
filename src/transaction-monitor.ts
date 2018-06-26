@@ -2,7 +2,7 @@ import {BitcoinClient} from './bitcoin-client'
 
 const BlueBirdPromise = require('bluebird')
 import {bitcoinToSatoshis} from "./conversions";
-import {BasicTransaction, TransactionService, TransactionSource, TransactionStatus} from "./types";
+import {BasicTransaction, TransactionService, BitcoinTransactionSource, TransactionStatus} from "./types";
 
 export type TransactionDelegate<Transaction extends BasicTransaction> =
   (transaction: Transaction) => Promise<Transaction>
@@ -17,13 +17,13 @@ export class TransactionMonitor<Transaction extends BasicTransaction> {
     this.bitcoinClient = bitcoinClient;
   }
 
-  private convertStatus(source: TransactionSource) {
+  private convertStatus(source: BitcoinTransactionSource) {
     return source.confirmations >= this.minimumConfirmations
       ? TransactionStatus.accepted
       : TransactionStatus.pending
   }
 
-  private saveNewTransaction(source: TransactionSource): Promise<Transaction | undefined> {
+  private saveNewTransaction(source: BitcoinTransactionSource): Promise<Transaction | undefined> {
     return this.transactionService.add({
       index: source.index,
       address: source.address,
@@ -42,8 +42,8 @@ export class TransactionMonitor<Transaction extends BasicTransaction> {
       })
   }
 
-  private saveNewTransactions(transactions: TransactionSource []): Promise<any> {
-    return BlueBirdPromise.each(transactions, (transaction: TransactionSource) => this.saveNewTransaction(transaction))
+  private saveNewTransactions(transactions: BitcoinTransactionSource []): Promise<any> {
+    return BlueBirdPromise.each(transactions, (transaction: BitcoinTransactionSource) => this.saveNewTransaction(transaction))
   }
 
   private confirmExistingTransaction(transaction: Transaction): Promise<Transaction> {
