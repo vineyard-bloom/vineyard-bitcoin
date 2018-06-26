@@ -85,11 +85,14 @@ function getMultiTransactionBlock(client, index, network, transactionChunkSize) 
 }
 exports.getMultiTransactionBlock = getMultiTransactionBlock;
 function addressFromOutScript(scriptPubKey, network) {
+    if (scriptPubKey.addresses.length === 1) {
+        return scriptPubKey.addresses[0];
+    }
     try {
         return bitcoinjs_lib_1.address.fromOutputScript(new Buffer(scriptPubKey.hex, "hex"), network);
     }
     catch (e) {
-        console.debug(`Unable to parse address from output script. Trying p2pk parse.`);
+        console.warn(`Unable to parse address from output script. Trying p2pk parse.`);
     }
     try {
         const pubKey = scriptPubKey.asm.split(' ')[0];
