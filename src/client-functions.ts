@@ -75,10 +75,13 @@ export async function getMultiTransactionBlock(client: AsyncBitcoinRpcClient, in
 }
 
 export function addressFromOutScript (scriptPubKey: ScriptPubKey, network: Network): string {
+  if (scriptPubKey.addresses.length === 1) {
+    return scriptPubKey.addresses[0]
+  }
   try {
     return address.fromOutputScript(new Buffer(scriptPubKey.hex, "hex"), network)
   } catch (e) {
-    console.debug(`Unable to parse address from output script. Trying p2pk parse.`)
+    console.warn(`Unable to parse address from output script. Trying p2pk parse.`)
   }
 
   try {
