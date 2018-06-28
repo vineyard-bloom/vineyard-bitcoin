@@ -15,7 +15,6 @@
     "bitcoin": "^3.0.1",
     "bitcoin-core": "^2.0.0",
     "bitcoinjs-lib": "^3.3.2",
-    "rimraf": "^2.6.2",
     "vineyard-blockchain": "github:vineyard-bloom/vineyard-blockchain#1.0.0-beta"
   },
   "devDependencies": {
@@ -24,6 +23,7 @@
     "mocha": "^3.2.0",
     "source-map-support": "^0.4.14",
     "typescript": "^2.1.6",
+    "rimraf": "^2.6.2",
     "ts-node": "^6.0.0"
   }
 }
