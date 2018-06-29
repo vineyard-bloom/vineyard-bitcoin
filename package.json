@@ -18,12 +18,12 @@
     "vineyard-blockchain": "github:vineyard-bloom/vineyard-blockchain#1.0.0-beta"
   },
   "devDependencies": {
+    "@types/chai": "^4.1.4",
     "@types/mocha": "^2.2.40",
     "@types/node": "^7.0.5",
-    "mocha": "^3.2.0",
-    "source-map-support": "^0.4.14",
-    "typescript": "^2.1.6",
     "rimraf": "^2.6.2",
-    "ts-node": "^6.0.0"
+    "source-map-support": "^0.4.14",
+    "ts-node": "^6.0.0",
+    "typescript": "^2.1.6"
   }
 }
