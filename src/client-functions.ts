@@ -75,7 +75,7 @@ export async function getMultiTransactionBlock(client: AsyncBitcoinRpcClient, in
 }
 
 export function addressFromOutScript (scriptPubKey: ScriptPubKey, network: Network): string {
-  if (scriptPubKey.addresses.length === 1) {
+  if (scriptPubKey.addresses && scriptPubKey.addresses.length === 1) {
     return scriptPubKey.addresses[0]
   }
   try {
