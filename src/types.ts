@@ -83,6 +83,10 @@ export interface AsyncBitcoinRpcClient {
   getBlock(hash: string): Promise<BitcoinRPCBlock>
   getTransaction(txid: string): Promise<BasicTransaction>
   getRawTransaction(txid: string, returnDeserialized?: boolean): Promise<RawRPCSerializedTransaction | RawRPCDeserializedTransaction>
+  getBlockchainInfo(): Promise<object>
+  getNewAddress(): Promise<object>
+  generate(qty: number): Promise<object>
+  getBlockCount(): Promise<number>
 }
 
 export const Defaults = {
