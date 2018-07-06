@@ -16,7 +16,7 @@ export declare type Omit<T, K extends keyof T> = {
 export declare enum TransactionStatus {
     pending = 0,
     accepted = 1,
-    rejected = 2,
+    rejected = 2
 }
 export declare type TxId = string;
 export interface BitcoinRPCBlock {
@@ -81,6 +81,10 @@ export interface AsyncBitcoinRpcClient {
     getBlock(hash: string): Promise<BitcoinRPCBlock>;
     getTransaction(txid: string): Promise<BasicTransaction>;
     getRawTransaction(txid: string, returnDeserialized?: boolean): Promise<RawRPCSerializedTransaction | RawRPCDeserializedTransaction>;
+    getBlockchainInfo(): Promise<object>;
+    getNewAddress(): Promise<object>;
+    generate(qty: number): Promise<object>;
+    getBlockCount(): Promise<number>;
 }
 export declare const Defaults: {
     TRANSACTION_CHUNK_SIZE: number;

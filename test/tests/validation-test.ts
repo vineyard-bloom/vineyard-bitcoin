@@ -1,13 +1,51 @@
 // import { blockHashIsValid, hashBlock } from "../../src"
 import { BitcoinNode } from '../../lab/bitcoin-node'
 import { blockchain } from "vineyard-blockchain"
-import { assert } from 'chai'
+import { assert, expect } from 'chai'
+const minute = 60 * 1000
+
+
+
 
 const node = new BitcoinNode
 
 require('source-map-support').install()
 
 describe('validation-test', function () {
+  this.timeout(minute)
+  const Client = require('bitcoin-core')
+  const client = new Client({
+    'network': 'regtest',
+    'username': 'root',
+    'password': 'test',
+    'port': 18443,
+    'host': 'localhost'
+  })
+  it('should start bitcoind regtest server', async function () {
+    await node.start(client)
+    const info = await client.getBlockchainInfo()
+    await node.stop()
+    expect(info).to.have.property('blocks')
+
+  });
+
+  it('should be able to create blocks', async function (){
+    await node.start(client)
+    const countBefore = await client.getBlockCount()
+    const blocks = await client.generate(10)
+    const countAfter = await client.getBlockCount()
+    await node.stop()
+    expect(countAfter - countBefore).to.equal(10)
+
+  })
+
+  it('should be able to send a transaction', async function (){
+
+  })
+
+  it('should be able to receive a transaction', async function (){
+
+  })
 
   it('can detect a valid block', async function () {
     const block: blockchain.Block = {
@@ -49,20 +87,4 @@ describe('validation-test', function () {
       assert(true)
   })
 
-  it('should work', async function () {
-    await node.start()
-    const initClient = node.getClient()
-    const client = new initClient({
-      'username': 'root',
-      'password': 'test',
-      'port': 18443,
-      'host': 'localhost'
-    })
-    // client.getInfo().then((help: String) => console.log(help));
-    // const balance = await new initClient( {   'username': 'root',
-    //   'password': 'test' }).getBalance('*', 0)
-    node.stop()
-
-
-  });
 })

@@ -1,39 +1,71 @@
-import { BitcoinClient } from "../src/bitcoin-client"
-import { BitcoinBlockReader } from "../src/bitcoin-block-reader"
-import * as childProcess from 'child_process'
+import { AsyncBitcoinRpcClient } from "../src";
+const child_process = require('child_process')
+
+enum Status {
+  active,
+  inactive
+}
+
+function sleep(milliseconds: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, milliseconds))
+}
 
 export class BitcoinNode {
-  private client = require('bitcoin-core')
+  private stdout: any
+  private stderr: any
+  private childProcess: any
 
-  waitUntilRunning() {
-    const poll = () => {
-      childProcess.exec('bitcoin-cli getinfo', function (error: Error, stdout: any, stderr: any) {
-        if (error) {
-          // console.log('not yet', stderr)
-          setTimeout(poll, 100)
-        }
-        else {
-          console.log('Bitcoind is now running')
-        }
-      })
+
+  async waitUntilRunning(client: AsyncBitcoinRpcClient) {
+    const poll = async () => {
+      const info = await client.getBlockchainInfo()
+      if (!info) {
+        await sleep(1000)
+        await poll()
+      }
+      else {
+        console.log('bitcoind connected')
+      }
+    }
+    await sleep(3000)
+    await poll()
   }
 
-    setTimeout(poll, 3000)
+
+  // getClient() {
+  //   return this.client
+  // }
+
+  start(client: AsyncBitcoinRpcClient) {
+    console.log('Starting bitcoind')
+    this.childProcess = child_process.exec('bitcoind -regtest=1 -rpcuser=root -rpcpassword=test -txindex=1')
+
+    this.childProcess.stdout.on('data', (data: any) => {
+      console.log(`stdout: ${data}`);
+    });
+
+    this.childProcess.stderr.on('data', (data: any) => {
+      console.error(`stderr: ${data}`);
+    });
+
+    this.childProcess.on('close', (code: any) => {
+      console.log(`child process exited with code ${code}`);
+    })
+    return this.waitUntilRunning(client)
   }
 
-
-  getClient() {
-    return this.client
-  }
-
-  start() {
-    childProcess.exec('bitcoind -regtest=1 -rpcuser=root -rpcpassword=test -txindex=1 -disablewallet=1')
-    return this.waitUntilRunning()
-  }
-
-  //set timeout
   stop() {
-    childProcess.exec('bitcoin-cli -regtest -rpcuser=root -rpcpassword=test stop')
+    if (!this.childProcess)
+      return Promise.resolve()
+
+    return new Promise((resolve, reject) => {
+      this.childProcess.kill()
+      this.childProcess.on('close', (code: any) => {
+        resolve()
+      })
+    })
+
   }
+
 }
 
