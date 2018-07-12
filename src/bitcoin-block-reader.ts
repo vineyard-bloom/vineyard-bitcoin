@@ -20,7 +20,7 @@ export class BitcoinBlockReader implements blockchain.BlockReader<FullMultiTrans
     return this.client.getBlockCount()
   }
 
-  async getFullBlock(index: number): Promise<FullMultiTransactionBlock> {
+  async getBlockBundle(index: number): Promise<FullMultiTransactionBlock> {
     return getMultiTransactionBlock(this.client, index, this.network, this.transactionChunkSize)
   }
 

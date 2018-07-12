@@ -16,7 +16,7 @@ export declare type Omit<T, K extends keyof T> = {
 export declare enum TransactionStatus {
     pending = 0,
     accepted = 1,
-    rejected = 2
+    rejected = 2,
 }
 export declare type TxId = string;
 export interface BitcoinRPCBlock {

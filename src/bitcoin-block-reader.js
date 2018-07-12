@@ -32,7 +32,7 @@ class BitcoinBlockReader {
             return this.client.getBlockCount();
         });
     }
-    getFullBlock(index) {
+    getBlockBundle(index) {
         return __awaiter(this, void 0, void 0, function* () {
             return client_functions_1.getMultiTransactionBlock(this.client, index, this.network, this.transactionChunkSize);
         });

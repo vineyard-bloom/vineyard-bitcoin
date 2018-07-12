@@ -8,6 +8,6 @@ export declare class BitcoinBlockReader implements blockchain.BlockReader<FullMu
     private transactionChunkSize;
     constructor(client: AsyncBitcoinRpcClient, network: Network, transactionChunkSize?: number);
     getHeighestBlockIndex(): Promise<number>;
-    getFullBlock(index: number): Promise<FullMultiTransactionBlock>;
+    getBlockBundle(index: number): Promise<FullMultiTransactionBlock>;
     static createFromConfig(config: BitcoinConfig2): BitcoinBlockReader;
 }
