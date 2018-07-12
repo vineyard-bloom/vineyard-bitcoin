@@ -10,7 +10,8 @@ export const liveGenesisTxid = '4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77a
 
 export async function getBlockByIndex(client: AsyncBitcoinRpcClient, index: number): Promise<BitcoinRPCBlock> {
   const hash = await client.getBlockHash(index)
-  return client.getBlock(hash)
+  const block = client.getBlock(hash)
+  return block
 }
 
 export async function getMultiTransactions(client: AsyncBitcoinRpcClient, transactionIds: TxId[], blockIndex: number, network: Network, chunkSize:number): Promise<blockchain.MultiTransaction[]> {
@@ -63,13 +64,20 @@ export function bitcoinToBlockchainBlock(block: BitcoinRPCBlock): blockchain.Blo
   }
 }
 
-export async function getMultiTransactionBlock(client: AsyncBitcoinRpcClient, index: number, network: Network, transactionChunkSize: number): Promise<blockchain.FullBlock<blockchain.MultiTransaction>> {
+export async function getMultiTransactionBlock(client: AsyncBitcoinRpcClient, index: number, network: Network, transactionChunkSize: number): Promise<blockchain.BlockBundle<blockchain.Block, blockchain.Transaction>> {
   const fullBlock: BitcoinRPCBlock = await getBlockByIndex(client, index)
   let transactions = await getMultiTransactions(client, fullBlock.tx, index, network, transactionChunkSize)
-  return  {
+  const block = {
     hash: fullBlock.hash,
     index: fullBlock.height,
-    timeMined: new Date(fullBlock.time * 1000),
+    number: 0,
+    coinbase: fullBlock.chainwork,
+    timeMined: new Date(fullBlock.time),
+    parentHash: fullBlock.previousblockhash,
+    difficulty: fullBlock.difficulty
+  }
+  return  {
+    block: block,
     transactions: transactions
   }
 }
