@@ -1,2 +1,2 @@
 export * from './bitcoin-lab';
-export * from './bitcoin-server';
+export * from './bitcoin-node';
