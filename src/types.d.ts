@@ -22,7 +22,11 @@ export declare type TxId = string;
 export interface BitcoinRPCBlock {
     tx: TxId[];
     hash: string;
+    previousblockhash: string;
+    difficulty: string;
+    nonce: number;
     height: number;
+    chainwork: string;
     time: number;
 }
 export interface BasicTransaction {

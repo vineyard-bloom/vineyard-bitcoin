@@ -16,7 +16,8 @@ exports.liveGenesisTxid = '4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127
 function getBlockByIndex(client, index) {
     return __awaiter(this, void 0, void 0, function* () {
         const hash = yield client.getBlockHash(index);
-        return client.getBlock(hash);
+        const block = client.getBlock(hash);
+        return block;
     });
 }
 exports.getBlockByIndex = getBlockByIndex;
@@ -75,10 +76,17 @@ function getMultiTransactionBlock(client, index, network, transactionChunkSize) 
     return __awaiter(this, void 0, void 0, function* () {
         const fullBlock = yield getBlockByIndex(client, index);
         let transactions = yield getMultiTransactions(client, fullBlock.tx, index, network, transactionChunkSize);
-        return {
+        const block = {
             hash: fullBlock.hash,
             index: fullBlock.height,
-            timeMined: new Date(fullBlock.time * 1000),
+            number: 0,
+            coinbase: fullBlock.chainwork,
+            timeMined: new Date(fullBlock.time),
+            parentHash: fullBlock.previousblockhash,
+            difficulty: fullBlock.difficulty
+        };
+        return {
+            block: block,
             transactions: transactions
         };
     });
