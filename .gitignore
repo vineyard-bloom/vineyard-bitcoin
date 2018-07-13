@@ -6,3 +6,4 @@ test/**/*.js
 test/**/*.d.ts
 config.json
 yarn*
+.vscode
