@@ -68,7 +68,7 @@ function bitcoinToBlockchainBlock(block) {
     return {
         hash: block.hash,
         index: block.height,
-        timeMined: new Date(block.time),
+        timeMined: new Date(block.time * 1000),
     };
 }
 exports.bitcoinToBlockchainBlock = bitcoinToBlockchainBlock;
@@ -80,8 +80,8 @@ function getMultiTransactionBlock(client, index, network, transactionChunkSize) 
             hash: fullBlock.hash,
             index: fullBlock.height,
             number: 0,
-            coinbase: fullBlock.chainwork,
-            timeMined: new Date(fullBlock.time),
+            coinbase: transactions[0].inputs[0].coinbase,
+            timeMined: new Date(fullBlock.time * 1000),
             parentHash: fullBlock.previousblockhash,
             difficulty: fullBlock.difficulty
         };
