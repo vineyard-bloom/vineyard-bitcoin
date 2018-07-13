@@ -60,7 +60,7 @@ export function bitcoinToBlockchainBlock(block: BitcoinRPCBlock): blockchain.Blo
   return {
     hash: block.hash,
     index: block.height,
-    timeMined: new Date(block.time),
+    timeMined: new Date(block.time * 1000),
   }
 }
 
@@ -71,8 +71,8 @@ export async function getMultiTransactionBlock(client: AsyncBitcoinRpcClient, in
     hash: fullBlock.hash,
     index: fullBlock.height,
     number: 0,
-    coinbase: fullBlock.chainwork,
-    timeMined: new Date(fullBlock.time),
+    coinbase: transactions[0].inputs[0].coinbase!,
+    timeMined: new Date(fullBlock.time * 1000),
     parentHash: fullBlock.previousblockhash,
     difficulty: fullBlock.difficulty
   }
