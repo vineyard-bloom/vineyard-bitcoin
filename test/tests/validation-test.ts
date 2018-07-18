@@ -2,6 +2,7 @@
 import { BitcoinNode } from '../../lab/bitcoin-node'
 import { blockchain } from "vineyard-blockchain"
 import { assert, expect } from 'chai'
+import {isNumber} from "util";
 const minute = 60 * 1000
 
 
@@ -28,6 +29,7 @@ describe('validation-test', function () {
     expect(info).to.have.property('blocks')
 
   });
+
 
   it('should be able to create blocks', async function (){
     await node.start(client)
