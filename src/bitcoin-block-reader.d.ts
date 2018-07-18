@@ -9,6 +9,6 @@ export declare class BitcoinBlockReader implements blockchain.BlockReader<blockc
     constructor(client: AsyncBitcoinRpcClient, network: Network, transactionChunkSize?: number);
     getHeighestBlockIndex(): Promise<number>;
     getBlockBundle(index: number): Promise<blockchain.BlockBundle<blockchain.Block, blockchain.Transaction>>;
-    private incrementDatadogCounters();
+    private incrementDatadogCounters;
     static createFromConfig(config: BitcoinConfig2): BitcoinBlockReader;
 }
