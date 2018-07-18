@@ -2,6 +2,8 @@ import { blockchain } from 'vineyard-blockchain'
 import { AsyncBitcoinRpcClient, BitcoinConfig2, Defaults } from "./types";
 import { getMultiTransactionBlock } from "./client-functions"
 import { Network, networks } from "bitcoinjs-lib"
+import { StatsD } from "hot-shots" 
+const dogstatsd = new StatsD();
 
 const Client = require('bitcoin-core')
 export type FullMultiTransactionBlock = blockchain.BlockBundle<blockchain.Block, blockchain.Transaction>
@@ -17,11 +19,19 @@ export class BitcoinBlockReader implements blockchain.BlockReader<blockchain.Blo
   }
 
   async getHeighestBlockIndex(): Promise<number> {
+    dogstatsd.increment('bitcoin.rpc.getblockcount')
     return this.client.getBlockCount()
   }
 
   async getBlockBundle(index: number): Promise<blockchain.BlockBundle<blockchain.Block, blockchain.Transaction>> {
+    this.incrementDatadogCounters()
     return getMultiTransactionBlock(this.client, index, this.network, this.transactionChunkSize)
+  }
+
+  private incrementDatadogCounters(): void {
+    dogstatsd.increment('bitcoin.rpc.getrawtransaction')
+    dogstatsd.increment('bitcoin.rpc.getblockhash')
+    dogstatsd.increment('bitcion.rpc.getblock')
   }
 
   static createFromConfig(config: BitcoinConfig2): BitcoinBlockReader {
