@@ -50,52 +50,54 @@ describe('Bitcoin-core type sanity checking', function() {
     })
   })
 
-  // it('returns a multitx in BitcoinRPCBlock format', async function() {
-  //   const blockIndex = 1
-  //   const multi = await client.getFullBlock(blockIndex)
-  //
-  //   multi.transactions.forEach( tx => {
-  //     tx.outputs.forEach( out => {
-  //       assert.equal(out.scriptPubKey.addresses[0], out.address)
-  //     } )
-  //   } )
-  // })
+  it('returns a multitx in BitcoinRPCBlock format', async function() {
+    await node.start(client)
+    const blockIndex = 1
+    const multi = await client.getFullBlock(blockIndex)
+    node.stop()
+    multi.transactions.forEach( tx => {
+      tx.outputs.forEach( out => {
+        assert.equal(out.scriptPubKey.addresses[0], out.address)
+      } )
+    } )
+  })
 
-  // it('does stuff', async function() {
-  //   const vineyardBitcoinClient = new client(testnetConfig)
-  //   try {
-  //     await vineyardBitcoinClient.getFullBlock(1293548)
-  //   } catch (e) {
-  //     console.error(e)
-  //     const curiousIfTheAboveCrashes = false
-  //     assert(curiousIfTheAboveCrashes)
-  //   }
-  // })
-  //
-  // // TODO: automate tx creation so txid isn't hardcoded
-  // xit('returns a serialized transaction', async function() {
-  //   const rawTx = await client.getRawTransaction(
-  //     '87f61ea805ec8adb4643128ac26c047800a2d42b3f29d0cd5d75a9c54f730518'
-  //   ) as RawRPCSerializedTransaction
-  //   assert(isString(rawTx))
-  // })
-  //
-  // // TODO: automate tx creation so txid isn't hardcoded
-  // xit('returns a deserialized transaction', async function() {
-  //   const rawTx = await client.getRawTransaction(
-  //     'a0085a431fd17a255f864eec55e8ffd49c05d95bbf367a3a3deece8b0ae9c8d3', true
-  //   ) as RawRPCDeserializedTransaction
-  //   assert(rawTx.txid)
-  //   assert(rawTx.blocktime)
-  //   rawTx.vout.forEach(  out => {
-  //     assert(out.scriptPubKey)
-  //     assert(isNumber(out.value))
-  //     // assert(out.n)
-  //   })
-  //
-  //   rawTx.vin.forEach(input => {
-  //     assert(input.vout || input.coinbase)
-  //     assert(input.txid || input.coinbase)
-  //   })
-  // })
+  it('does stuff', async function() {
+    try {
+      node.start(client)
+      await client.getFullBlock(1293548)
+      node.stop()
+    } catch (e) {
+      console.error(e)
+      const curiousIfTheAboveCrashes = false
+      assert(curiousIfTheAboveCrashes)
+    }
+  })
+
+  // TODO: automate tx creation so txid isn't hardcoded
+  xit('returns a serialized transaction', async function() {
+    const rawTx = await client.getRawTransaction(
+      '87f61ea805ec8adb4643128ac26c047800a2d42b3f29d0cd5d75a9c54f730518'
+    ) as RawRPCSerializedTransaction
+    assert(isString(rawTx))
+  })
+
+  // TODO: automate tx creation so txid isn't hardcoded
+  xit('returns a deserialized transaction', async function() {
+    const rawTx = await client.getRawTransaction(
+      'a0085a431fd17a255f864eec55e8ffd49c05d95bbf367a3a3deece8b0ae9c8d3', true
+    ) as RawRPCDeserializedTransaction
+    assert(rawTx.txid)
+    assert(rawTx.blocktime)
+    rawTx.vout.forEach(  out => {
+      assert(out.scriptPubKey)
+      assert(isNumber(out.value))
+      // assert(out.n)
+    })
+
+    rawTx.vin.forEach(input => {
+      assert(input.vout || input.coinbase)
+      assert(input.txid || input.coinbase)
+    })
+  })
 })
