@@ -34,6 +34,7 @@ export class BitcoinBlockReader implements blockchain.BlockReader<blockchain.Blo
     dogstatsd.increment('bitcion.rpc.getblock')
   }
 
+.
   static createFromConfig(config: BitcoinConfig2): BitcoinBlockReader {
     const { network, transactionChunkSize, ...blockReaderConfig } = config
     return new BitcoinBlockReader(new Client(blockReaderConfig), network || networks.bitcoin, transactionChunkSize)
