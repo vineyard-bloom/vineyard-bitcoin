@@ -5,5 +5,5 @@ export declare class BitcoinNode {
     private childProcess;
     waitUntilRunning(client: AsyncBitcoinRpcClient): Promise<void>;
     start(client: AsyncBitcoinRpcClient): Promise<void>;
-    stop(): Promise<{}> | Promise<void>;
+    stop(): Promise<void> | Promise<{}>;
 }
