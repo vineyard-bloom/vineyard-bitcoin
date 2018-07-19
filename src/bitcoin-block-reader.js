@@ -20,6 +20,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const types_1 = require("./types");
 const client_functions_1 = require("./client-functions");
 const bitcoinjs_lib_1 = require("bitcoinjs-lib");
+const hot_shots_1 = require("hot-shots");
+const dogstatsd = new hot_shots_1.StatsD();
 const Client = require('bitcoin-core');
 class BitcoinBlockReader {
     constructor(client, network, transactionChunkSize = types_1.Defaults.TRANSACTION_CHUNK_SIZE) {
@@ -29,13 +31,20 @@ class BitcoinBlockReader {
     }
     getHeighestBlockIndex() {
         return __awaiter(this, void 0, void 0, function* () {
+            dogstatsd.increment('bitcoin.rpc.getblockcount');
             return this.client.getBlockCount();
         });
     }
     getBlockBundle(index) {
         return __awaiter(this, void 0, void 0, function* () {
+            this.incrementDatadogCounters();
             return client_functions_1.getMultiTransactionBlock(this.client, index, this.network, this.transactionChunkSize);
         });
+    }
+    incrementDatadogCounters() {
+        dogstatsd.increment('bitcoin.rpc.getrawtransaction');
+        dogstatsd.increment('bitcoin.rpc.getblockhash');
+        dogstatsd.increment('bitcion.rpc.getblock');
     }
     static createFromConfig(config) {
         const { network, transactionChunkSize } = config, blockReaderConfig = __rest(config, ["network", "transactionChunkSize"]);
