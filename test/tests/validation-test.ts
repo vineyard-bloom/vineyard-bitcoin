@@ -2,6 +2,7 @@
 import { BitcoinNode } from '../../lab/bitcoin-node'
 import { blockchain } from "vineyard-blockchain"
 import { assert, expect } from 'chai'
+import {isNumber} from "util";
 const minute = 60 * 1000
 
 
@@ -29,6 +30,7 @@ describe('validation-test', function () {
 
   });
 
+
   it('should be able to create blocks', async function (){
     await node.start(client)
     const countBefore = await client.getBlockCount()
@@ -39,14 +41,7 @@ describe('validation-test', function () {
 
   })
 
-  it('should be able to send a transaction', async function (){
-
-  })
-
-  it('should be able to receive a transaction', async function (){
-
-  })
-
+  //
   // it('can detect a valid block', async function () {
   //   const block: blockchain.Block = {
   //     hash: '00000000000356f1c07659b8df88c9cd237359488ae50fc15a05bbb80d58f9c0',
@@ -81,10 +76,10 @@ describe('validation-test', function () {
   //     "previousblockhash": "000000000000c401aee9a396a4a08fdc91c05adf4a9ccc809fbc06464a831b58",
   //     "nextblockhash": "000000000000b4ea234681d49ab5abad53fefa3286d6d15792c6bc52575a31e2"
   //   }
-
-    // const hash = hashBlock(detailedBlock, txHashes)
-    // assert.equal(hash, block.hash)
-      assert(true)
+  //
+  //   const hash = hashBlock(detailedBlock, txHashes)
+  //   assert.equal(hash, block.hash)
+  //     assert(true)
   // })
 
 })

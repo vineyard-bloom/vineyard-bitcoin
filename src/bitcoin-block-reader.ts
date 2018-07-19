@@ -6,8 +6,8 @@ import { StatsD } from "hot-shots"
 const dogstatsd = new StatsD();
 
 const Client = require('bitcoin-core')
-export type FullMultiTransactionBlock = blockchain.BlockBundle<blockchain.Block, blockchain.Transaction>
-export class BitcoinBlockReader implements blockchain.BlockReader<blockchain.Block, blockchain.Transaction> {
+export type FullMultiTransactionBlock = blockchain.BlockBundle<blockchain.Block, blockchain.MultiTransaction>
+export class BitcoinBlockReader implements blockchain.BlockReader<blockchain.Block, blockchain.MultiTransaction> {
   private client: AsyncBitcoinRpcClient
   private network: Network
   private transactionChunkSize: number
@@ -34,6 +34,7 @@ export class BitcoinBlockReader implements blockchain.BlockReader<blockchain.Blo
     dogstatsd.increment('bitcion.rpc.getblock')
   }
 
+.
   static createFromConfig(config: BitcoinConfig2): BitcoinBlockReader {
     const { network, transactionChunkSize, ...blockReaderConfig } = config
     return new BitcoinBlockReader(new Client(blockReaderConfig), network || networks.bitcoin, transactionChunkSize)
