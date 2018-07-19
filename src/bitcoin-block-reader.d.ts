@@ -1,8 +1,8 @@
 import { blockchain } from 'vineyard-blockchain';
 import { AsyncBitcoinRpcClient, BitcoinConfig2 } from "./types";
 import { Network } from "bitcoinjs-lib";
-export declare type FullMultiTransactionBlock = blockchain.BlockBundle<blockchain.Block, blockchain.Transaction>;
-export declare class BitcoinBlockReader implements blockchain.BlockReader<blockchain.Block, blockchain.Transaction> {
+export declare type FullMultiTransactionBlock = blockchain.BlockBundle<blockchain.Block, blockchain.MultiTransaction>;
+export declare class BitcoinBlockReader implements blockchain.BlockReader<blockchain.Block, blockchain.MultiTransaction> {
     private client;
     private network;
     private transactionChunkSize;
