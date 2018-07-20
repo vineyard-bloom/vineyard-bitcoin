@@ -3,6 +3,7 @@ import {
   RawRPCDeserializedTransaction,
   RawRPCSerializedTransaction
 } from "../../src/types"
+import {testConfig} from "../config/bitcoin-core-testing-configs"
 import * as assert from "assert"
 import {isNumber, isString, log} from "util"
 import { BitcoinBlockReader } from "../../src/bitcoin-block-reader"

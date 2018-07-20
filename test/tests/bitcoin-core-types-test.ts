@@ -12,14 +12,6 @@ import {BitcoinNode} from "../../lab/bitcoin-node";
 const minute = 60 * 1000
 
 const Client = require('bitcoin-core')
-const readerConfig = {
-  host: "localhost",
-  username: "root",
-  password: "test",
-  port: 18443,
-  network: networks.testnet
-}
-const blockReader = BitcoinBlockReader.createFromConfig(readerConfig)
 
 describe('Bitcoin-core type sanity checking', function() {
   this.timeout(minute)
