@@ -5,6 +5,6 @@ npm-*
 test/**/*.js
 test/**/*.d.ts
 config.json
-config.ts
+./test/config/config.ts
 yarn*
 .vscodeg
