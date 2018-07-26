@@ -5,5 +5,5 @@ export declare class BitcoinClient {
     getBlock(hash: string): Promise<BitcoinRPCBlock>;
     getBlockHash(index: number): Promise<string>;
     getRawTransaction(txid: string): Promise<RawRPCSerializedTransaction>;
-    private rpcCall;
+    private _rpcCall;
 }
