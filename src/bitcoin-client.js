@@ -8,43 +8,46 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const request = require("request-promise");
+const axios_1 = require("axios");
 class BitcoinClient {
     constructor(config) {
         this.config = config;
     }
     getBlock(hash) {
-        return this.rpcCall('getblock', hash);
+        return this._rpcCall('getblock', hash);
     }
     getBlockHash(index) {
-        return this.rpcCall('getblockhash', index);
+        return this._rpcCall('getblockhash', index);
     }
     getRawTransaction(txid) {
-        return this.rpcCall('getrawtransaction', txid, true);
+        return this._rpcCall('getrawtransaction', txid, true);
     }
-    rpcCall(methodName, ...args) {
+    _rpcCall(methodName, ...args) {
         return __awaiter(this, void 0, void 0, function* () {
-            const auth = {
+            const authData = {
                 'user': this.config.user,
                 'pass': this.config.pass
             };
-            const body = {
+            const auth = 'Basic ' + new Buffer(`${authData.user}:${authData.pass}`).toString('base64');
+            const data = {
                 'method': methodName,
                 'params': [...args],
                 'id': 'jsonrpc'
             };
-            const options = {
-                method: 'POST',
-                uri: `http://${this.config.host}:${this.config.port}`,
-                auth: auth,
-                json: true,
-                body: body
-            };
-            const response = yield request(options);
-            if (response.error !== null) {
-                throw new Error(response.error);
-            }
-            return response.result;
+            const url = `http://${this.config.host}:${this.config.port}`;
+            const bitcoinAxios = axios_1.default.create({
+                baseURL: url,
+                headers: {
+                    'Authorization': auth,
+                    'Content-Type': 'application/json'
+                }
+            });
+            const response = yield bitcoinAxios.post(url, data)
+                .catch(err => {
+                console.error('Error in rpc client: ' + err);
+                throw new Error(err);
+            });
+            return response.data.result;
         });
     }
 }

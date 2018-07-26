@@ -11,15 +11,16 @@
   "license": "MIT",
   "dependencies": {
     "@types/bitcoinjs-lib": "^3.3.3",
+    "axios": "^0.18.0",
     "bignumber.js": "^4.0.0",
     "bitcoin": "^3.0.1",
     "bitcoin-core": "^2.0.0",
     "bitcoinjs-lib": "^3.3.2",
     "hot-shots": "^5.8.0",
-    "request-promise": "^4.2.2",
     "vineyard-blockchain": "github:vineyard-bloom/vineyard-blockchain#1.0.0-beta"
   },
   "devDependencies": {
+    "@types/axios": "^0.14.0",
     "@types/chai": "^4.1.4",
     "@types/mocha": "^2.2.40",
     "@types/node": "^7.0.5",

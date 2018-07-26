@@ -1,5 +1,5 @@
 import { BitcoinConfig, BitcoinRPCBlock, RawRPCSerializedTransaction } from './types'
-import * as request from 'request-promise'
+import axios from 'axios'
 
 export class BitcoinClient {
   readonly config: BitcoinConfig
@@ -9,37 +9,40 @@ export class BitcoinClient {
   }
 
   getBlock (hash: string): Promise<BitcoinRPCBlock> {
-    return this.rpcCall('getblock', hash)
+    return this._rpcCall('getblock', hash)
   }
 
   getBlockHash (index: number): Promise<string> {
-    return this.rpcCall('getblockhash', index)
+    return this._rpcCall('getblockhash', index)
   }
   getRawTransaction (txid: string): Promise<RawRPCSerializedTransaction> {
-    return this.rpcCall('getrawtransaction', txid, true)    
+    return this._rpcCall('getrawtransaction', txid, true)    
   }
 
-  private async rpcCall(methodName: string, ...args): Promise<any> {
-    const auth = {
+  private async _rpcCall(methodName: string, ...args): Promise<any> {
+    const authData = {
       'user': this.config.user,
       'pass': this.config.pass
     }
-    const body = {
+    const auth = 'Basic ' + new Buffer(`${authData.user}:${authData.pass}`).toString('base64')
+    const data = {
       'method': methodName,
       'params': [...args],
       'id': 'jsonrpc'
     }
-    const options = {
-      method: 'POST',
-      uri: `http://${this.config.host}:${this.config.port}`,
-      auth: auth,
-      json: true,
-      body: body
-    }
-    const response = await request(options)
-    if (response.error !== null) {
-      throw new Error(response.error)
-    }
-    return response.result
+    const url = `http://${this.config.host}:${this.config.port}`
+    const bitcoinAxios = axios.create({
+      baseURL: url,
+      headers: {
+        'Authorization': auth,
+        'Content-Type': 'application/json'
+      }
+    })
+    const response = await bitcoinAxios.post(url, data)
+      .catch(err => {
+        console.error('Error in rpc client: ' + err)
+        throw new Error(err)
+    })
+    return response.data.result
   }
 }
